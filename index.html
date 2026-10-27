@@ -1124,6 +1124,38 @@
   }
   .mascot-bubble::after { content: ""; position: absolute; left: var(--ax, 50%); bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: #fff; }
   .mascot-bubble.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* 白日梦:头顶冒出由小到大的思考泡泡,连到一朵飘着的云,云里是两个可点的文字 */
+  .mascot-dream { position: absolute; left: 0; bottom: 0; width: 64px; height: 0; pointer-events: none; z-index: 4; }
+  .dream-dot {
+    position: absolute; border-radius: 50%; background: #f5f3ff; box-shadow: 0 3px 10px rgba(0,0,0,.3);
+    opacity: 0; transform: scale(0); transition: opacity .15s, transform .25s cubic-bezier(.3,1.6,.5,1);
+  }
+  .dream-dot:nth-child(1) { left: 30px; bottom: 112px; width: 7px; height: 7px; }
+  .dream-dot:nth-child(2) { left: 22px; bottom: 124px; width: 11px; height: 11px; }
+  .dream-dot:nth-child(3) { left: 10px; bottom: 140px; width: 16px; height: 16px; }
+  .dream-cloud {
+    position: absolute; left: var(--mx, 32px); bottom: 142px; width: 210px; height: 122px;
+    opacity: 0; transform: translateX(-50%) scale(.3); transform-origin: 50% 100%; transition: opacity .2s, transform .38s cubic-bezier(.3,1.5,.5,1);
+  }
+  .dream-float { position: absolute; inset: 0; }
+  .dream-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 8px 22px rgba(0,0,0,.35)); }
+  .dream-body { position: absolute; left: 26px; right: 26px; top: 38px; bottom: 16px; display: flex; align-items: center; justify-content: center; }
+  .dream-scene {
+    padding: 8px 12px; border-radius: 12px; color: #4c1d95; font: 700 15px/1 system-ui, sans-serif; letter-spacing: 1px;
+    text-decoration: none; cursor: pointer; white-space: nowrap; transition: color .2s, background .2s, transform .2s;
+  }
+  .dream-scene + .dream-scene { margin-left: 13px; position: relative; }
+  .dream-scene + .dream-scene::before { content: ""; position: absolute; left: -7px; top: 50%; width: 1px; height: 14px; margin-top: -7px; background: rgba(76,29,149,.2); }
+  .dream-scene:hover { color: #7c3aed; background: rgba(124,58,237,.1); transform: translateY(-1px); }
+  .mascot-dream.show { pointer-events: auto; }
+  .mascot-dream.show .dream-dot { opacity: 1; transform: none; }
+  .mascot-dream.show .dream-dot:nth-child(2) { transition-delay: .08s; }
+  .mascot-dream.show .dream-dot:nth-child(3) { transition-delay: .16s; }
+  .mascot-dream.show .dream-cloud { opacity: 1; transform: translateX(-50%) scale(1); transition-delay: .22s; }
+  .mascot-dream.show .dream-float { animation: dreamFloat 3.2s ease-in-out infinite; }
+  .mascot.dreaming .mascot-head { animation: mDream 3.2s ease-in-out infinite; }
+  @keyframes dreamFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes mDream { 0%, 100% { transform: translateX(-50%) rotate(-5deg) translateY(-1px); } 50% { transform: translateX(-50%) rotate(4deg); } }
   .mascot-x {
     position: absolute; right: -4px; top: 0; width: 20px; height: 20px; border-radius: 50%; border: 0; padding: 0;
     background: rgba(15,23,42,.85); color: #cbd5e1; font-size: 13px; line-height: 20px; cursor: pointer; opacity: 0; transition: opacity .2s; z-index: 3;
@@ -1916,6 +1948,21 @@
   <div class="mascot-stage" id="mascotStage" hidden>
     <div class="mascot" id="mascot" title="点我一下 · 双击设置城市">
       <div class="mascot-bubble" id="mascotBubble"></div>
+      <div class="mascot-dream" id="mascotMenu">
+        <i class="dream-dot"></i><i class="dream-dot"></i><i class="dream-dot"></i>
+        <div class="dream-cloud">
+          <div class="dream-float">
+            <svg class="dream-shape" viewBox="0 0 280 168" preserveAspectRatio="none" aria-hidden="true">
+              <defs><linearGradient id="dreamFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ede9fe"/></linearGradient></defs>
+              <path d="M44 150A30 30 0 0 1 30 96A36 36 0 0 1 78 48A44 44 0 0 1 160 36A42 42 0 0 1 232 70A36 36 0 0 1 244 140A34 34 0 0 1 190 156A46 46 0 0 1 110 158A40 40 0 0 1 44 150Z" fill="url(#dreamFill)" stroke="#fff" stroke-width="2"/>
+            </svg>
+            <div class="dream-body">
+              <a class="dream-scene" data-k="game" target="_blank" rel="noopener">玩游戏</a>
+              <a class="dream-scene" data-k="money" target="_blank" rel="noopener">搞钱吧</a>
+            </div>
+          </div>
+        </div>
+      </div>
       <button type="button" class="mascot-x" id="mascotX" title="先藏起来">×</button>
       <div class="mascot-zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
       <svg class="mascot-side" id="mascotSide" viewBox="0 0 160 70" aria-hidden="true">
@@ -7685,7 +7732,8 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
 (() => {
   const stage = gid('mascotStage'), el = gid('mascot'), fig = gid('mascotFig'), bubble = gid('mascotBubble'), peek = gid('mascotPeek');
   const KEY = 'xiaobai-mascot-off', CITY = 'xiaobai-mascot-city', still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const WORDS = ['你好呀!', '今天也要加油哦~', 'PDF 交给我吧!', '要不要做张预览图?', '嘿嘿,被你发现了', '累了就歇一会儿', '我在巡逻呢', '点我干嘛~'];
+  // 点小家伙弹出的两个气泡要跳转的地址;留空时点了只会提示「马上开放」
+  const MASCOT_LINKS = { game: 'https://xiaobai-kart.github.io/', money: 'https://xiaobai-shouxi.github.io/' };
   const pick = a => a[Math.floor(Math.random() * a.length)];
   gid('mascotHead').src = MASCOT_HEAD;
   peek.style.backgroundImage = `url(${MASCOT_HEAD})`;
@@ -7782,7 +7830,32 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
     bubble.style.setProperty('--bx', `${left - r.left + bw / 2}px`);
     bubble.style.setProperty('--ax', `${clamp(cx - left, 14, bw - 14)}px`);
   }
+  const menu = gid('mascotMenu');
+  let menuT = 0;
+  function menuShow(on, ms = 6000) {
+    clearTimeout(menuT);
+    menu.classList.toggle('show', on);
+    el.classList.toggle('dreaming', on);
+    if (!on) return;
+    bubble.classList.remove('show');
+    const r = el.getBoundingClientRect(), mw = cloud.offsetWidth, cx = r.left + r.width / 2;
+    menu.style.setProperty('--mx', `${clamp(cx - mw / 2, 8, innerWidth - 8 - mw) - r.left + mw / 2}px`);
+    menuT = setTimeout(() => menuShow(false), ms);
+  }
+  const cloud = menu.querySelector('.dream-cloud');
+  menu.querySelectorAll('.dream-scene').forEach(a => {
+    const url = MASCOT_LINKS[a.dataset.k];
+    if (url) a.href = url;
+    a.addEventListener('click', e => {
+      menuShow(false);
+      if (!url) { e.preventDefault(); say('这里马上就开放啦,敬请期待~'); }
+    });
+  });
+  cloud.addEventListener('pointerenter', () => clearTimeout(menuT));
+  cloud.addEventListener('pointerleave', () => { if (menu.classList.contains('show')) menuShow(true, 3000); });
+  addEventListener('pointerdown', e => { if (menu.classList.contains('show') && !el.contains(e.target)) menuShow(false); }, true);
   function say(text, ms = 2200) {
+    if (menu.classList.contains('show')) menuShow(false);
     bubble.textContent = text;
     bubble.classList.add('show');
     place();
@@ -7849,7 +7922,6 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
   const wxLine = w => `${w.name ? w.name + ' ' : ''}${w.icon} ${w.desc} ${w.temp}°C(${w.lo}~${w.hi}°C)`;
   const wxTip = (w, h) => w.code >= 51 ? '出门记得带伞☂️' : w.temp >= 33 ? '好热,多喝水哦' : w.temp <= 5 ? '好冷,多穿点' :
     h === 12 ? '该吃午饭啦🍚' : h === 18 ? '下班时间到~' : h >= 22 || h < 6 ? '早点休息哦🌙' : '';
-  const hhmm = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   const clock = h => String.fromCodePoint(0x1F54F + (h % 12 || 12));
 
   async function chime(h) {
@@ -7887,15 +7959,13 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
   }, 5e3);
 
   el.addEventListener('click', async e => {
-    if (e.target.closest('.mascot-x')) return;
+    if (e.target.closest('.mascot-x, .mascot-dream')) return;
     if (m.state === 'sleep') { wake(); hop(); hold(650); return say('唔…被你吵醒了'); }
+    if (menu.classList.contains('show')) return menuShow(false);
     hop();
     setState('wave', 1600);
-    hold(650);
-    if (Math.random() < .3) {
-      try { const w = await weather(); return say(`现在 ${hhmm(new Date())}\n${wxLine(w)}`, 4500); } catch { /* 没网就说普通的话 */ }
-    }
-    say(pick(WORDS));
+    hold(6000);
+    menuShow(true);
   });
   el.addEventListener('dblclick', async e => {
     if (e.target.closest('.mascot-x')) return;
