@@ -1392,8 +1392,20 @@
     </div>
     <label>选择 PDF</label>
     <input type="file" id="toimgFile" accept="application/pdf" />
-    <label>页码范围(可选,空则全部;如 1-3,5)</label>
-    <input type="text" id="toimgRange" placeholder="全部页" />
+    <label>出图方式</label>
+    <div class="seg" id="toimgSeg" data-v="each" style="grid-template-columns: repeat(3, 1fr);">
+      <button type="button" class="seg-btn active" data-v="each">每页一张</button>
+      <button type="button" class="seg-btn" data-v="pick">提取拼接</button>
+      <button type="button" class="seg-btn" data-v="long">整份长图</button>
+    </div>
+    <div class="toimg-opt" data-for="each">
+      <label>页码范围(可选,空则全部;如 1-3, 5)</label>
+      <input type="text" id="toimgRange" placeholder="全部页" />
+    </div>
+    <div class="toimg-opt" data-for="pick" hidden>
+      <label>要提取的页码(按填写顺序拼成一张长图)</label>
+      <input type="text" id="toimgPick" placeholder="例如 1-3, 6, 9" />
+    </div>
     <label>输出格式</label>
     <div class="seg" id="toimgFormat" data-v="png">
       <button type="button" class="seg-btn active" data-v="png">PNG<small>无损清晰</small></button>
@@ -1405,7 +1417,7 @@
       <button type="button" class="seg-btn active" data-v="2">高清<small>2x · 144 DPI</small></button>
       <button type="button" class="seg-btn" data-v="3">超清<small>3x · 216 DPI</small></button>
     </div>
-    <div class="hint">每页渲染成一张图片。多页会打包成 ZIP;单页直接下载图片。JPG 会铺白底,避免透明区域发黑。</div>
+    <div class="hint" id="toimgHint"></div>
     <button class="run" onclick="doToImages()">转换并预览</button>
     <div class="status" id="toimgStatus"></div>
   </div>
@@ -2149,11 +2161,22 @@ let txtConverted = false;
     if (txtConverted) doTxtToHtml();
   });
 });
-['toimgFormat', 'toimgScale'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+const TOIMG_HINTS = {
+  each: '每页渲染成一张图片。多张会打包成 ZIP,只有一张时直接下载。',
+  pick: '把挑出来的几页按填写顺序竖向拼成一张长图,适合发朋友圈或聊天。',
+  long: '整份 PDF 从上到下拼成一张长图。页数很多时会自动降低清晰度,避免图片过大打不开。',
+};
+function toimgSetMode(m) {
+  document.querySelectorAll('#toimg .toimg-opt').forEach(o => { o.hidden = o.dataset.for !== m; });
+  document.getElementById('toimgHint').textContent = TOIMG_HINTS[m];
+}
+toimgSetMode('each');
+['toimgSeg', 'toimgFormat', 'toimgScale'].forEach(id => document.getElementById(id).addEventListener('click', e => {
   const b = e.target.closest('.seg-btn');
   if (!b) return;
   e.currentTarget.dataset.v = b.dataset.v;
   e.currentTarget.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('active', x === b));
+  if (id === 'toimgSeg') toimgSetMode(b.dataset.v);
 }));
 let txtSource = 'file';
 document.querySelectorAll('#txtSrcSeg .seg-btn').forEach(b => {
@@ -3117,36 +3140,64 @@ async function doToImages() {
     await need('pdfjs');
     const bytes = await readBytes(file);
     const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
-    const rangeStr = document.getElementById('toimgRange').value.trim();
-    const pages = rangeStr
-      ? parseRange(rangeStr, pdf.numPages)
-      : [...Array(pdf.numPages).keys()];
-    if (!pages.length) {
+    const mode = document.getElementById('toimgSeg').dataset.v, total = pdf.numPages;
+    const segs = id => document.getElementById(id).value.split(/[,，;；]/).map(s => parseRange(s, total)).filter(g => g.length);
+    let groups;
+    if (mode === 'pick') {
+      const seen = new Set(), pages = segs('toimgPick').flat().filter(i => !seen.has(i) && seen.add(i));
+      groups = pages.length ? [pages] : [];
+    } else if (mode === 'long') groups = [[...Array(total).keys()]];
+    else {
+      const rangeStr = document.getElementById('toimgRange').value.trim();
+      groups = (rangeStr ? parseRange(rangeStr, total) : [...Array(total).keys()]).map(i => [i]);
+    }
+    if (!groups.length) {
       await pdf.destroy();
-      return setStatus('toimgStatus', '页码范围无效,请检查输入(如 1-3)。', false);
+      return setStatus('toimgStatus', '页码无效,请检查输入(如 1-3, 6)。', false);
     }
 
     const seq = resetPreview('转图片结果预览');
     const body = document.getElementById('previewBody');
     const items = [];
+    let shrunk = false;
     toimgUrls.forEach(u => URL.revokeObjectURL(u));
     toimgUrls = [];
-    // 每页渲染完立刻编码成图片、复用同一块画布:高清大图几十上百页时不会把内存撑爆
+    // 每张图渲染完立刻编码、复用同一块画布:高清大图几十上百页时不会把内存撑爆
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    const tmp = document.createElement('canvas'), tmpCtx = tmp.getContext('2d');
+    const pageCount = groups.reduce((s, g) => s + g.length, 0);
+    let done = 0;
 
-    for (let n = 0; n < pages.length; n++) {
+    for (const g of groups) {
       if (seq !== previewSeq) { await pdf.destroy(); return; }
-      setStatus('toimgStatus', `渲染中 ${n + 1}/${pages.length}…`, true);
-      const pageNum = pages[n] + 1;
-      const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale });
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+      const pages = [];
+      for (const i of g) pages.push(await pdf.getPage(i + 1));
+      const base1 = pages.map(p => p.getViewport({ scale: 1 }));
+      const W1 = Math.max(...base1.map(v => v.width)), H1 = base1.reduce((s, v) => s + v.height, 0);
+      // 浏览器画布有上限(边长约 32000、面积约 1.2 亿像素,手机更小),长图超了就按比例降低清晰度
+      const s = Math.min(scale, 32000 / H1, Math.sqrt(1.2e8 / (W1 * H1)));
+      if (s < scale - 1e-6) shrunk = true;
+      canvas.width = Math.round(W1 * s);
+      canvas.height = Math.round(H1 * s);
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      page.cleanup();
+      let y = 0;
+      for (let k = 0; k < pages.length; k++) {
+        setStatus('toimgStatus', `渲染中 ${++done}/${pageCount}…`, true);
+        const viewport = pages[k].getViewport({ scale: s });
+        const x = Math.round((canvas.width - viewport.width) / 2);
+        if (pages.length === 1) await pages[k].render({ canvasContext: ctx, viewport }).promise;
+        else {
+          // pdf.js 每次渲染都会先把整块画布涂白,多页拼接只能逐页画到临时画布再贴上去
+          tmp.width = viewport.width;
+          tmp.height = viewport.height;
+          await pages[k].render({ canvasContext: tmpCtx, viewport }).promise;
+          ctx.drawImage(tmp, x, Math.round(y));
+        }
+        pages[k].cleanup();
+        y += viewport.height;
+      }
       const blob = await canvasToBlob(canvas, mime, quality);
       const url = URL.createObjectURL(blob);
       toimgUrls.push(url);
@@ -3155,29 +3206,30 @@ async function doToImages() {
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.decoding = 'async';
-      img.width = viewport.width / scale * 0.7;
-      img.height = viewport.height / scale * 0.7;
+      img.width = W1 * 0.7;
+      img.height = H1 * 0.7;
       img.src = url;
       const num = document.createElement('div');
       num.className = 'pv-num';
-      num.textContent = '第 ' + pageNum + ' 页';
+      num.textContent = g.length === 1 ? `第 ${g[0] + 1} 页` : `第 ${pagesText(g).replace(/, /g, '、')} 页 · 共 ${g.length} 页`;
       item.append(img, num);
       body.appendChild(item);
-      items.push({ blob, pageNum });
+      const label = mode === 'long' ? 'long' : g.length === 1 ? `p${String(g[0] + 1).padStart(3, '0')}` : pagesLabel(g);
+      items.push({ blob, label });
     }
-    canvas.width = canvas.height = 0;
+    canvas.width = canvas.height = tmp.width = tmp.height = 0;
     await pdf.destroy();
     if (seq !== previewSeq) return;
 
     if (items.length === 1) {
-      setDownload(items[0].blob, `${base}-p${items[0].pageNum}.${ext}`, '下载图片');
+      setDownload(items[0].blob, `${base}-${items[0].label.replace(/^p0+/, 'p')}.${ext}`, '下载图片');
     } else {
       await need('jszip');
       const zip = new JSZip();
-      for (const it of items) zip.file(`${base}-p${String(it.pageNum).padStart(3, '0')}.${ext}`, it.blob);
+      for (const it of items) zip.file(`${base}-${it.label}.${ext}`, it.blob);
       setDownload(await zip.generateAsync({ type: 'blob' }), `${base}-images.zip`, '下载 ZIP');
     }
-    setStatus('toimgStatus', `转换成功,共 ${items.length} 张图片,右侧可预览并下载。`, true);
+    setStatus('toimgStatus', `转换成功,共 ${items.length} 张图片,右侧可预览并下载。` + (shrunk ? '长图太长,已自动降低清晰度。' : ''), true);
   } catch (e) {
     setStatus('toimgStatus', '出错:' + e.message, false);
   }
