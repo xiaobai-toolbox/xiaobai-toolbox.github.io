@@ -1394,22 +1394,16 @@
     <input type="file" id="toimgFile" accept="application/pdf" />
     <label>页码范围(可选,空则全部;如 1-3,5)</label>
     <input type="text" id="toimgRange" placeholder="全部页" />
-    <div class="row2">
-      <div>
-        <label>输出格式</label>
-        <select id="toimgFormat">
-          <option value="png">PNG(无损)</option>
-          <option value="jpg">JPG(更小)</option>
-        </select>
-      </div>
-      <div>
-        <label>清晰度</label>
-        <select id="toimgScale">
-          <option value="1">1x · 约 72 DPI</option>
-          <option value="2" selected>2x · 约 144 DPI</option>
-          <option value="3">3x · 约 216 DPI</option>
-        </select>
-      </div>
+    <label>输出格式</label>
+    <div class="seg" id="toimgFormat" data-v="png">
+      <button type="button" class="seg-btn active" data-v="png">PNG<small>无损清晰</small></button>
+      <button type="button" class="seg-btn" data-v="jpg">JPG<small>体积更小</small></button>
+    </div>
+    <label>清晰度</label>
+    <div class="seg" id="toimgScale" data-v="2" style="grid-template-columns: repeat(3, 1fr);">
+      <button type="button" class="seg-btn" data-v="1">标准<small>1x · 72 DPI</small></button>
+      <button type="button" class="seg-btn active" data-v="2">高清<small>2x · 144 DPI</small></button>
+      <button type="button" class="seg-btn" data-v="3">超清<small>3x · 216 DPI</small></button>
     </div>
     <div class="hint">每页渲染成一张图片。多页会打包成 ZIP;单页直接下载图片。JPG 会铺白底,避免透明区域发黑。</div>
     <button class="run" onclick="doToImages()">转换并预览</button>
@@ -2155,6 +2149,12 @@ let txtConverted = false;
     if (txtConverted) doTxtToHtml();
   });
 });
+['toimgFormat', 'toimgScale'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+  const b = e.target.closest('.seg-btn');
+  if (!b) return;
+  e.currentTarget.dataset.v = b.dataset.v;
+  e.currentTarget.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('active', x === b));
+}));
 let txtSource = 'file';
 document.querySelectorAll('#txtSrcSeg .seg-btn').forEach(b => {
   b.onclick = () => {
@@ -3106,8 +3106,8 @@ async function doToImages() {
     const file = document.getElementById('toimgFile').files[0];
     if (!file) return setStatus('toimgStatus', '请选择 PDF 文件。', false);
 
-    const format = document.getElementById('toimgFormat').value;
-    const scale = parseFloat(document.getElementById('toimgScale').value) || 2;
+    const format = document.getElementById('toimgFormat').dataset.v;
+    const scale = parseFloat(document.getElementById('toimgScale').dataset.v) || 2;
     const mime = format === 'png' ? 'image/png' : 'image/jpeg';
     const ext = format === 'png' ? 'png' : 'jpg';
     const quality = 0.92;
