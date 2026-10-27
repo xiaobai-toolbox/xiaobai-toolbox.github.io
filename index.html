@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>小白工具箱 · PDF 合并 / 插入 / 替换 / 转图片 / 文本转 HTML</title>
+<title>小白工具箱 · PDF 合并 / 拆分 / 插入 / 替换 / 转图片 / 文本转 HTML</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%23161d44'/%3E%3Cellipse cx='9' cy='24' rx='3.8' ry='6.8' transform='rotate%2822 9 24%29' fill='%23dfe5f3'/%3E%3Cellipse cx='39' cy='24' rx='3.8' ry='6.8' transform='rotate%28-22 39 24%29' fill='%23dfe5f3'/%3E%3Cpath d='M24.0 12.0A4.1 4.1 0 0 1 31.0 13.7A4.1 4.1 0 0 1 36.3 18.5A4.1 4.1 0 0 1 38.9 25.2A4.1 4.1 0 0 1 38.0 32.3A4.1 4.1 0 0 1 33.9 38.2A4.1 4.1 0 0 1 27.6 41.6A4.1 4.1 0 0 1 20.4 41.6A4.1 4.1 0 0 1 14.1 38.2A4.1 4.1 0 0 1 10.0 32.3A4.1 4.1 0 0 1 9.1 25.2A4.1 4.1 0 0 1 11.7 18.5A4.1 4.1 0 0 1 17.0 13.7A4.1 4.1 0 0 1 24.0 12.0Z' fill='%23fff'/%3E%3Cellipse cx='18.5' cy='23.5' rx='2.4' ry='2.9' fill='%231b1b22'/%3E%3Cellipse cx='29.5' cy='23.5' rx='2.4' ry='2.9' fill='%231b1b22'/%3E%3Ccircle cx='19.3' cy='22.4' r='.9' fill='%23fff'/%3E%3Ccircle cx='30.3' cy='22.4' r='.9' fill='%23fff'/%3E%3Cellipse cx='24' cy='31' rx='2.6' ry='1.9' fill='%231b1b22'/%3E%3Cellipse cx='15' cy='30.5' rx='2.4' ry='1.4' fill='%23ff8fb1' opacity='.5'/%3E%3Cellipse cx='33' cy='30.5' rx='2.4' ry='1.4' fill='%23ff8fb1' opacity='.5'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <style>
@@ -133,6 +133,7 @@
   }
   /* 每个功能一个主题色(RGB 三元组),卡片与对应面板共用 */
   [data-tab="merge"], #merge { --c: 79,140,255; }
+  [data-tab="split"], #split, .sp-grid { --c: 45,212,191; }
   [data-tab="insert"], #insert { --c: 52,211,153; }
   [data-tab="replace"], #replace { --c: 251,146,60; }
   [data-tab="toimg"], #toimg { --c: 236,72,153; }
@@ -628,6 +629,29 @@
     border-radius: 8px; box-shadow: 0 6px 22px rgba(0,0,0,.4); background: #fff;
   }
   .pv-num { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  /* 拆分 PDF:页面缩略图 + 页间剪刀 */
+  .sp-grid { width: 100%; display: flex; flex-wrap: wrap; align-items: stretch; row-gap: 16px; padding: 4px 0 8px; }
+  .sp-page { width: 116px; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .sp-page canvas {
+    width: 100%; height: auto; background: #fff; border-radius: 6px;
+    border: 2px solid var(--g, var(--border)); box-shadow: 0 4px 14px rgba(0,0,0,.35); transition: opacity .15s, border-color .15s;
+  }
+  .sp-page.off canvas { opacity: .3; }
+  .sp-tag { font-size: 11.5px; color: var(--muted-2); display: flex; gap: 6px; white-space: nowrap; }
+  .sp-tag b { color: var(--g, var(--muted-2)); font-weight: 650; }
+  .sp-cut { position: relative; width: 30px; padding: 0; border: none; background: none; color: var(--muted-2); cursor: pointer; }
+  .sp-cut::before { content: ""; position: absolute; left: 50%; top: 2px; bottom: 26px; border-left: 2px dashed transparent; transform: translateX(-1px); transition: border-color .15s; }
+  .sp-cut svg {
+    position: absolute; left: 50%; top: 42%; width: 24px; height: 24px; padding: 4px; transform: translate(-50%, -50%);
+    border-radius: 50%; background: var(--card); border: 1px solid var(--border-soft); transition: color .15s, background .15s, transform .15s;
+  }
+  .sp-cut:hover { color: var(--text); }
+  .sp-cut:hover::before { border-color: var(--border); }
+  .sp-cut:hover svg { transform: translate(-50%, -50%) scale(1.12); }
+  .sp-cut.on { color: #fff; }
+  .sp-cut.on::before { border-color: rgb(var(--c)); }
+  .sp-cut.on svg { background: rgb(var(--c)); border-color: transparent; }
+  .sp-grid.no-cut .sp-cut { width: 14px; visibility: hidden; }
   .p2w-page {
     background: #fff; color: #111; box-sizing: border-box; overflow: hidden; border-radius: 4px;
     box-shadow: 0 6px 22px rgba(0,0,0,.4); font-family: "Times New Roman", "SimSun", "Songti SC", serif;
@@ -921,6 +945,13 @@
       </span>
       <span class="tab-txt"><div class="tab-title">合并 PDF</div><div class="tab-desc">多个 PDF 按顺序拼成一个</div></span>
     </button>
+    <button class="tab" data-tab="split">
+      <span class="tab-top">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.15" d="M16.6 16.7l4.3 3.1M16.6 19.3l4.3-3.1"/><circle class="i-b" style="stroke-width:1.15" cx="15.6" cy="16" r="1.15"/><circle class="i-b" style="stroke-width:1.15" cx="15.6" cy="20" r="1.15"/></svg></span>
+        <span class="tab-tag">一拆多</span>
+      </span>
+      <span class="tab-txt"><div class="tab-title">拆分 PDF</div><div class="tab-desc">一个 PDF 拆成多个文件</div></span>
+    </button>
     <button class="tab" data-tab="insert">
       <span class="tab-top">
         <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M19 16.4v-.5a1 1 0 0 0-1-1h-1.6a1 1 0 0 0-1 1v4.2a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-.5M20.6 18h-3.4M18.2 17 17.2 18l1 1"/></svg></span>
@@ -998,6 +1029,34 @@
     <div class="file-list" id="mergeList"></div>
     <button class="run" onclick="doMerge()">合并并预览</button>
     <div class="status" id="mergeStatus"></div>
+  </div>
+
+  <!-- 拆分 -->
+  <div class="panel" id="split">
+    <div class="panel-head">
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.15" d="M16.6 16.7l4.3 3.1M16.6 19.3l4.3-3.1"/><circle class="i-b" style="stroke-width:1.15" cx="15.6" cy="16" r="1.15"/><circle class="i-b" style="stroke-width:1.15" cx="15.6" cy="20" r="1.15"/></svg></span>
+      <div><h2>拆分 PDF</h2><p>把一个 PDF 拆成多个文件,多份自动打包 ZIP</p></div>
+    </div>
+    <label>选择 PDF</label>
+    <input type="file" id="splitFile" accept="application/pdf" />
+    <label>拆分方式</label>
+    <div class="seg" id="splitSeg" style="grid-template-columns: repeat(4, 1fr);">
+      <button type="button" class="seg-btn active" data-mode="mark">剪刀标记</button>
+      <button type="button" class="seg-btn" data-mode="every">每 N 页</button>
+      <button type="button" class="seg-btn" data-mode="each">每页一份</button>
+      <button type="button" class="seg-btn" data-mode="range">自定义</button>
+    </div>
+    <div id="splitOptEvery" hidden>
+      <label>每几页拆成一个文件</label>
+      <input type="number" id="splitN" min="1" value="2" />
+    </div>
+    <div id="splitOptRange" hidden>
+      <label>每段页码生成一个文件(逗号分隔,如 1-3, 4-8, 10)</label>
+      <input type="text" id="splitRanges" placeholder="例如 1-3, 4-8, 10" />
+    </div>
+    <div class="hint">小贴士:点右侧两页之间的小剪刀,可以标记 / 取消拆分位置;选「每 N 页」后再点剪刀,会在自动结果上继续微调。</div>
+    <button class="run" onclick="doSplit()">拆分</button>
+    <div class="status" id="splitStatus"></div>
   </div>
 
   <!-- 插入 -->
@@ -1661,7 +1720,7 @@ function setView(v, init) {
   try { localStorage.setItem('xiaobai-view', v); } catch {}
   setTimeout(() => dispatchEvent(new Event('resize')), 50);
 }
-setView(localStorage.getItem('xiaobai-view') === 'list' ? 'list' : 'grid', true);
+setView(localStorage.getItem('xiaobai-view') === 'grid' ? 'grid' : 'list', true);
 document.getElementById('viewSw').onclick = e => {
   const b = e.target.closest('button');
   if (b && !b.classList.contains('on')) setView(b.dataset.view);
@@ -2050,6 +2109,165 @@ async function doReplace() {
     setStatus('replaceStatus', `替换成功,现共 ${main.getPageCount()} 页,右侧可预览并下载。`, true);
   } catch (e) {
     setStatus('replaceStatus', '出错:' + e.message, false);
+  }
+}
+
+/* ---------- 拆分 PDF ----------
+ * cuts 存「在第 i 页(0 基)之后切一刀」;每 N 页 / 每页一份也换算成切点显示,点剪刀时转成手动标记继续改 */
+const SPLIT_HUES = [168, 217, 28, 330, 265, 48, 190, 0, 290, 120];
+const SCISSORS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>';
+const split = { bytes: null, name: '', n: 0, cuts: new Set(), mode: 'mark', grid: null };
+const splitSeg = document.getElementById('splitSeg');
+splitSeg.onclick = e => {
+  const b = e.target.closest('.seg-btn');
+  if (b) setSplitMode(b.dataset.mode);
+};
+['splitN', 'splitRanges'].forEach(id => document.getElementById(id).addEventListener('input', splitRefresh));
+document.getElementById('splitFile').addEventListener('change', e => {
+  if (e.target.files[0]) splitLoad(e.target.files[0]);
+});
+
+function setSplitMode(m) {
+  split.mode = m;
+  splitSeg.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  document.getElementById('splitOptEvery').hidden = m !== 'every';
+  document.getElementById('splitOptRange').hidden = m !== 'range';
+  splitRefresh();
+}
+
+function splitGroups() {
+  const n = split.n;
+  if (split.mode === 'range') {
+    return document.getElementById('splitRanges').value.split(/[,，;；]/).map(s => parseRange(s, n)).filter(g => g.length);
+  }
+  const step = split.mode === 'each' ? 1 : split.mode === 'every' ? Math.max(1, parseInt(document.getElementById('splitN').value, 10) || 1) : 0;
+  const groups = [];
+  let cur = [];
+  for (let i = 0; i < n; i++) {
+    cur.push(i);
+    if (i === n - 1 || (step ? (i + 1) % step === 0 : split.cuts.has(i))) { groups.push(cur); cur = []; }
+  }
+  return groups;
+}
+
+function splitRefresh() {
+  if (currentTab === 'split') document.getElementById('dlBtn').classList.add('hidden');
+  if (!split.grid) return;
+  const groups = splitGroups(), owner = new Map();
+  groups.forEach((g, k) => g.forEach(i => owner.has(i) || owner.set(i, k)));
+  split.grid.classList.toggle('no-cut', split.mode === 'range');
+  split.grid.querySelectorAll('.sp-page').forEach((el, i) => {
+    const k = owner.get(i);
+    el.classList.toggle('off', k === undefined);
+    if (k === undefined) el.style.removeProperty('--g');
+    else el.style.setProperty('--g', `hsl(${SPLIT_HUES[k % SPLIT_HUES.length]} 72% 60%)`);
+    el.querySelector('b').textContent = k === undefined ? '不导出' : `第 ${k + 1} 份`;
+  });
+  split.grid.querySelectorAll('.sp-cut').forEach(el => {
+    const i = +el.dataset.i;
+    el.classList.toggle('on', owner.get(i) !== owner.get(i + 1));
+  });
+  if (split.mode === 'mark' && groups.length < 2) setStatus('splitStatus', `共 ${split.n} 页,点右侧两页之间的小剪刀标记拆分位置。`, true);
+  else if (!groups.length) setStatus('splitStatus', '页码范围无效,请检查输入(如 1-3, 4-8)。', false);
+  else setStatus('splitStatus', `共 ${split.n} 页,将拆成 ${groups.length} 个文件。`, true);
+}
+
+function splitToggleCut(i) {
+  if (split.mode === 'range') return;
+  if (split.mode !== 'mark') {
+    split.cuts = new Set(splitGroups().map(g => g[g.length - 1]));
+    split.cuts.delete(split.n - 1);
+  }
+  split.cuts.has(i) ? split.cuts.delete(i) : split.cuts.add(i);
+  setSplitMode('mark');
+}
+
+async function splitLoad(file) {
+  resetPreview('拆分预览 · 点页间剪刀标记拆分位置');
+  split.grid = null;
+  split.cuts = new Set();
+  setStatus('splitStatus', '读取中…', true);
+  try {
+    await need('pdfjs');
+    const bytes = await readBytes(file);
+    const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
+    Object.assign(split, { bytes, name: file.name.replace(/\.pdf$/i, '') || 'split', n: pdf.numPages });
+    const grid = document.createElement('div');
+    grid.className = 'sp-grid';
+    document.getElementById('previewBody').appendChild(grid);
+    split.grid = grid;
+    for (let i = 0; i < pdf.numPages; i++) {
+      if (split.grid !== grid) break;
+      const page = await pdf.getPage(i + 1);
+      const viewport = page.getViewport({ scale: 232 / page.getViewport({ scale: 1 }).width });
+      if (i) {
+        const cut = document.createElement('button');
+        cut.type = 'button';
+        cut.className = 'sp-cut';
+        cut.dataset.i = i - 1;
+        cut.title = `在第 ${i} 页和第 ${i + 1} 页之间拆分`;
+        cut.innerHTML = SCISSORS;
+        cut.onclick = () => splitToggleCut(i - 1);
+        grid.appendChild(cut);
+      }
+      const item = document.createElement('div');
+      item.className = 'sp-page';
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const tag = document.createElement('div');
+      tag.className = 'sp-tag';
+      tag.innerHTML = `<span>第 ${i + 1} 页</span><b></b>`;
+      item.append(canvas, tag);
+      grid.appendChild(item);
+      splitRefresh();
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    }
+    await pdf.destroy();
+  } catch (e) {
+    split.bytes = null;
+    previewEmpty('无法读取该文件:' + e.message);
+    setStatus('splitStatus', '无法读取该文件:' + e.message, false);
+  }
+}
+
+// [0,1,2,5] -> "p1-3_p6"
+function pagesLabel(g) {
+  const runs = [];
+  g.forEach(i => {
+    const r = runs[runs.length - 1];
+    r && r[1] === i - 1 ? (r[1] = i) : runs.push([i, i]);
+  });
+  return runs.map(([a, b]) => a === b ? `p${a + 1}` : `p${a + 1}-${b + 1}`).join('_');
+}
+
+async function doSplit() {
+  try {
+    if (!split.bytes) return setStatus('splitStatus', '请先选择 PDF 文件。', false);
+    const groups = splitGroups();
+    if (!groups.length) return setStatus('splitStatus', '页码范围无效,请检查输入(如 1-3, 4-8)。', false);
+    if (split.mode === 'mark' && groups.length < 2) return setStatus('splitStatus', '还没标记拆分位置:点右侧两页之间的小剪刀,或换一种拆分方式。', false);
+    setStatus('splitStatus', '处理中…', true);
+    await need('pdflib');
+    const src = await PDFDocument.load(split.bytes);
+    const files = [];
+    for (const [k, g] of groups.entries()) {
+      setStatus('splitStatus', `生成中 ${k + 1}/${groups.length}…`, true);
+      const out = await PDFDocument.create();
+      (await out.copyPages(src, g)).forEach(p => out.addPage(p));
+      files.push({ name: `${split.name}-${String(k + 1).padStart(2, '0')}-${pagesLabel(g)}.pdf`, bytes: await out.save() });
+    }
+    if (files.length === 1) {
+      setDownload(files[0].bytes, files[0].name);
+    } else {
+      await need('jszip');
+      const zip = new JSZip();
+      files.forEach(f => zip.file(f.name, f.bytes));
+      setDownload(await zip.generateAsync({ type: 'blob' }), `${split.name}-拆分.zip`, `下载 ZIP(${files.length} 个)`);
+    }
+    setStatus('splitStatus', `拆分成功,共 ${files.length} 个文件,点右上角下载。`, true);
+  } catch (e) {
+    setStatus('splitStatus', '出错:' + e.message, false);
   }
 }
 
