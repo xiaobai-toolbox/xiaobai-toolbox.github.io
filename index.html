@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>小白工具箱 · PDF 合并 / 插入 / 替换 / 转图片 / 文本转 HTML</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2318204a'/%3E%3Cstop offset='1' stop-color='%230b0f26'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='13' fill='url(%23g)'/%3E%3Cpath d='M24 8 38 16 24 24 10 16Z' fill='%23fff'/%3E%3Cpath d='M10 16 24 24V40L10 32Z' fill='%235b7cff'/%3E%3Cpath d='M38 16V32L24 40V24Z' fill='%23d05cff'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%23161d44'/%3E%3Cellipse cx='9' cy='24' rx='3.8' ry='6.8' transform='rotate%2822 9 24%29' fill='%23dfe5f3'/%3E%3Cellipse cx='39' cy='24' rx='3.8' ry='6.8' transform='rotate%28-22 39 24%29' fill='%23dfe5f3'/%3E%3Cpath d='M24.0 12.0A4.1 4.1 0 0 1 31.0 13.7A4.1 4.1 0 0 1 36.3 18.5A4.1 4.1 0 0 1 38.9 25.2A4.1 4.1 0 0 1 38.0 32.3A4.1 4.1 0 0 1 33.9 38.2A4.1 4.1 0 0 1 27.6 41.6A4.1 4.1 0 0 1 20.4 41.6A4.1 4.1 0 0 1 14.1 38.2A4.1 4.1 0 0 1 10.0 32.3A4.1 4.1 0 0 1 9.1 25.2A4.1 4.1 0 0 1 11.7 18.5A4.1 4.1 0 0 1 17.0 13.7A4.1 4.1 0 0 1 24.0 12.0Z' fill='%23fff'/%3E%3Cellipse cx='18.5' cy='23.5' rx='2.4' ry='2.9' fill='%231b1b22'/%3E%3Cellipse cx='29.5' cy='23.5' rx='2.4' ry='2.9' fill='%231b1b22'/%3E%3Ccircle cx='19.3' cy='22.4' r='.9' fill='%23fff'/%3E%3Ccircle cx='30.3' cy='22.4' r='.9' fill='%23fff'/%3E%3Cellipse cx='24' cy='31' rx='2.6' ry='1.9' fill='%231b1b22'/%3E%3Cellipse cx='15' cy='30.5' rx='2.4' ry='1.4' fill='%23ff8fb1' opacity='.5'/%3E%3Cellipse cx='33' cy='30.5' rx='2.4' ry='1.4' fill='%23ff8fb1' opacity='.5'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <style>
   :root {
@@ -40,10 +40,10 @@
       var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 36px 22px 48px;
+    padding: 36px 22px 16px;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1480px; margin: 0 auto; }
+  .wrap { max-width: 1480px; margin: 0 auto; min-height: calc(100vh - 52px); display: flex; flex-direction: column; }
 
   /* 顶部品牌区 */
   .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
@@ -54,16 +54,17 @@
     position: relative; isolation: isolate; flex-shrink: 0;
     width: 60px; height: 60px; border-radius: 18px;
     display: grid; place-items: center;
-    border: 1.5px solid transparent;
+    border: 3px solid transparent;
     background:
-      radial-gradient(90% 70% at 25% 0%, rgba(255,255,255,.14), transparent 60%) padding-box,
-      radial-gradient(70% 60% at 50% 75%, rgba(124,92,255,.45), transparent 70%) padding-box,
-      linear-gradient(160deg, #18204a 0%, #0b0f26 100%) padding-box,
-      linear-gradient(140deg, #6ea2ff, #a78bfa 50%, #ff6fae) border-box;
-    box-shadow: 0 14px 34px rgba(80,60,200,.45), inset 0 1px 0 rgba(255,255,255,.12);
+      radial-gradient(90% 60% at 25% 0%, rgba(255,255,255,.1), transparent 60%) padding-box,
+      radial-gradient(70% 62% at 50% 64%, #03040b 0%, #080b1e 45%, rgba(8,11,30,0) 100%) padding-box,
+      linear-gradient(160deg, #262f6a 0%, #141a40 100%) padding-box,
+      linear-gradient(150deg, rgba(255,255,255,.7), rgba(190,170,255,.4) 45%, rgba(255,140,190,.55)) border-box;
+    box-shadow: 0 14px 34px rgba(80,60,200,.45), inset 0 1.5px 0 rgba(255,255,255,.22),
+      inset 0 11px 14px -6px rgba(0,0,0,.7), inset 0 0 12px rgba(150,130,255,.22);
   }
   .brand-logo::before {
-    content: ""; position: absolute; inset: -3px; border-radius: 21px; z-index: -1;
+    content: ""; position: absolute; inset: -5px; border-radius: 23px; z-index: -1;
     background: conic-gradient(from var(--halo), #4f8cff, #34d399, #fb923c, #ec4899, #a78bfa, #4f8cff);
     filter: blur(12px); opacity: .5; animation: halo-spin 8s linear infinite;
   }
@@ -75,9 +76,28 @@
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
     animation: logo-shine 4.5s ease-in-out infinite;
   }
-  .brand-logo svg { position: relative; width: 44px; height: 44px; filter: drop-shadow(0 4px 10px rgba(124,92,255,.6)); }
+  .brand-logo svg { position: absolute; left: -3px; top: -3px; width: 60px; height: 66px; overflow: visible; filter: drop-shadow(0 3px 6px rgba(0,0,0,.35)); }
+  .brand-logo .dog-pop { transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .brand-logo:hover .dog-pop { transform: translateY(-3.5px); }
+  .brand-logo .dog { transform-origin: 30px 60px; animation: dog-bob 3.6s ease-in-out infinite; }
+  .brand-logo .dog-eye { transform-box: fill-box; transform-origin: center; animation: dog-blink 4.8s infinite; }
+  .brand-logo .dog-look { animation: dog-look 7s ease-in-out infinite; }
+  .brand-logo .dog-ear { transform-box: fill-box; transform-origin: 50% 8%; animation: dog-ear-l 5.2s ease-in-out infinite; }
+  .brand-logo .dog-ear.r { animation-name: dog-ear-r; animation-delay: 1.3s; }
+  .brand-logo .dog-tongue { transform-box: fill-box; transform-origin: top; animation: dog-tongue 3.6s ease-in-out infinite; }
+  .brand-logo .dog-paw { animation: dog-paw 3.6s ease-in-out infinite; }
+  .brand-logo .dog-paw.r { animation-delay: .45s; }
+  .brand-logo .dog-star { transform-box: fill-box; transform-origin: center; animation: dog-star 2.4s ease-in-out infinite; }
+  @keyframes dog-bob { 0%, 100% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-1.6px) rotate(-3deg); } 65% { transform: translateY(-.5px) rotate(2.5deg); } }
+  @keyframes dog-blink { 0%, 90%, 96%, 100% { transform: scaleY(1); } 93% { transform: scaleY(.1); } }
+  @keyframes dog-look { 0%, 38%, 82%, 100% { transform: translate(0, 0); } 45%, 75% { transform: translate(1.3px, -1px); } }
+  @keyframes dog-ear-l { 0%, 80%, 100% { transform: rotate(0); } 86% { transform: rotate(-16deg); } 92% { transform: rotate(5deg); } }
+  @keyframes dog-ear-r { 0%, 80%, 100% { transform: rotate(0); } 86% { transform: rotate(16deg); } 92% { transform: rotate(-5deg); } }
+  @keyframes dog-tongue { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.45); } }
+  @keyframes dog-paw { 0%, 40%, 60%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+  @keyframes dog-star { 0%, 100% { transform: scale(.65) rotate(0); opacity: .55; } 50% { transform: scale(1.1) rotate(45deg); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    .brand-logo::before, .brand-logo .shine::after { animation: none; }
+    .brand-logo::before, .brand-logo .shine::after, .brand-logo svg * { animation: none !important; }
   }
   h1 {
     font-size: 28px; margin: 0; letter-spacing: 1px; font-weight: 800;
@@ -86,12 +106,11 @@
   }
   p.sub { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
   .brand-badge {
-    margin-left: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;
-    font-size: 12.5px; color: var(--muted); background: var(--card-2);
-    border: 1px solid var(--border-soft); padding: 8px 13px; border-radius: 999px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--muted); background: var(--card-2);
+    border: 1px solid var(--border-soft); padding: 6px 12px; border-radius: 999px; white-space: nowrap;
   }
   .brand-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
-  @media (max-width: 620px) { .brand-badge { display: none; } }
 
   /* 左侧功能导航 */
   .shell { display: flex; gap: 20px; align-items: flex-start; margin-top: 26px; }
@@ -109,6 +128,9 @@
   .nav-fold:hover { color: var(--text); border-color: var(--border); }
   .nav-fold svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform .2s ease; }
   .nav-mini .nav-fold svg { transform: rotate(180deg); }
+  @media (min-width: 921px) {
+    .nav { box-sizing: content-box; padding: 6px 10px 24px; margin: -6px -10px -24px; top: 22px; max-height: calc(100vh - 74px); }
+  }
   /* 每个功能一个主题色(RGB 三元组),卡片与对应面板共用 */
   [data-tab="merge"], #merge { --c: 79,140,255; }
   [data-tab="insert"], #insert { --c: 52,211,153; }
@@ -162,19 +184,24 @@
   }
   .tab.active::before, .tab.active::after { opacity: 1; }
   .tab-top { position: relative; z-index: 1; display: flex; }
+  /* 功能图标:不加底框,实心主题色主体 + 白色细节 + 右下角白色动作角标 */
   .tab-icon {
-    width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0;
-    display: grid; place-items: center; color: rgb(var(--c));
-    background: linear-gradient(135deg, rgba(var(--c),.24), rgba(var(--c),.1)); border: 1px solid rgba(var(--c),.35);
-    box-shadow: 0 6px 16px rgba(var(--c),.15);
-    transition: all .18s ease;
+    width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center;
+    filter: drop-shadow(0 4px 10px rgba(var(--c),.3)); transition: transform .18s ease, filter .18s ease;
   }
-  .tab-icon svg { width: 20px; height: 20px; }
-  .tab.active .tab-icon {
-    color: #fff; border-color: transparent;
-    background: linear-gradient(135deg, rgb(var(--c)), rgba(var(--c),.65));
-    box-shadow: 0 8px 20px rgba(var(--c),.4);
-  }
+  .tab-icon svg, .ph-icon svg { width: 100%; height: 100%; overflow: visible; fill: none; stroke: none; stroke-linecap: round; stroke-linejoin: round; }
+  .tab.active .tab-icon { filter: drop-shadow(0 6px 14px rgba(var(--c),.55)); transform: scale(1.06); }
+  svg .i-main { fill: rgb(var(--c)); }
+  svg .i-back { fill: rgba(var(--c),.45); }
+  svg .i-soft { fill: rgba(255,255,255,.34); }
+  svg .i-w { stroke: #fff; stroke-width: 1.7; }
+  svg .i-wf { fill: #fff; }
+  svg .i-ms { stroke: rgb(var(--c)); stroke-width: 1.7; }
+  svg .i-txt { fill: #fff; font: 800 5.4px system-ui, -apple-system, "PingFang SC", "Segoe UI", sans-serif; text-anchor: middle; letter-spacing: -.15px; }
+  svg .i-badge { fill: #fff; filter: url(#iBadgeShade); }
+  svg .i-btxt { fill: rgb(var(--c)); font: 900 7.2px system-ui, -apple-system, "Segoe UI", sans-serif; text-anchor: middle; }
+  svg .i-b { stroke: rgb(var(--c)); stroke-width: 1.7; }
+  svg .i-bf { fill: rgb(var(--c)); }
   .tab-tag { display: none; }
   .tab-txt { position: relative; z-index: 1; min-width: 0; }
   .tab-title { font-size: 14px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
@@ -194,11 +221,9 @@
   @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
   .panel-head .ph-icon {
-    width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; display: grid; place-items: center;
-    background: linear-gradient(135deg, rgb(var(--c)), rgba(var(--c),.65)); color: #fff;
-    box-shadow: 0 6px 16px rgba(var(--c),.35);
+    width: 38px; height: 38px; flex-shrink: 0; display: grid; place-items: center;
+    filter: drop-shadow(0 5px 12px rgba(var(--c),.4));
   }
-  .panel-head .ph-icon svg { width: 20px; height: 20px; }
   .panel { border-top: 3px solid rgb(var(--c)); }
   .panel-head h2 { font-size: 17px; margin: 0; font-weight: 650; }
   .panel-head p { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
@@ -376,8 +401,6 @@
   .shot-tpl canvas { display: block; border-radius: 6px; max-width: 100%; height: auto; }
   .shot-tpl:hover { color: var(--text); border-color: var(--border); }
   .shot-tpl.active { color: #fff; border-color: rgba(var(--c),.75); background: rgba(var(--c),.14); }
-  .seg.shot-seg { margin-top: 22px; grid-template-columns: repeat(3, 1fr); }
-  .shot-seg .seg-btn { font-size: 13px; }
   .seg.shot-fam { grid-template-columns: repeat(3, 1fr); margin-bottom: 12px; }
   .shot-colors { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .shot-color {
@@ -402,12 +425,92 @@
   #appshot textarea { min-height: 76px; white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.5; }
   #appshot .chips .chip { font-family: inherit; }
   .shot-sliders { margin-top: 18px; }
-  .shot-trfmt { width: auto; flex: 0 0 auto; padding-top: 8px; padding-bottom: 8px; font-size: 13px; }
-  .shot-tr { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
-  .shot-tr-item { display: flex; flex-direction: column; gap: 6px; }
-  .shot-tr-src { font-size: 12px; color: var(--muted-2); line-height: 1.5; white-space: pre-wrap; }
-  .shot-tr-src b { color: var(--muted); font-weight: 600; margin-right: 6px; }
-  #appshot .shot-tr textarea { min-height: 0; }
+  .shot-trfmt { width: auto; flex: 1 1 auto; min-width: 0; padding-top: 8px; padding-bottom: 8px; font-size: 13px; }
+  .shot-step { display: flex; align-items: center; gap: 8px; margin: 22px 0 10px; font-size: 13.5px; font-weight: 650; color: var(--text); }
+  .shot-step i {
+    width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
+    background: rgba(var(--c),.18); color: rgb(var(--c)); font-size: 12px; font-weight: 700; line-height: 1; font-style: normal;
+  }
+  .shot-step span { margin-left: auto; font-size: 12px; font-weight: 400; color: var(--muted-2); }
+  .shot-step-lg { font-size: 15px; margin: 28px 0 14px; padding-top: 22px; border-top: 1px solid var(--border-soft); }
+  .shot-step-lg i { width: 24px; height: 24px; font-size: 13px; }
+  .shot-sub { display: flex; align-items: center; margin: 18px 0 8px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .shot-sub span { margin-left: auto; font-size: 12px; color: var(--muted-2); font-weight: 400; }
+  .shot-sec > summary { cursor: pointer; list-style: none; }
+  .shot-sec > summary::-webkit-details-marker { display: none; }
+  .shot-sec > summary::after { content: ""; margin-left: 10px; width: 7px; height: 7px; flex-shrink: 0; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) translateY(-2px); transition: transform .15s ease; }
+  .shot-sec[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+  .shot-sec:not([open]) > summary { margin-bottom: 0; }
+  .shot-sec > summary { white-space: nowrap; }
+  .shot-sec[open] > summary span { display: none; }
+  .shot-sec[open] > summary::after { margin-left: auto; }
+  .shot-tip-box { margin-top: 12px; padding: 9px 12px; border-radius: 10px; background: var(--card-2); border: 1px dashed var(--border-soft); }
+  .shot-elhead {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; padding: 10px 12px;
+    border-radius: 10px; background: rgba(var(--c),.1); border: 1px solid rgba(var(--c),.28);
+  }
+  .shot-elhead b { font-size: 13px; color: var(--text); }
+  /* 弹窗:iOS 26 风格的液态玻璃。底色保留六成不透明度,背后再花哨文字也清楚;内部控件改成半透明白,和玻璃融在一起 */
+  .xb-dlg {
+    --card-2: rgba(255,255,255,.07); --border-soft: rgba(255,255,255,.11); --border: rgba(255,255,255,.2);
+    width: min(480px, calc(100vw - 32px)); max-width: 100%; max-height: calc(100vh - 48px); overflow: auto; padding: 24px;
+    border-radius: 30px; border: 1px solid rgba(255,255,255,.16); color: var(--text);
+    background:
+      linear-gradient(160deg, rgba(255,255,255,.13), rgba(255,255,255,.04) 38%, rgba(255,255,255,0) 60%),
+      rgba(18,25,42,.62);
+    -webkit-backdrop-filter: blur(36px) saturate(170%);
+    backdrop-filter: blur(36px) saturate(170%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.28),
+      inset 0 -1px 0 rgba(255,255,255,.06),
+      inset 0 0 24px rgba(255,255,255,.03),
+      0 24px 70px rgba(0,0,0,.45);
+  }
+  .xb-dlg[open] { animation: dlg-in .32s cubic-bezier(.2,.9,.3,1.15); }
+  .xb-dlg[open]::backdrop { animation: dlg-fade .25s ease; }
+  @keyframes dlg-in { from { opacity: 0; transform: scale(.94); } }
+  @keyframes dlg-fade { from { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .xb-dlg[open], .xb-dlg[open]::backdrop { animation: none; } }
+  .xb-dlg::backdrop { background: rgba(4,8,18,.32); }
+  .xb-dlg .dlg-x { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.14); }
+  .xb-dlg .dlg-foot button.run { border-radius: 999px; }
+  .xb-dlg .dlg-foot button.run.ghost { background: rgba(255,255,255,.06); }
+  .xb-dlg .seg { border-radius: 999px; }
+  .xb-dlg .seg-btn { border-radius: 999px; }
+  .xb-dlg .hint, .xb-dlg .chip small { color: var(--muted); }
+  .dlg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .dlg-head b { font-size: 17px; }
+  .dlg-x { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-soft); background: var(--card-2); color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+  .dlg-x:hover { color: var(--text); border-color: var(--border); }
+  #shotFmt { margin-bottom: 0; }
+  .xb-dlg #shotExRow .hint { margin-bottom: 16px; }
+  .dlg-sum { margin-top: 20px; padding: 12px 14px; border-radius: 12px; background: rgba(var(--c),.1); border: 1px solid rgba(var(--c),.28); font-size: 13.5px; line-height: 1.6; }
+  .dlg-sum b { color: rgb(var(--c)); font-size: 15px; }
+  .dlg-warn { margin: 10px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.7; color: #fbbf24; }
+  .dlg-warn:empty { display: none; }
+  .dlg-prog { margin-top: 14px; }
+  .dlg-prog i { display: block; height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgb(var(--c)) var(--p, 0%), var(--card-2) 0); }
+  .dlg-prog span { display: block; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+  .dlg-foot { display: flex; gap: 10px; margin-top: 20px; }
+  .dlg-foot button.run { margin: 0; flex: 2; }
+  .dlg-foot button.run.ghost { flex: 1; }
+  .dlg-foot button.run.danger { background: linear-gradient(135deg, #f87171, #ef4444); color: #fff; box-shadow: 0 10px 24px rgba(239,68,68,.3); }
+  .dlg-msg { margin: 0; font-size: 14px; line-height: 1.75; color: var(--muted); white-space: pre-line; }
+  .dlg-note { margin-top: 14px; padding: 10px 13px; border-radius: 10px; background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.22); color: var(--ok); font-size: 13px; line-height: 1.6; }
+  .dlg-note::before { content: "✓ "; font-weight: 700; }
+  .dlg-input { width: 100%; margin-top: 14px; box-sizing: border-box; }
+  #xbAsk { width: min(420px, calc(100vw - 32px)); }
+  @media (max-width: 640px) {
+    .xb-dlg { width: 100%; margin: auto 0 0; border-radius: 30px 30px 0 0; max-height: 88vh; border-bottom: 0; }
+    @keyframes dlg-in { from { transform: translateY(40px); opacity: 0; } }
+  }
+  .shot-langs .chip.active::before { content: "✓"; margin-right: 4px; font-weight: 700; }
+  .shot-trstate { margin-top: 14px; padding: 10px 13px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--border-soft); font-size: 12.5px; line-height: 1.75; color: var(--muted); }
+  .shot-trstate:empty { display: none; }
+  .shot-trstate b { color: #fb923c; font-weight: 600; }
+  .shot-trstate .ok { color: var(--ok); }
+  .shot-trstate .it { display: inline-block; white-space: nowrap; margin-right: 14px; }
+  .shot-trstate i { display: inline-block; width: 14px; height: 9px; margin: 0 3px; border: 1.5px dashed #fb923c; border-radius: 3px; vertical-align: 0; }
   #shotExRow label .link-btn, .shot-pane label .link-btn { margin-left: 8px; font-size: 12px; }
   #shotProps div:not(.slider-row) > label { margin-top: 16px; }
   #shotProps > div:first-child > label:first-child { margin-top: 0; }
@@ -421,6 +524,7 @@
   }
   .shot-btn:hover:not(:disabled) { color: var(--text); border-color: rgba(var(--c),.5); }
   .shot-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .shot-btn svg { width: 14px; height: 14px; margin-right: 5px; vertical-align: -2px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .shot-btn.danger:hover:not(:disabled) { color: var(--err); border-color: rgba(248,113,113,.5); }
   .shot-btn.active { background: var(--btn-bg); color: var(--btn-text); border-color: transparent; }
   .shot-page { min-width: 34px; padding: 0 8px; }
@@ -428,6 +532,30 @@
   .shot-scroll canvas { display: block; margin: 0 auto; border-radius: 10px; touch-action: none; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
   .shot-pages { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .shot-tip { font-size: 12px; color: var(--muted-2); line-height: 1.6; }
+  .shot-fsbar { display: none; }
+  html.shot-fs-on { overflow: hidden; }
+  .shot-pv.fs {
+    position: fixed; inset: 0; z-index: 100; justify-content: center; gap: 0; padding: 60px 0 24px;
+    background: radial-gradient(120% 90% at 50% 0%, #1b2440 0%, #070a14 70%);
+  }
+  .shot-pv.fs > :not(.shot-bar):not(.shot-scroll), .shot-pv.fs .shot-bar > :not(.shot-fsbar) { display: none; }
+  .shot-pv.fs .shot-fsbar {
+    display: flex; align-items: center; gap: 12px; position: absolute; top: 14px; right: 18px; z-index: 1;
+    font-size: 13px; color: var(--muted);
+  }
+  .shot-pv.fs .shot-fsbar .shot-btn { background: rgba(255,255,255,.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .shot-pv.fs .shot-fszoom { display: flex; gap: 4px; }
+  .shot-pv.fs .shot-fsbar select.shot-fslang {
+    width: auto; height: 32px; padding: 0 30px 0 12px; border-radius: 9px; font-size: 12.5px; font-weight: 600;
+    background-color: rgba(255,255,255,.08); border-color: var(--border-soft); color: var(--text);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background-position: right 10px center;
+  }
+  .shot-fslang[hidden] { display: none !important; }
+  @media (max-width: 520px) { #shotFsInfo { display: none; } }
+  .shot-pv.fs .shot-fszoom .shot-btn { min-width: 34px; font-size: 14px; }
+  .shot-pv.fs .shot-fszoom #shotFsPct { min-width: 82px; font-size: 12.5px; }
+  .shot-pv.fs .shot-scroll { overflow: auto; min-height: 0; padding: 0 24px; touch-action: pan-x pan-y; }
+  .shot-pv.fs .shot-scroll canvas { pointer-events: none; border-radius: 0; box-shadow: none; filter: drop-shadow(0 18px 36px rgba(0,0,0,.5)); }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .row2 label { margin-top: 18px; }
   input[type=file]::file-selector-button {
@@ -464,7 +592,7 @@
     content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
   }
-  footer { margin-top: 30px; font-size: 12px; color: var(--muted-2); text-align: center; }
+  footer { margin-top: auto; padding-top: 30px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--muted-2); text-align: center; }
 
   /* 右侧可视化预览面板 */
   .preview {
@@ -551,23 +679,64 @@
     .right { position: static; }
   }
 
+  /* 网页宫格视图:首页是功能宫格,点进去是二级页面(与手机端同一套逻辑) */
+  .view-sw { display: inline-flex; gap: 2px; padding: 3px; margin-left: auto; align-self: flex-start; border-radius: 999px; border: 1px solid var(--border-soft); background: var(--card-2); }
+  .view-sw button {
+    display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 0; border-radius: 999px;
+    background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all .15s ease;
+  }
+  .view-sw button:hover { color: var(--text); }
+  .view-sw button.on { background: rgba(255,255,255,.1); color: var(--text); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+  .view-sw svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .m-back {
+    display: inline-flex; align-items: center; gap: 2px; padding: 7px 12px 7px 8px; border-radius: 10px; flex-shrink: 0;
+    border: 1px solid var(--border-soft); background: var(--card-2); color: var(--text); font: inherit; font-size: 14px; cursor: pointer;
+  }
+  .m-back:hover { border-color: var(--border); }
+  .m-back svg { width: 18px; height: 18px; }
+  .m-title { font-size: 15px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (min-width: 641px) {
+    .g-mode .nav-fold { display: none; }
+    .g-mode.m-home .app, .g-mode:not(.m-home) .nav { display: none; }
+    .g-mode.m-home .nav {
+      flex: 1 1 auto; width: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      position: static; max-height: none; overflow: visible; margin: 0; padding: 0;
+    }
+    .g-mode.m-home .nav .tab {
+      flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; min-width: 0; min-height: 156px;
+      padding: 20px 20px 18px; text-align: left; border-radius: 18px;
+    }
+    .g-mode.m-home .nav .tab:hover { transform: translateY(-3px); }
+    .g-mode.m-home .nav .tab:active { transform: scale(.98); }
+    .g-mode.m-home .nav .tab.active { border-color: rgba(var(--c),.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 6px 18px rgba(0,0,0,.25); }
+    .g-mode.m-home .nav .tab.active::before { opacity: 0; }
+    .g-mode.m-home .nav .tab:hover { border-color: rgba(var(--c),.55); }
+    .g-mode.m-home .nav .tab-top { justify-content: space-between; align-items: flex-start; }
+    .g-mode.m-home .nav .tab-icon, .g-mode.m-home .nav .tab.active .tab-icon { width: 48px; height: 48px; transform: none; }
+    .g-mode.m-home .nav .tab-tag {
+      display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+      background: rgba(var(--c),.14); color: rgba(var(--c),1); border: 1px solid rgba(var(--c),.22); filter: brightness(1.25);
+    }
+    .g-mode.m-home .nav .tab-txt { display: block; }
+    .g-mode.m-home .nav .tab-title { font-size: 16px; white-space: nowrap; }
+    .g-mode.m-home .nav .tab-desc { display: block; font-size: 12.5px; margin-top: 5px; white-space: normal; }
+    .g-mode .app { flex-wrap: wrap; }
+    .g-mode:not(.m-home) .m-bar { display: flex; align-items: center; gap: 12px; flex: 0 0 100%; }
+  }
+  @media (min-width: 1240px) { .g-mode.m-home .nav { grid-template-columns: repeat(5, 1fr); } }
+
   /* 手机:首屏是功能宫格,点进去是二级页面 */
   .m-bar { display: none; }
   @media (max-width: 640px) {
-    body { padding: 20px 14px 40px; }
+    body { padding: 20px 14px 16px; }
+    .wrap { min-height: calc(100vh - 36px); }
     h1 { font-size: 24px; }
     .shell { margin-top: 20px; }
     .nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow: visible; padding: 0; }
     .tab { min-width: 0; padding: 16px 6px 14px; gap: 9px; transition: transform .12s ease; }
     .tab:active { transform: scale(.96); }
-    .tab-icon { width: 48px; height: 48px; border-radius: 15px; }
-    .tab-icon svg { width: 24px; height: 24px; }
+    .tab-icon, .tab.active .tab-icon { width: 46px; height: 46px; transform: none; filter: drop-shadow(0 5px 12px rgba(var(--c),.4)); }
     .tab-title { font-size: 13px; }
-    .tab .tab-icon, .tab.active .tab-icon {
-      color: #fff; border-color: transparent;
-      background: linear-gradient(135deg, rgb(var(--c)), rgba(var(--c),.65));
-      box-shadow: 0 8px 18px rgba(var(--c),.3);
-    }
     .tab.active {
       border-color: rgba(var(--c),.2);
       background:
@@ -585,12 +754,7 @@
       margin: -20px -14px 0; padding: 10px 14px; border-bottom: 1px solid var(--border-soft);
       background: rgba(7,11,22,.82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     }
-    .m-back {
-      display: inline-flex; align-items: center; gap: 2px; padding: 7px 12px 7px 8px; border-radius: 10px; flex-shrink: 0;
-      border: 1px solid var(--border-soft); background: var(--card-2); color: var(--text); font: inherit; font-size: 14px; cursor: pointer;
-    }
-    .m-back svg { width: 18px; height: 18px; }
-    .m-title { font-size: 15px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .view-sw { display: none; }
     .panel { padding: 20px 16px 22px; }
     .preview { padding: 16px; }
   }
@@ -686,29 +850,60 @@
 </style>
 </head>
 <body class="m-home">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="iBadgeShade" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy=".45" stdDeviation=".55" flood-color="#0b1020" flood-opacity=".38"/></filter></svg>
 <div class="wrap">
   <div class="brand">
     <div class="brand-logo">
-      <span class="shine"></span>
-      <svg viewBox="0 0 48 48" fill="none">
+      <svg viewBox="0 0 60 66" fill="none" aria-label="小白">
         <defs>
-          <linearGradient id="lgTop" x1="10" y1="8" x2="38" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#d7defe"/></linearGradient>
-          <linearGradient id="lgLeft" x1="8" y1="16" x2="24" y2="42" gradientUnits="userSpaceOnUse"><stop stop-color="#7aa6ff"/><stop offset="1" stop-color="#4f5bff"/></linearGradient>
-          <linearGradient id="lgRight" x1="40" y1="16" x2="24" y2="42" gradientUnits="userSpaceOnUse"><stop stop-color="#ff7ab6"/><stop offset="1" stop-color="#a24bff"/></linearGradient>
+          <radialGradient id="dogFur" cx=".42" cy=".3" r=".75"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#dfe4f2"/></radialGradient>
+          <clipPath id="dogWin"><rect width="60" height="60" rx="18"/></clipPath>
+          <linearGradient id="dogDeep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070915" stop-opacity="0"/><stop offset="1" stop-color="#070915" stop-opacity=".55"/></linearGradient>
+          <filter id="dogSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2"/></filter>
         </defs>
-        <path d="M24 6.5 40 15.5 24 24.5 8 15.5Z" fill="url(#lgTop)"/>
-        <path d="M8 15.5 24 24.5V42L8 33Z" fill="url(#lgLeft)"/>
-        <path d="M40 15.5V33L24 42V24.5Z" fill="url(#lgRight)"/>
-        <path d="M8 15.5 24 24.5 40 15.5M24 24.5V42" stroke="#fff" stroke-opacity=".55" stroke-width=".9" stroke-linejoin="round"/>
-        <path d="M24 12.2 30 15.5 24 18.8 18 15.5Z" fill="#7c5cff" fill-opacity=".22"/>
-        <path d="M42 2.5c.4 2.2 1.2 3 3.4 3.4-2.2.4-3 1.2-3.4 3.4-.4-2.2-1.2-3-3.4-3.4 2.2-.4 3-1.2 3.4-3.4Z" fill="#fff"/>
+        <g clip-path="url(#dogWin)">
+          <g class="dog-pop"><g class="dog">
+            <ellipse cx="30" cy="58" rx="14" ry="10" fill="url(#dogFur)"/>
+            <ellipse cx="30" cy="50.5" rx="9.5" ry="2.6" fill="#8f97b8" opacity=".55" filter="url(#dogSoft)"/>
+            <g class="dog-ear l"><ellipse cx="15" cy="30" rx="3.8" ry="6.8" transform="rotate(22 15 30)" fill="#e4e8f4"/></g>
+            <g class="dog-ear r"><ellipse cx="45" cy="30" rx="3.8" ry="6.8" transform="rotate(-22 45 30)" fill="#e4e8f4"/></g>
+            <path d="M30.0 18.5A3.7 3.7 0 0 1 36.3 19.8A3.7 3.7 0 0 1 41.5 23.6A3.7 3.7 0 0 1 44.7 29.2A3.7 3.7 0 0 1 45.4 35.6A3.7 3.7 0 0 1 43.4 41.8A3.7 3.7 0 0 1 39.1 46.5A3.7 3.7 0 0 1 33.2 49.2A3.7 3.7 0 0 1 26.8 49.2A3.7 3.7 0 0 1 20.9 46.5A3.7 3.7 0 0 1 16.6 41.8A3.7 3.7 0 0 1 14.6 35.6A3.7 3.7 0 0 1 15.3 29.2A3.7 3.7 0 0 1 18.5 23.6A3.7 3.7 0 0 1 23.7 19.8A3.7 3.7 0 0 1 30.0 18.5Z" fill="url(#dogFur)"/>
+            <ellipse cx="21.5" cy="38" rx="2.6" ry="1.5" fill="#ff8fb1" opacity=".55"/>
+            <ellipse cx="38.5" cy="38" rx="2.6" ry="1.5" fill="#ff8fb1" opacity=".55"/>
+            <g class="dog-look">
+              <ellipse class="dog-eye" cx="24.8" cy="31" rx="2.3" ry="2.8" fill="#1b1b22"/>
+              <ellipse class="dog-eye" cx="35.2" cy="31" rx="2.3" ry="2.8" fill="#1b1b22"/>
+              <circle cx="25.6" cy="29.9" r=".85" fill="#fff"/>
+              <circle cx="36" cy="29.9" r=".85" fill="#fff"/>
+            </g>
+            <ellipse cx="30" cy="37" rx="2.5" ry="1.8" fill="#1b1b22"/>
+            <path d="M30 38.6v1.3M27.6 40q1.2 1.3 2.4 0 1.2 1.3 2.4 0" stroke="#1b1b22" stroke-width=".8" stroke-linecap="round"/>
+            <path class="dog-tongue" d="M29 40.6h2v1.3a1 1 0 0 1-2 0Z" fill="#ff7a9a"/>
+          </g></g>
+          <rect x="0" y="53" width="60" height="8" fill="url(#dogDeep)"/>
+        </g>
+        <ellipse cx="20" cy="63" rx="5.5" ry="1.8" fill="#000" opacity=".5" filter="url(#dogSoft)"/>
+        <ellipse cx="40" cy="63" rx="5.5" ry="1.8" fill="#000" opacity=".5" filter="url(#dogSoft)"/>
+        <g transform="translate(20 58.5)"><g class="dog-paw l">
+          <path d="M0.0 -5.2A2.7 2.7 0 0 1 4.1 -3.2A2.7 2.7 0 0 1 5.1 1.2A2.7 2.7 0 0 1 2.3 4.7A2.7 2.7 0 0 1 -2.3 4.7A2.7 2.7 0 0 1 -5.1 1.2A2.7 2.7 0 0 1 -4.1 -3.2A2.7 2.7 0 0 1 0.0 -5.2Z" fill="url(#dogFur)"/>
+          <path d="M-1.7 1.6v2.1M1.7 1.6v2.1" stroke="#b9c0d6" stroke-width=".8" stroke-linecap="round"/>
+        </g></g>
+        <g transform="translate(40 58.5)"><g class="dog-paw r">
+          <path d="M0.0 -5.2A2.7 2.7 0 0 1 4.1 -3.2A2.7 2.7 0 0 1 5.1 1.2A2.7 2.7 0 0 1 2.3 4.7A2.7 2.7 0 0 1 -2.3 4.7A2.7 2.7 0 0 1 -5.1 1.2A2.7 2.7 0 0 1 -4.1 -3.2A2.7 2.7 0 0 1 0.0 -5.2Z" fill="url(#dogFur)"/>
+          <path d="M-1.7 1.6v2.1M1.7 1.6v2.1" stroke="#b9c0d6" stroke-width=".8" stroke-linecap="round"/>
+        </g></g>
+        <path class="dog-star" d="M50 4c.4 2.2 1.2 3 3.4 3.4-2.2.4-3 1.2-3.4 3.4-.4-2.2-1.2-3-3.4-3.4 2.2-.4 3-1.2 3.4-3.4Z" fill="#fff"/>
       </svg>
+      <span class="shine"></span>
     </div>
     <div>
       <h1>小白工具箱</h1>
       <p class="sub">PDF 编辑 · 图片处理 · 文本排版,一站搞定</p>
     </div>
-    <span class="brand-badge"><span class="dot"></span>纯本地处理,文件不上传</span>
+    <div class="view-sw" id="viewSw">
+      <button type="button" data-view="list" title="列表视图:左侧功能栏"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>列表</button>
+      <button type="button" data-view="grid" title="宫格视图:点进功能再编辑"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>宫格</button>
+    </div>
   </div>
 
   <!-- 功能入口 -->
@@ -716,63 +911,63 @@
   <nav class="nav">
     <button class="tab active" data-tab="merge">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="7" height="7" rx="1.5"/><rect x="2" y="14" width="7" height="7" rx="1.5"/><path d="M9 6.5h2a2 2 0 0 1 2 2V12M9 17.5h2a2 2 0 0 0 2-2V12h1.5"/><rect x="15" y="6" width="7" height="12" rx="1.5"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-back" d="M8.5 0.8h8L22 6.3V16a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V2.8a2 2 0 0 1 2-2z"/><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" d="M18 15.3v5.4M15.3 18h5.4"/></svg></span>
         <span class="tab-tag">多合一</span>
       </span>
       <span class="tab-txt"><div class="tab-title">合并 PDF</div><div class="tab-desc">多个 PDF 按顺序拼成一个</div></span>
     </button>
     <button class="tab" data-tab="insert">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 11v6M9 14h6"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M19 16.4v-.5a1 1 0 0 0-1-1h-1.6a1 1 0 0 0-1 1v4.2a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-.5M20.6 18h-3.4M18.2 17 17.2 18l1 1"/></svg></span>
         <span class="tab-tag">PDF · 图片</span>
       </span>
       <span class="tab-txt"><div class="tab-title">插入页面</div><div class="tab-desc">在指定页插入 PDF 或图片</div></span>
     </button>
     <button class="tab" data-tab="replace">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 12.5h7l-2-2M16 16.5H9l2 2"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.5" d="M15.34 17.29A2.75 2.75 0 0 1 20.49 16.84M20.66 18.71A2.75 2.75 0 0 1 15.51 19.16"/><path class="i-bf" d="M21.13 18.2L21.63 16.31L19.36 17.37zM14.87 17.8L14.37 19.69L16.64 18.63z"/></svg></span>
         <span class="tab-tag">按页替换</span>
       </span>
       <span class="tab-txt"><div class="tab-title">替换页面</div><div class="tab-desc">用新内容替换指定的页</div></span>
     </button>
     <button class="tab" data-tab="toimg">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15.5l-4.5-4.5L6 21"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><rect class="i-bf" x="14.7" y="15.1" width="6.6" height="5.8" rx="1.5"/><path class="i-w" style="stroke-width:1.05" d="M15.9 19.7l1.5-1.6 1.1 1.1.8-.8 1.1 1.2"/><circle class="i-wf" cx="19.3" cy="16.8" r=".75"/></svg></span>
         <span class="tab-tag">PNG · JPG</span>
       </span>
       <span class="tab-txt"><div class="tab-title">PDF 转图片</div><div class="tab-desc">每一页导出为高清图片</div></span>
     </button>
     <button class="tab" data-tab="pdf2word">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M7.5 12l1.5 6 1.5-4.5 1.5 4.5 1.5-6"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><text class="i-btxt" x="18" y="20.55">W</text></svg></span>
         <span class="tab-tag">DOCX</span>
       </span>
       <span class="tab-txt"><div class="tab-title">PDF 转 Word</div><div class="tab-desc">转成可编辑的 Word 文档</div></span>
     </button>
     <button class="tab" data-tab="txt2html">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 12.5l-2.5 2.5 2.5 2.5M14 12.5l2.5 2.5-2.5 2.5"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">TXT</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" d="M16.4 15.8l-2 2.2 2 2.2M19.6 15.8l2 2.2-2 2.2"/></svg></span>
         <span class="tab-tag">TXT · MD</span>
       </span>
       <span class="tab-txt"><div class="tab-title">文本转 HTML</div><div class="tab-desc">文本、Markdown 转网页</div></span>
     </button>
     <button class="tab" data-tab="imgtool">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="i-main" x="1.5" y="3" width="19" height="16.5" rx="3.5"/><circle class="i-wf" cx="7.2" cy="8.3" r="1.8"/><path class="i-w" d="M3.4 16.4l4.3-4.3 3.6 3.6 2.1-2.1 2.6 2.6"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-bf" d="M18 14.3Q18.45 17.55 21.7 18Q18.45 18.45 18 21.7Q17.55 18.45 14.3 18Q17.55 17.55 18 14.3z"/></svg></span>
         <span class="tab-tag">压缩 · 水印</span>
       </span>
       <span class="tab-txt"><div class="tab-title">图片处理</div><div class="tab-desc">压缩、裁剪、水印、转格式</div></span>
     </button>
     <button class="tab" data-tab="apksign">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-ms" d="M6.6 6.9 5 4.4M15.4 6.9 17 4.4"/><path class="i-main" d="M2.8 13.6a8.2 8.2 0 0 1 16.4 0z"/><circle class="i-wf" cx="7.9" cy="10.4" r="1.15"/><circle class="i-wf" cx="14.1" cy="10.4" r="1.15"/><path class="i-main" d="M2.8 15h16.4v4.5a2.5 2.5 0 0 1-2.5 2.5H5.3a2.5 2.5 0 0 1-2.5-2.5z"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.8" d="M15.6 18.2l1.7 1.7 3.2-3.3"/></svg></span>
         <span class="tab-tag">签名指纹</span>
       </span>
-      <span class="tab-txt"><div class="tab-title">APK 签名</div><div class="tab-desc">安卓 / 鸿蒙签名与备案信息</div></span>
+      <span class="tab-txt"><div class="tab-title">APK 签名查看</div><div class="tab-desc">安卓 / 鸿蒙签名与备案信息</div></span>
     </button>
     <button class="tab" data-tab="appshot">
       <span class="tab-top">
-        <span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="11" height="20" rx="2.5"/><path d="M7.5 18h2"/><path d="M19 3v4M17 5h4M19.5 12v3M18 13.5h3"/></svg></span>
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="i-main" x="2.5" y="1.5" width="11.6" height="21" rx="3.2"/><rect class="i-soft" x="4.5" y="4" width="7.6" height="14" rx="1.4"/><path class="i-w" d="M7.1 20.3h2.4"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><text class="i-btxt" x="18" y="20.55">A</text></svg></span>
         <span class="tab-tag">上架截图</span>
       </span>
       <span class="tab-txt"><div class="tab-title">App 预览图</div><div class="tab-desc">App Store 市场截图设计</div></span>
@@ -790,7 +985,7 @@
   <!-- 合并 -->
   <div class="panel active" id="merge">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="7" height="7" rx="1.5"/><rect x="2" y="14" width="7" height="7" rx="1.5"/><path d="M9 6.5h2a2 2 0 0 1 2 2V12M9 17.5h2a2 2 0 0 0 2-2V12h1.5"/><rect x="15" y="6" width="7" height="12" rx="1.5"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-back" d="M8.5 0.8h8L22 6.3V16a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V2.8a2 2 0 0 1 2-2z"/><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" d="M18 15.3v5.4M15.3 18h5.4"/></svg></span>
       <div><h2>合并 PDF</h2><p>按选择顺序把多个 PDF 拼接为一个文件</p></div>
     </div>
     <label>选择多个 PDF(按选择顺序合并)</label>
@@ -803,7 +998,7 @@
   <!-- 插入 -->
   <div class="panel" id="insert">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 11v6M9 14h6"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M19 16.4v-.5a1 1 0 0 0-1-1h-1.6a1 1 0 0 0-1 1v4.2a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-.5M20.6 18h-3.4M18.2 17 17.2 18l1 1"/></svg></span>
       <div><h2>插入内容</h2><p>把 PDF 或图片插入到主文件的指定位置</p></div>
     </div>
     <label>主文件 A</label>
@@ -820,7 +1015,7 @@
   <!-- 替换 -->
   <div class="panel" id="replace">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 12.5h7l-2-2M16 16.5H9l2 2"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.5" d="M15.34 17.29A2.75 2.75 0 0 1 20.49 16.84M20.66 18.71A2.75 2.75 0 0 1 15.51 19.16"/><path class="i-bf" d="M21.13 18.2L21.63 16.31L19.36 17.37zM14.87 17.8L14.37 19.69L16.64 18.63z"/></svg></span>
       <div><h2>整页替换</h2><p>删除指定页,并在原位置插入新的内容</p></div>
     </div>
     <label>主文件 A</label>
@@ -837,7 +1032,7 @@
   <!-- 转图片 -->
   <div class="panel" id="toimg">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15.5l-4.5-4.5L6 21"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><rect class="i-bf" x="14.7" y="15.1" width="6.6" height="5.8" rx="1.5"/><path class="i-w" style="stroke-width:1.05" d="M15.9 19.7l1.5-1.6 1.1 1.1.8-.8 1.1 1.2"/><circle class="i-wf" cx="19.3" cy="16.8" r=".75"/></svg></span>
       <div><h2>PDF 转图片</h2><p>把每一页渲染导出为 PNG / JPG 图片</p></div>
     </div>
     <label>选择 PDF</label>
@@ -869,7 +1064,7 @@
   <!-- PDF 转 Word -->
   <div class="panel" id="pdf2word">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M7.5 12l1.5 6 1.5-4.5 1.5 4.5 1.5-6"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><text class="i-btxt" x="18" y="20.55">W</text></svg></span>
       <div><h2>PDF 转 Word</h2><p>导出 .docx,用 Word / WPS 直接打开编辑</p></div>
     </div>
     <label>选择 PDF</label>
@@ -900,7 +1095,7 @@
   <!-- 文本转 HTML -->
   <div class="panel" id="txt2html">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 12.5l-2.5 2.5 2.5 2.5M14 12.5l2.5 2.5-2.5 2.5"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">TXT</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" d="M16.4 15.8l-2 2.2 2 2.2M19.6 15.8l2 2.2-2 2.2"/></svg></span>
       <div><h2>文本转 HTML</h2><p>把文本文件或直接输入的文字导出为独立网页</p></div>
     </div>
     <div class="seg" id="txtSrcSeg">
@@ -944,7 +1139,7 @@
   <!-- 图片处理 -->
   <div class="panel" id="imgtool">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="i-main" x="1.5" y="3" width="19" height="16.5" rx="3.5"/><circle class="i-wf" cx="7.2" cy="8.3" r="1.8"/><path class="i-w" d="M3.4 16.4l4.3-4.3 3.6 3.6 2.1-2.1 2.6 2.6"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-bf" d="M18 14.3Q18.45 17.55 21.7 18Q18.45 18.45 18 21.7Q17.55 18.45 14.3 18Q17.55 17.55 18 14.3z"/></svg></span>
       <div><h2>图片处理</h2><p>调整参数即时预览,满意后直接下载</p></div>
     </div>
     <label>选择图片(也可拖入,或直接粘贴截图)</label>
@@ -1121,7 +1316,7 @@
   <!-- APK 签名 -->
   <div class="panel" id="apksign">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-ms" d="M6.6 6.9 5 4.4M15.4 6.9 17 4.4"/><path class="i-main" d="M2.8 13.6a8.2 8.2 0 0 1 16.4 0z"/><circle class="i-wf" cx="7.9" cy="10.4" r="1.15"/><circle class="i-wf" cx="14.1" cy="10.4" r="1.15"/><path class="i-main" d="M2.8 15h16.4v4.5a2.5 2.5 0 0 1-2.5 2.5H5.3a2.5 2.5 0 0 1-2.5-2.5z"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.8" d="M15.6 18.2l1.7 1.7 3.2-3.3"/></svg></span>
       <div><h2>安装包签名查看</h2><p>安卓 / 鸿蒙安装包的指纹、包名与备案公钥</p></div>
     </div>
     <label>选择 APK / HAP 安装包或签名文件(也可直接拖入)</label>
@@ -1140,34 +1335,32 @@
   <!-- App 预览图 -->
   <div class="panel" id="appshot">
     <div class="panel-head">
-      <span class="ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="11" height="20" rx="2.5"/><path d="M7.5 18h2"/><path d="M19 3v4M17 5h4M19.5 12v3M18 13.5h3"/></svg></span>
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="i-main" x="2.5" y="1.5" width="11.6" height="21" rx="3.2"/><rect class="i-soft" x="4.5" y="4" width="7.6" height="14" rx="1.4"/><path class="i-w" d="M7.1 20.3h2.4"/><circle class="i-badge" cx="18" cy="18" r="5.8"/><text class="i-btxt" x="18" y="20.55">A</text></svg></span>
       <div><h2>App Store 预览图</h2><p>选模板、传截图、点选微调,导出上架尺寸</p></div>
     </div>
-    <label>模板</label>
+    <div class="shot-step shot-step-lg" style="margin-top:4px;padding-top:0;border-top:0"><i>1</i>选模板</div>
     <div class="seg shot-fam" id="shotFam">
       <button type="button" class="seg-btn active" data-fam="iphone">iPhone</button>
       <button type="button" class="seg-btn" data-fam="ipad">iPad</button>
       <button type="button" class="seg-btn" data-fam="duo">iPhone Duo</button>
     </div>
     <div class="shot-tpls" id="shotTpls"></div>
-    <label>上传 App 截图(可多选,按顺序填进各页设备,也可拖入 / 粘贴)</label>
-    <input type="file" id="shotFiles" accept="image/*" multiple />
-    <div class="seg shot-seg" id="shotSeg">
-      <button type="button" class="seg-btn active" data-pane="canvas" title="所有页共用:尺寸、背景、导出设置">尺寸与背景</button>
-      <button type="button" class="seg-btn" data-pane="el" title="在右侧预览里点中的那个文字 / 手机 / 徽章">编辑选中项</button>
-      <button type="button" class="seg-btn" data-pane="lang">多语言</button>
+    <div id="shotScreenRow" hidden>
+      <label style="margin-top:18px">屏幕</label>
+      <div class="chips" id="shotScreen">
+        <button type="button" class="chip" data-k="duoInnerL">内屏 · 横屏</button>
+        <button type="button" class="chip" data-k="duoInner">内屏 · 竖屏</button>
+        <button type="button" class="chip" data-k="duoOuterL">外屏 · 横屏</button>
+        <button type="button" class="chip" data-k="duoOuter">外屏 · 竖屏</button>
+      </div>
     </div>
+
+    <div class="shot-step shot-step-lg"><i>2</i>编辑内容</div>
+    <label style="margin-top:0">上传 App 截图(可多选,按顺序放进各页手机,也可拖入 / 粘贴)</label>
+    <input type="file" id="shotFiles" accept="image/*" multiple />
     <div class="shot-pane" data-pane="canvas">
-      <div class="row2">
-        <div><label>尺寸</label><select id="shotSize"></select></div>
-        <div><label>导出格式</label><select id="shotFmt"><option value="png">PNG(无透明通道)</option><option value="jpg">JPG</option></select></div>
-      </div>
-      <div id="shotExRow">
-        <label>一起导出的尺寸 <button type="button" class="link-btn" id="shotExAll">全选</button></label>
-        <div class="chips" id="shotExSizes"></div>
-        <div class="hint">同一机型的尺寸按比例换算,排版和微调都会保留,不用重新做。</div>
-      </div>
-      <label>背景</label>
+      <div class="hint shot-tip-box">想改某段文字、某台手机?直接在右侧预览里点它,这里会换成它的设置。</div>
+      <label>背景(所有页共用)</label>
       <div class="shot-sws" id="shotBgs"></div>
       <div class="wm-row shot-bgrow">
         <input type="color" id="shotC1" title="颜色 1" />
@@ -1187,7 +1380,7 @@
       <div class="hint">背景横跨所有页连续绘制,用户在 App Store 左右滑动时画面是连贯的。</div>
     </div>
     <div class="shot-pane" data-pane="el" hidden>
-      <div class="hint" id="shotElEmpty" style="margin-top:0">还没有选中任何东西。在右侧预览里点一下文字、手机或徽章,这里就会出现它的设置;也可以用预览上方的「+ 文字 / 设备 / 图片 / 徽章」添加新元素。</div>
+      <div class="shot-elhead"><button type="button" class="link-btn" id="shotElBack">← 返回背景设置</button><b id="shotElName">文字</b></div>
       <div id="shotProps" hidden>
         <div data-for="device image">
           <label>图片</label>
@@ -1250,29 +1443,50 @@
         <div class="wm-logo" data-for="device"><button type="button" class="link-btn" id="shotApplyAll">把外框、灵动岛、阴影应用到所有设备</button></div>
       </div>
     </div>
-    <div class="shot-pane" data-pane="lang" hidden>
-      <label style="margin-top:0">① 导出哪些语言</label>
-      <div class="chips" id="shotLangs"></div>
-      <select id="shotLangAdd" style="margin-top:10px"></select>
-      <label>② 填译文(手动改过的不会被覆盖)</label>
+    <details class="shot-sec" id="shotLangSec">
+      <summary class="shot-step shot-step-lg"><i>3</i>多语言<span id="shotLangSum"></span></summary>
+      <div class="shot-sub">① 选要做的语言<span>点一下选中,再点取消</span></div>
+      <div class="chips shot-langs" id="shotLangs"></div>
+      <div class="shot-sub">② 下载翻译表</div>
       <div class="wm-row">
-        <button type="button" class="run ghost shot-mini" id="shotMT">机器翻译</button>
-        <button type="button" class="run ghost shot-mini" id="shotTrOut">导出翻译表</button>
+        <button type="button" class="run ghost shot-mini" id="shotTrOut">下载翻译表</button>
         <select id="shotTrFmt" class="shot-trfmt" title="翻译表格式">
-          <option value="md">Markdown</option>
-          <option value="xml">XML</option>
-          <option value="csv">CSV 表格</option>
+          <option value="md">Markdown 格式</option>
+          <option value="csv">CSV(Excel 可开)</option>
+          <option value="xml">XML 格式</option>
         </select>
-        <button type="button" class="run ghost shot-mini" id="shotTrIn">导入翻译表</button>
       </div>
+      <div class="hint">表里是画布上的中文原文,把空着的语言列填上译文就行(可以整份发给 ChatGPT 翻),「编号」那列别改。</div>
+      <div class="shot-sub">③ 导入翻好的表</div>
+      <button type="button" class="run ghost shot-mini" id="shotTrIn">导入翻译表</button>
       <input type="file" id="shotTrFile" accept=".md,.markdown,.xml,.csv,.tsv,.txt,.json" hidden />
-      <div class="hint">翻译表里每条文字都有「编号」,别改它;把空着的语言填上(或整份交给 ChatGPT 翻译),保存后导入就会按编号自动对上,多出来的语言也会自动加进来。Markdown / XML / CSV 都能导入,也可以直接拖进来。</div>
-      <label>③ 逐条检查 / 修改</label>
-      <select id="shotTrLang"></select>
-      <div class="shot-tr" id="shotTrList"></div>
-    </div>
+      <div class="hint">也可以直接把文件拖进来,译文会自动填到每种语言的画布上。</div>
+      <div class="shot-trstate" id="shotTrState"></div>
+    </details>
     <button class="run ghost" id="shotReset">清空重来</button>
-    <div class="hint">草稿(含截图)自动保存在本机浏览器,刷新不丢。导出的 PNG 已去掉透明通道,符合 App Store 要求;每种语言最多 10 张。</div>
+    <div class="hint">草稿(含截图)自动保存在本机浏览器,刷新不丢。做好后点预览区的「导出」按钮,再选尺寸、语言和格式。</div>
+    <dialog class="xb-dlg" id="shotDlg">
+      <div class="dlg-head"><b>导出预览图</b><button type="button" class="dlg-x" id="shotDlgX" title="关闭">×</button></div>
+      <div id="shotExRow">
+        <label style="margin-top:0">尺寸 <button type="button" class="link-btn" id="shotExAll">全选</button></label>
+        <div class="chips" id="shotExSizes"></div>
+        <div class="hint">同一机型的尺寸按比例换算,排版都会保留。</div>
+      </div>
+      <label>语言</label>
+      <div class="chips shot-langs" id="shotExLangs"></div>
+      <label>格式</label>
+      <div class="seg" id="shotFmt">
+        <button type="button" class="seg-btn" data-v="png">PNG(推荐)</button>
+        <button type="button" class="seg-btn" data-v="jpg">JPG</button>
+      </div>
+      <div class="dlg-sum" id="shotExSum"></div>
+      <ul class="dlg-warn" id="shotExWarn"></ul>
+      <div class="dlg-prog" id="shotExProg" hidden><i></i><span></span></div>
+      <div class="dlg-foot">
+        <button type="button" class="run ghost" id="shotExCancel">取消</button>
+        <button type="button" class="run" id="shotExGo">开始导出</button>
+      </div>
+    </dialog>
     <div class="status" id="shotStatus"></div>
     <input type="file" id="shotReplaceFile" accept="image/*" hidden />
     <input type="file" id="shotAddImgFile" accept="image/*" hidden />
@@ -1358,7 +1572,7 @@
   </div>
   <button type="button" class="mascot-peek" id="mascotPeek" title="叫小家伙出来" hidden></button>
 
-  <footer>基于 pdf-lib(编辑)+ pdf.js(预览/转图)+ JSZip(打包)+ marked(Markdown) · 所有处理均在本地浏览器完成</footer>
+  <footer><span class="brand-badge"><span class="dot"></span>纯本地处理,文件不上传</span><span>基于 pdf-lib(编辑)+ pdf.js(预览/转图)+ JSZip(打包)+ marked(Markdown)</span></footer>
 </div>
 
 <script>
@@ -1433,6 +1647,23 @@ if (history.state?.m) history.replaceState(null, '');
 document.getElementById('mBack').onclick = () => history.state?.m ? history.back() : mHome(true);
 addEventListener('popstate', () => mHome(!history.state?.m));
 
+// 网页:列表(侧边栏)/ 宫格(首页 + 二级页面)两种视图,记住选择
+const homeMode = () => mobileQ.matches || document.body.classList.contains('g-mode');
+function setView(v, init) {
+  const grid = v === 'grid';
+  document.body.classList.toggle('g-mode', grid);
+  document.querySelectorAll('#viewSw button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  if (init) return;
+  if (grid) history.state?.m ? history.back() : mHome(true);
+  try { localStorage.setItem('xiaobai-view', v); } catch {}
+  setTimeout(() => dispatchEvent(new Event('resize')), 50);
+}
+setView(localStorage.getItem('xiaobai-view') === 'grid' ? 'grid' : 'list', true);
+document.getElementById('viewSw').onclick = e => {
+  const b = e.target.closest('button');
+  if (b && !b.classList.contains('on')) setView(b.dataset.view);
+};
+
 // 网页 / 平板横屏:侧边栏可收起成只显示图标,记住选择
 const navFold = document.getElementById('navFold');
 function setNavMini(on) {
@@ -1453,7 +1684,7 @@ document.querySelectorAll('.tab').forEach(t => {
   t.title = t.querySelector('.tab-title').textContent + ' · ' + t.querySelector('.tab-desc').textContent;
   t.onclick = () => {
     // 先显示二级页面再切面板,图片处理 / 预览图要按可见尺寸排版
-    if (mobileQ.matches) {
+    if (homeMode()) {
       document.getElementById('mTitle').textContent = t.querySelector('.tab-title').textContent;
       mHome(false);
       history.pushState({ m: 1 }, '');
@@ -2599,6 +2830,50 @@ async function doTxtToHtml() {
 
 /* ---------- 图片处理 ---------- */
 const gid = id => document.getElementById(id);
+/* 统一风格的确认 / 输入弹窗,代替系统 confirm / prompt。
+   确认返回 true、取消返回 false;带输入框(传了 input)时确认返回输入的文字、取消返回 null。按钮颜色跟随 host 所在面板 */
+function xbAsk({ title, msg = '', note = '', input, placeholder = '', ok = '确定', cancel = '取消', danger = false, host = document.body }) {
+  let d = gid('xbAsk');
+  if (!d) {
+    d = document.createElement('dialog');
+    d.className = 'xb-dlg';
+    d.id = 'xbAsk';
+    d.innerHTML = '<div class="dlg-head"><b></b><button type="button" class="dlg-x" title="关闭">×</button></div><p class="dlg-msg"></p><div class="dlg-note"></div><input type="text" class="dlg-input" /><div class="dlg-foot"><button type="button" class="run ghost" data-v="0"></button><button type="button" class="run" data-v="1"></button></div>';
+    document.body.appendChild(d);
+  }
+  const inp = d.querySelector('.dlg-input'), hasInput = input !== undefined, msgEl = d.querySelector('.dlg-msg'), noteEl = d.querySelector('.dlg-note');
+  const [no, yes] = d.querySelectorAll('.dlg-foot button');
+  d.style.setProperty('--c', getComputedStyle(host).getPropertyValue('--c').trim() || 'var(--btn-rgb)');
+  d.querySelector('.dlg-head b').textContent = title;
+  msgEl.textContent = msg;
+  msgEl.hidden = !msg;
+  noteEl.textContent = note;
+  noteEl.hidden = !note;
+  inp.hidden = !hasInput;
+  inp.value = input ?? '';
+  inp.placeholder = placeholder;
+  no.textContent = cancel;
+  yes.textContent = ok;
+  yes.classList.toggle('danger', danger);
+  return new Promise(res => {
+    const done = v => {
+      d.onclick = d.oncancel = inp.onkeydown = null;
+      d.close();
+      res(hasInput ? (v ? inp.value : null) : v);
+    };
+    d.onclick = e => {
+      const b = e.target.closest('button');
+      if (b) return done(b.dataset.v === '1');
+      const r = d.getBoundingClientRect();
+      if (e.target === d && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) done(false);
+    };
+    d.oncancel = e => { e.preventDefault(); done(false); };
+    inp.onkeydown = e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); done(true); } };
+    d.showModal();
+    if (hasInput) inp.select();
+    else (danger ? no : yes).focus();
+  });
+}
 const imgState = { el: null, url: '', name: '', type: '', size: 0, w: 0, h: 0 };
 const crop = { x: 0, y: 0, w: 0, h: 0, ratio: null, outW: 0, outH: 0 };
 const wm = { pos: 'br', bold: true, logo: null };
@@ -4196,7 +4471,7 @@ const SHOT_FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica 
 const SHOT_TITLES = ['一眼看懂核心价值', '功能亮点一', '功能亮点二', '功能亮点三', '功能亮点四', '功能亮点五', '功能亮点六', '功能亮点七', '功能亮点八', '更多惊喜等你发现'];
 const SHOT_SUB = '用一句话说明这个功能带来的好处';
 
-// App Store Connect 的语言代码 → [本地名, 机器翻译用的语言代码, 中文名]
+// App Store Connect 的语言代码 → [本地名, 简写语言代码(导入翻译表时也认), 中文名]
 const SHOT_LANGS = {
   'zh-Hans': ['简体中文', 'zh-CN', '简体中文'], 'zh-Hant': ['繁體中文', 'zh-TW', '繁体中文'], 'en-US': ['English', 'en', '英语'],
   ja: ['日本語', 'ja', '日语'], ko: ['한국어', 'ko', '韩语'], 'de-DE': ['Deutsch', 'de', '德语'], 'fr-FR': ['Français', 'fr', '法语'],
@@ -4589,34 +4864,120 @@ function shotApplyTpl(id) {
   shotSelect(null);
   shotRefreshUI();
   shotChanged();
+  shot.edited = false;
 }
 
 /* 预览绘制 */
 let shotRaf = 0, shotBgCache = { key: '', cv: null };
+let shotFs = false, shotFsCv = null, shotFsZoom = 1;
+function shotFsSet(on) {
+  const pv = gid('shotCanvas')?.closest('.shot-pv');
+  if (!pv || shotFs === on) return;
+  shotFs = on;
+  if (on) {
+    shotSelect(null);
+    shotFsZoom = 1;
+    shotFsZoomUI();
+    gid('shotFsInfo').textContent = `${shot.n} 页`;
+    const sel = gid('shotFsLang');
+    sel.innerHTML = shot.langs.map(l => `<option value="${l}">${SHOT_LANGS[l][2]}</option>`).join('');
+    sel.value = shot.lang;
+    sel.hidden = shot.langs.length < 2;
+  }
+  pv.classList.toggle('fs', on);
+  document.documentElement.classList.toggle('shot-fs-on', on);
+  const sc = gid('shotScroll');
+  sc.scrollLeft = sc.scrollTop = 0;
+  shotRender();
+}
+function shotFsZoomUI() {
+  gid('shotFsPct').textContent = shotFsZoom === 1 ? '显示全部' : Math.round(shotFsZoom * 100) + '%';
+  gid('shotFsOut').disabled = shotFsZoom <= 1;
+  gid('shotFsIn').disabled = shotFsZoom >= 6;
+}
+function shotFsZoomTo(z, cx, cy) {
+  const sc = gid('shotScroll'), cv = gid('shotCanvas');
+  z = clamp(Math.round(z * 100) / 100, 1, 6);
+  if (z === shotFsZoom) return;
+  const r = sc.getBoundingClientRect();
+  cx ??= r.left + sc.clientWidth / 2; cy ??= r.top + sc.clientHeight / 2;
+  const c0 = cv.getBoundingClientRect(), fx = (cx - c0.left) / c0.width, fy = (cy - c0.top) / c0.height;
+  shotFsZoom = z;
+  shotFsZoomUI();
+  shotPaint();
+  const c1 = cv.getBoundingClientRect();
+  sc.scrollLeft += c1.left + fx * c1.width - cx;
+  sc.scrollTop += c1.top + fy * c1.height - cy;
+}
+function shotFsToggle(on) {
+  const pv = gid('shotCanvas')?.closest('.shot-pv');
+  if (!pv) return;
+  if (on) pv.requestFullscreen?.().catch(() => {});
+  else if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  shotFsSet(on);
+}
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) shotFsSet(false); });
+document.addEventListener('keydown', e => {
+  if (!shotFs || e.target.tagName === 'SELECT' && e.key !== 'Escape') return;
+  const sc = gid('shotScroll');
+  if (e.key === 'Escape') shotFsToggle(false);
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') sc.scrollBy({ left: (e.key === 'ArrowLeft' ? -1 : 1) * sc.clientWidth * .6, behavior: 'smooth' });
+  else if (e.key === '+' || e.key === '=') shotFsZoomTo(shotFsZoom * 1.25);
+  else if (e.key === '-' || e.key === '_') shotFsZoomTo(shotFsZoom / 1.25);
+  else if (e.key === '0') shotFsZoomTo(1);
+  else return;
+  e.preventDefault();
+});
 function shotRender() {
   if (!shotRaf) shotRaf = requestAnimationFrame(() => { shotRaf = 0; shotPaint(); });
 }
 function shotPaint() {
   const cv = gid('shotCanvas');
   if (!cv) return;
-  const S = shotSize(), pageMax = (gid('shotScroll')?.clientWidth || 700) * .85;
-  const dh = Math.min(clamp(Math.round(innerHeight * .56), 340, 600), Math.round(pageMax * S.h / S.w)), k = dh / S.h;
-  const dpr = devicePixelRatio || 1, pk = k * dpr, cw = Math.round(S.w * shot.n * k);
-  const pw = Math.round(cw * dpr), ph = Math.round(dh * dpr);
+  const S = shotSize(), sc = gid('shotScroll'), gap = shotFs ? 16 : 0;
+  let dh;
+  if (shotFs) {
+    const W = (sc?.clientWidth || innerWidth) - 48, H = Math.max(160, (sc?.parentElement.clientHeight || innerHeight) - 84);
+    const fit = Math.min(H, (W - gap * (shot.n - 1)) / shot.n * S.h / S.w);
+    dh = Math.round(Math.max(120, fit) * shotFsZoom);
+  } else {
+    const pageMax = (sc?.clientWidth || 700) * .85;
+    dh = Math.min(clamp(Math.round(innerHeight * .56), 340, 600), Math.round(pageMax * S.h / S.w));
+  }
+  const k = dh / S.h;
+  const dpr = devicePixelRatio || 1, pk = k * dpr, sceneW = Math.round(S.w * shot.n * k), cw = sceneW + gap * (shot.n - 1);
+  const pw = Math.round(cw * dpr), ph = Math.round(dh * dpr), sw = Math.round(sceneW * dpr);
   if (cv.width !== pw || cv.height !== ph) {
     cv.width = pw; cv.height = ph;
     cv.style.width = cw + 'px'; cv.style.height = dh + 'px';
   }
-  const key = JSON.stringify([shot.bg, shot.sizeKey, shot.n, pw, ph]);
+  const key = JSON.stringify([shot.bg, shot.sizeKey, shot.n, sw, ph]);
   if (shotBgCache.key !== key) {
     const bc = shotBgCache.cv || document.createElement('canvas');
-    bc.width = pw; bc.height = ph;
+    bc.width = sw; bc.height = ph;
     const bx = bc.getContext('2d');
     bx.setTransform(pk, 0, 0, pk, 0, 0);
     shotDrawBg(bx, shot, pk);
     shotBgCache = { key, cv: bc };
   }
   const ctx = cv.getContext('2d'), u = 1 / k;
+  if (shotFs) {
+    const off = shotFsCv ||= document.createElement('canvas'), ox = off.getContext('2d'), pp = S.w * pk;
+    off.width = sw; off.height = ph;
+    ox.setTransform(pk, 0, 0, pk, 0, 0);
+    shotDrawScene(ox, shot, pk, shotBgCache.cv);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, pw, ph);
+    for (let i = 0; i < shot.n; i++) {
+      const x = i * (pp + gap * dpr);
+      ctx.save();
+      shotRR(ctx, x, 0, pp, ph, Math.min(14, dh * .025) * dpr);
+      ctx.clip();
+      ctx.drawImage(off, i * pp, 0, pp, ph, x, 0, pp, ph);
+      ctx.restore();
+    }
+    return;
+  }
   ctx.setTransform(pk, 0, 0, pk, 0, 0);
   shotDrawScene(ctx, shot, pk, shotBgCache.cv);
   ctx.lineWidth = u;
@@ -4627,6 +4988,7 @@ function shotPaint() {
   ctx.lineWidth = 3 * u;
   ctx.strokeStyle = '#fb7185';
   ctx.strokeRect(shot.page * S.w + 1.5 * u, 1.5 * u, S.w - 3 * u, S.h - 3 * u);
+  shotDrawUntranslated(ctx, u);
   if (shotSel) shotDrawSel(ctx, shotSel, u);
   const t = shotDrag?.target;
   if (t) {
@@ -4647,6 +5009,30 @@ function shotHandles(el, u) {
   const P = (lx, ly) => ({ x: c.cx + lx * cos - ly * sin, y: c.cy + lx * sin + ly * cos });
   const hw = b.w / 2, hh = b.h / 2;
   return { b, c, corners: [P(-hw, -hh), P(hw, -hh), P(hw, hh), P(-hw, hh)], top: P(0, -hh), rot: P(0, -hh - 26 * u) };
+}
+// 外语预览里还显示着原文(没翻译)的文字,用橙色虚线框标出来;只画在预览上,导出不带
+const shotUntranslated = el => {
+  if (shot.lang === shot.base) return false;
+  const m = shot.tr[shot.lang] || {}, base = shot.tr[shot.base] || {}, k = shotKey(el);
+  return shotTextParts(el).some(([suf, p]) => !m[k + suf] && String(el[p] || '').trim() && el[p] === base[k + suf]);
+};
+function shotDrawUntranslated(ctx, u) {
+  const els = shot.els.filter(el => el !== shotSel && shotUntranslated(el));
+  if (!els.length) return;
+  ctx.save();
+  ctx.strokeStyle = '#fb923c';
+  ctx.lineWidth = 2.5 * u;
+  ctx.setLineDash([8 * u, 6 * u]);
+  for (const el of els) {
+    const pad = 3 * u, h = shotHandles(el, u), b = h.b, c = h.c;
+    ctx.save();
+    ctx.translate(c.cx, c.cy);
+    ctx.rotate((el.rot || 0) * Math.PI / 180);
+    shotRR(ctx, -b.w / 2 - pad, -b.h / 2 - pad, b.w + pad * 2, b.h + pad * 2, 6 * u);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
 }
 function shotDrawSel(ctx, el, u) {
   const h = shotHandles(el, u);
@@ -4741,18 +5127,16 @@ function shotUp() {
   const d = shotDrag;
   shotDrag = null;
   if (!d) return;
-  if (d.target) { shotEmbed(d.el, d.target); shotChanged(); return; }
-  if (d.moved) shotChanged();
+  if (d.target) { shotEmbed(d.el, d.target); shotChanged(); shotHistCommit(); return; }
+  if (d.moved) { shotChanged(); shotHistCommit(); }
   // 点一下空设备直接选截图放进去
   else if (d.el.type === 'device' && d.mode === 'move' && !shotImgs[d.el.src]?.bmp) gid('shotReplaceFile').click();
 }
 
 function shotSelect(el) {
   shotSel = el;
-  if (el) {
-    shot.page = clamp(Math.floor(shotCenter(el).cx / shotSize().w), 0, shot.n - 1);
-    shotPane('el');
-  }
+  if (el) shot.page = clamp(Math.floor(shotCenter(el).cx / shotSize().w), 0, shot.n - 1);
+  shotPane(el ? 'el' : 'canvas');
   shotSyncProps();
   shotToolsState();
   shotPagesBar();
@@ -4859,7 +5243,7 @@ function shotPagesBar() {
 }
 
 function shotSetSize(key) {
-  const a = shotSize(), b = SHOT_SIZES[key];
+  const a = shotSize(), b = SHOT_SIZES[key], edited = shot.edited;
   if (a.kind === b.kind) {
     const sx = b.w / a.w, sy = b.h / a.h;
     for (const el of shot.els) {
@@ -4880,6 +5264,7 @@ function shotSetSize(key) {
   shotSelect(null);
   shotRefreshUI();
   shotChanged();
+  shot.edited = a.kind === b.kind && edited;
 }
 
 /* 截图上传:按顺序填空位,不够就加页 */
@@ -4915,14 +5300,13 @@ async function shotAddShots(files) {
   setStatus('shotStatus', tips.join(','), !bad && !full);
   shotSelect(null);
   shotPagesBar();
-  shotChanged();
+  shotKept();
 }
 
 /* 左侧控件 */
+// 第 2 步:没选中元素时显示背景设置,选中后换成该元素的设置
 function shotPane(name) {
-  document.querySelectorAll('#shotSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.pane === name));
   document.querySelectorAll('#appshot .shot-pane').forEach(p => { p.hidden = p.dataset.pane !== name; });
-  if (name === 'lang') shotTrList();
 }
 function shotVal(input) {
   const v = input.closest('.slider-row')?.querySelector('.val');
@@ -4930,9 +5314,10 @@ function shotVal(input) {
 }
 function shotSyncProps() {
   const el = shotSel, box = gid('shotProps');
-  gid('shotElEmpty').hidden = !!el;
   box.hidden = !el;
   if (!el) return;
+  gid('shotElName').textContent = '正在编辑:' + ({ text: '文字', device: '手机', image: '图片', badge: '徽章' }[el.type] || '元素')
+    + (shot.lang !== shot.base && shotTextParts(el).length ? ` · ${SHOT_LANGS[shot.lang][2]}译文` : '');
   box.querySelectorAll('[data-for]').forEach(n => { n.hidden = !n.dataset.for.split(' ').includes(el.type); });
   box.querySelector('[data-prop=w]').max = Math.round(shotSize().w * 1.2);
   box.querySelectorAll('[data-prop]').forEach(inp => {
@@ -4957,8 +5342,8 @@ function shotSwatchCss(b) {
 function shotRefreshUI() {
   if (shotFam(shot.sizeKey) !== shotUIFam) shotBuildFam(shotFam(shot.sizeKey));
   document.querySelectorAll('#shotTpls .shot-tpl').forEach(b => b.classList.toggle('active', b.dataset.tpl === shot.tpl));
-  gid('shotSize').value = shot.sizeKey;
-  gid('shotFmt').value = shot.fmt;
+  gid('shotScreen').querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.k === shot.sizeKey));
+  gid('shotFmt').querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.v === shot.fmt));
   const b = shot.bg, hasImg = b.img != null && !!shotImgs[b.img]?.bmp;
   document.querySelectorAll('#shotBgs .shot-sw').forEach((s, i) => {
     const p = SHOT_BGS[i];
@@ -4985,8 +5370,7 @@ const shotFam = key => ({ ipad: 'ipad', duo: 'duo', duoin: 'duo', duoL: 'duo', d
 let shotUIFam = '';
 function shotBuildFam(fam) {
   shotUIFam = fam;
-  gid('shotSize').innerHTML = Object.entries(SHOT_SIZES).filter(([k]) => shotFam(k) === fam)
-    .map(([k, s]) => `<option value="${k}">${s.label}</option>`).join('');
+  gid('shotScreenRow').hidden = fam !== 'duo';
   document.querySelectorAll('#shotFam .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.fam === fam));
   const box = gid('shotTpls'), dpr = devicePixelRatio || 1, sk = SHOT_FAMS[fam], S = SHOT_SIZES[sk];
   const n = S.w > S.h ? 2 : 3, k = Math.min(112 / S.h, 170 / (S.w * n));
@@ -5013,16 +5397,30 @@ function shotBuildLeft() {
 }
 function shotBgChanged() { shotRefreshUI(); shotChanged(); }
 
-gid('shotTpls').addEventListener('click', e => {
+// 换模板 / 换设备会按新模板重新排版,改过的背景和样式会被替换,先确认
+const shotConfirmRelayout = async (what, bg) => !shot.edited || await xbAsk({
+  title: `换成${what}?`,
+  msg: `你调整过的${bg ? '背景、' : ''}位置和样式会恢复成模板默认的样子。`,
+  note: '文字内容、截图和译文都会保留',
+  ok: '确定更换', host: gid('appshot'),
+});
+gid('shotTpls').addEventListener('click', async e => {
   const b = e.target.closest('.shot-tpl');
-  if (b && b.dataset.tpl !== shot.tpl) shotApplyTpl(b.dataset.tpl);
+  if (!b || b.dataset.tpl === shot.tpl) return;
+  if (await shotConfirmRelayout(`「${SHOT_TPLS[b.dataset.tpl].name}」模板`, true)) shotApplyTpl(b.dataset.tpl);
 });
 gid('shotFiles').addEventListener('change', e => { shotAddShots(e.target.files); e.target.value = ''; });
-gid('shotSeg').addEventListener('click', e => { const b = e.target.closest('.seg-btn'); if (b) shotPane(b.dataset.pane); });
-gid('shotSize').addEventListener('change', e => shotSetSize(e.target.value));
-gid('shotFam').addEventListener('click', e => {
+gid('shotElBack').addEventListener('click', () => shotSelect(null));
+gid('shotLangSec').addEventListener('toggle', e => { if (e.target.open) shotTrProgress(); });
+gid('shotScreen').addEventListener('click', async e => {
+  const b = e.target.closest('.chip');
+  if (!b || b.dataset.k === shot.sizeKey) return;
+  if (await shotConfirmRelayout(`「${b.textContent}」`, false)) shotSetSize(b.dataset.k);
+});
+gid('shotFam').addEventListener('click', async e => {
   const b = e.target.closest('.seg-btn');
-  if (b && b.dataset.fam !== shotFam(shot.sizeKey)) shotSetSize(SHOT_FAMS[b.dataset.fam]);
+  if (!b || b.dataset.fam === shotFam(shot.sizeKey)) return;
+  if (await shotConfirmRelayout(` ${b.textContent} 模板`, false)) shotSetSize(SHOT_FAMS[b.dataset.fam]);
 });
 gid('shotTextColors').addEventListener('click', e => {
   const c = e.target.closest('.shot-color');
@@ -5038,7 +5436,13 @@ gid('shotTextAll').addEventListener('click', () => {
   setStatus('shotStatus', `已同步到所有页的${g === 't' ? '标题' : '副标题'}`, true);
   shotChanged();
 });
-gid('shotFmt').addEventListener('change', e => { shot.fmt = e.target.value; shotChanged(); });
+gid('shotFmt').addEventListener('click', e => {
+  const b = e.target.closest('.seg-btn');
+  if (!b) return;
+  shot.fmt = b.dataset.v;
+  shotRefreshUI();
+  shotSaveSoon();
+});
 gid('shotBgs').addEventListener('click', e => {
   const s = e.target.closest('.shot-sw');
   if (!s) return;
@@ -5101,9 +5505,9 @@ gid('shotReplaceFile').addEventListener('change', async e => {
   const f = e.target.files[0], el = shotSel;
   e.target.value = '';
   if (!f || !el) return;
-  try { el.src = await shotLoadImg(f); shotChanged(); } catch { setStatus('shotStatus', '这张图片无法读取', false); }
+  try { el.src = await shotLoadImg(f); shotKept(); } catch { setStatus('shotStatus', '这张图片无法读取', false); }
 });
-gid('shotClearImg').addEventListener('click', () => { if (shotSel) { shotSel.src = -1; shotChanged(); } });
+gid('shotClearImg').addEventListener('click', () => { if (shotSel) { shotSel.src = -1; shotKept(); } });
 gid('shotEmbedBtn').addEventListener('click', () => {
   const img = shotSel, dev = img?.type === 'image' && shotDevAt(img.x, img.y);
   if (!dev) { setStatus('shotStatus', '先把图片拖到某台手机的屏幕上方', false); return; }
@@ -5122,21 +5526,27 @@ gid('shotAddImgFile').addEventListener('change', async e => {
   if (!f) return;
   try {
     const src = await shotLoadImg(f);
-    if (shotSel?.type === 'device') { shotSel.src = src; shotChanged(); setStatus('shotStatus', '已放进选中的手机', true); return; }
+    if (shotSel?.type === 'device') { shotSel.src = src; shotKept(); setStatus('shotStatus', '已放进选中的手机', true); return; }
     shotAdd('image', src);
     setStatus('shotStatus', '已添加为贴图;要放进手机的话,把它拖到手机屏幕上松手即可', true);
   } catch { setStatus('shotStatus', '这张图片无法读取', false); }
 });
-gid('shotReset').addEventListener('click', () => {
-  if (!confirm('清空所有截图和修改,恢复为当前模板的初始样子?')) return;
+gid('shotReset').addEventListener('click', async () => {
+  if (!await xbAsk({
+    title: '清空重来?',
+    msg: '所有截图、文字修改和译文都会被删除,画布恢复成当前模板的初始样子。\n清空后无法撤销。',
+    ok: '清空', danger: true, host: gid('appshot'),
+  })) return;
   shotImgs.length = 0;
   shot.n = 5;
   shot.page = 0;
   shot.els = [];
   shot.tr = {};
   shot.lang = shot.base;
+  shot.langs = [...new Set([shot.base, 'en-US'])];
   shotApplyTpl(shot.tpl);
   shotLangUI();
+  shotHistReset();
   setStatus('shotStatus', '已清空', true);
 });
 
@@ -5146,10 +5556,14 @@ const shotTextParts = el => el.type === 'text' ? [['', 'text']] : el.type === 'b
 // 每种语言存文字;文字和模板设备另存 #g = [字号, y, 宽],译文版的 #g 由原文版自动适配而来,#sig 记录适配依据
 const shotGeoEl = el => el.type === 'text' || (el.type === 'device' && /^d\d+$/.test(el.slot || ''));
 function shotStash() {
-  const m = shot.tr[shot.lang] ||= {};
+  const m = shot.tr[shot.lang] ||= {}, base = shot.lang === shot.base ? null : shot.tr[shot.base] || {};
   for (const el of shot.els) {
     const k = shotKey(el);
-    for (const [suf, p] of shotTextParts(el)) m[k + suf] = el[p];
+    for (const [suf, p] of shotTextParts(el)) {
+      // 没翻译的条目在外语画布上临时显示原文,不能当成译文存下
+      if (base && !m[k + suf] && el[p] === base[k + suf]) continue;
+      m[k + suf] = el[p];
+    }
     if (shotGeoEl(el)) m[k + '#g'] = [el.size ?? null, el.y, el.w];
   }
 }
@@ -5197,13 +5611,15 @@ function shotPutTexts(els, lang, base = shotBaseMap(), record = false) {
 }
 function shotSwitchLang(lang) {
   if (lang === shot.lang) return;
+  if (shotHist.t) shotHistCommit();
   const base = shotBaseMap();
   shot.lang = lang;
   shot.tr[lang] ||= {};
   shotPutTexts(shot.els, lang, base, true);
   shotSyncProps();
   shotLangUI();
-  shotChanged();
+  shotKept();
+  shotHistRebase();
 }
 const shotLangName = l => { const s = SHOT_LANGS[l]; return !s ? l : s[2] === s[0] ? s[0] : `${s[2]} ${s[0]}`; };
 const shotAllLangs = () => [...new Set([shot.base, ...shot.langs])];
@@ -5226,31 +5642,27 @@ function shotMissing(lang) {
 }
 function shotLangUI() {
   if (!SHOT_LANGS[shot.lang]) shot.lang = shot.base;
-  gid('shotLangs').innerHTML = shot.langs.map(l =>
-    `<button type="button" class="chip active" data-lang="${l}" title="点击移除">${shotLangName(l)}${l === shot.base ? '<small>原文</small>' : ''}<small>✕</small></button>`).join('');
-  const rest = Object.keys(SHOT_LANGS).filter(l => !shot.langs.includes(l));
-  gid('shotLangAdd').innerHTML = '<option value="">+ 添加语言</option>' + rest.map(l => `<option value="${l}">${shotLangName(l)}</option>`).join('');
-  const targets = shot.langs.filter(l => l !== shot.base), sel = gid('shotTrLang'), prev = sel.value;
-  sel.innerHTML = targets.map(l => `<option value="${l}">${shotLangName(l)}</option>`).join('') || '<option value="">(先添加一种外语)</option>';
-  sel.value = targets.includes(prev) ? prev : targets.includes(shot.lang) ? shot.lang : targets[0] || '';
-  gid('shotMT').disabled = !targets.length;
-  shotTrList();
+  gid('shotLangs').innerHTML = Object.keys(SHOT_LANGS).map(l => {
+    const on = shot.langs.includes(l);
+    return `<button type="button" class="chip${on ? ' active' : ''}" data-lang="${l}" aria-pressed="${on}" title="${SHOT_LANGS[l][0]}">${SHOT_LANGS[l][2]}${l === shot.base ? '<small>原文</small>' : ''}</button>`;
+  }).join('');
+  gid('shotLangSum').textContent = `已选 ${shot.langs.length} 种`;
+  shotTrProgress();
   const bar = gid('shotLangBar');
   if (bar) {
     const all = shotAllLangs();
     bar.hidden = all.length < 2;
-    bar.innerHTML = all.map(l => `<button class="shot-btn${l === shot.lang ? ' active' : ''}" data-lang="${l}">${shotLangName(l)}</button>`).join('');
+    bar.innerHTML = all.map(l => `<button class="shot-btn${l === shot.lang ? ' active' : ''}" data-lang="${l}" title="${SHOT_LANGS[l][0]}">${SHOT_LANGS[l][2]}</button>`).join('');
   }
   shotPagesBar();
 }
-function shotTrList() {
-  const lang = gid('shotTrLang').value, box = gid('shotTrList');
-  if (!lang) { box.innerHTML = ''; return; }
-  const m = shot.tr[lang] || {}, esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  box.innerHTML = shotTrItems().map(it => `<div class="shot-tr-item">
-      <div class="shot-tr-src"><b>第 ${it.page + 1} 页</b>${esc(it.src)}</div>
-      <textarea rows="${Math.min(4, String(it.src).split('\n').length + 1)}" data-k="${esc(it.k)}" placeholder="${esc(shotLangName(lang))}译文">${esc(m[it.k] || '')}</textarea>
-    </div>`).join('') || '<div class="hint" style="margin-top:0">画布上还没有文字。</div>';
+// 第 3 步底部:每种外语还差几条没译,以及怎么单独修改
+function shotTrProgress() {
+  const box = gid('shotTrState'), targets = shot.langs.filter(l => l !== shot.base);
+  if (!targets.length || !shotTrItems().length) { box.innerHTML = ''; return; }
+  const left = targets.map(l => [l, shotMissing(l)]);
+  box.innerHTML = left.map(([l, n]) => `<span class="it">${SHOT_LANGS[l][2]}:${n ? `<b>还差 ${n} 条</b>` : '<span class="ok">已译完 ✓</span>'}</span>`).join('')
+    + '<br>想单独改某一句?在预览上方切到那种语言,直接点文字修改。' + (left.some(([, n]) => n) ? '没翻译的文字会用<i></i>橙色虚线框标出。' : '');
 }
 function shotSetTr(lang, k, v) {
   (shot.tr[lang] ||= {})[k] = v;
@@ -5259,44 +5671,6 @@ function shotSetTr(lang, k, v) {
   if (!el) return;
   el[part || 'text'] = v;
   shotPutTexts(shot.els, lang, shotBaseMap(), true);
-}
-
-async function shotTranslate(text, from, to) {
-  const f = SHOT_LANGS[from][1], t = SHOT_LANGS[to][1];
-  try {
-    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=${f}&tl=${t}&q=${encodeURIComponent(text)}`);
-    if (!r.ok) throw new Error(r.status);
-    const out = (await r.json())[0].map(s => s[0]).join('');
-    if (out) return out.replace(/\u200b/g, '');
-  } catch { /* 换备用接口 */ }
-  const r = await fetch(`https://api.mymemory.translated.net/get?langpair=${f}|${t}&q=${encodeURIComponent(text)}`);
-  const d = await r.json();
-  if (d.responseStatus !== 200) throw new Error(d.responseDetails || '翻译接口不可用');
-  return d.responseData.translatedText;
-}
-// 一次把所有外语的空白条目都机翻;已有译文(包括手动改过的)不动
-async function shotMT() {
-  const items = shotTrItems(), todo = [];
-  for (const lang of shot.langs) {
-    if (lang === shot.base) continue;
-    const m = shot.tr[lang] ||= {};
-    for (const it of items) if (!m[it.k]) todo.push({ lang, it });
-  }
-  if (!todo.length) { setStatus('shotStatus', '所有语言的译文都已经填好了', true); return; }
-  const btn = gid('shotMT'), total = todo.length;
-  btn.disabled = true;
-  let done = 0, bad = 0;
-  const next = async () => {
-    for (let job; (job = todo.shift());) {
-      try { shotSetTr(job.lang, job.it.k, await shotTranslate(job.it.src, shot.base, job.lang)); } catch { bad++; }
-      setStatus('shotStatus', `正在机器翻译… ${++done} / ${total}`, true);
-    }
-  };
-  await Promise.all([next(), next(), next(), next()]);
-  btn.disabled = false;
-  shotTrList();
-  shotChanged();
-  setStatus('shotStatus', bad ? `有 ${bad} 条翻译失败,检查网络后再点一次「机器翻译」会只补这些` : `已机器翻译 ${done} 条,可在下方逐条修改,或在预览上方切换语言检查排版`, !bad);
 }
 
 /* 翻译表:Markdown / XML / CSV 三种格式,都以「编号」配对;内部统一成 [表头, ...行] */
@@ -5415,37 +5789,25 @@ async function shotTrImport(file) {
     });
   }
   shotLangUI();
-  shotChanged();
-  const done = Object.entries(count).map(([l, n]) => `${shotLangName(l)} ${n} 条`).join('、');
+  shotKept();
+  const done = Object.entries(count).map(([l, n]) => `${SHOT_LANGS[l][2]} ${n} 条`).join('、');
   setStatus('shotStatus', (done ? `已导入:${done}` : '没有导入任何译文') + (missed.length ? `;有 ${missed.length} 行没对上(编号被改了,或画布上已删掉这段文字)` : ''), !!done && !missed.length);
 }
 
 gid('shotLangs').addEventListener('click', e => {
   const l = e.target.closest('.chip')?.dataset.lang;
   if (!l) return;
-  if (shot.langs.length === 1) { setStatus('shotStatus', '至少要导出一种语言', false); return; }
-  shot.langs = shot.langs.filter(x => x !== l);
-  if (l === shot.lang && l !== shot.base) shotSwitchLang(shot.base);
-  shotLangUI();
-  shotChanged();
+  if (shot.langs.includes(l)) {
+    if (shot.langs.length === 1) { setStatus('shotStatus', '至少要导出一种语言', false); return; }
+    shot.langs = shot.langs.filter(x => x !== l);
+    if (l === shot.lang && l !== shot.base) shotSwitchLang(shot.base);
+    shotLangUI();
+  } else {
+    shot.langs = Object.keys(SHOT_LANGS).filter(x => x === l || shot.langs.includes(x));
+    shotLangUI();
+  }
+  shotKept();
 });
-gid('shotLangAdd').addEventListener('change', e => {
-  const l = e.target.value;
-  if (!l) return;
-  shot.langs = Object.keys(SHOT_LANGS).filter(x => x === l || shot.langs.includes(x));
-  shotLangUI();
-  gid('shotTrLang').value = l;
-  shotTrList();
-  shotChanged();
-});
-gid('shotTrLang').addEventListener('change', shotTrList);
-gid('shotTrList').addEventListener('input', e => {
-  const k = e.target.dataset.k;
-  if (k == null) return;
-  shotSetTr(gid('shotTrLang').value, k, e.target.value);
-  shotChanged();
-});
-gid('shotMT').addEventListener('click', shotMT);
 gid('shotTrOut').addEventListener('click', shotTrExport);
 gid('shotTrIn').addEventListener('click', () => gid('shotTrFile').click());
 gid('shotTrFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) shotTrImport(f); });
@@ -5458,23 +5820,74 @@ function shotExUI() {
   gid('shotExRow').hidden = keys.length < 2;
   gid('shotExSizes').innerHTML = keys.map(k => {
     const S = SHOT_SIZES[k], cur = k === shot.sizeKey;
-    return `<button type="button" class="chip${cur || shot.exSizes.includes(k) ? ' active' : ''}" data-k="${k}"${cur ? ' title="当前编辑的尺寸,总会导出"' : ''}>${S.w}×${S.h}<small>${S.label.split('·')[0].replace(/iPhone |iPad /, '').replace('(必传)', ' 必传').trim()}</small></button>`;
+    return `<button type="button" class="chip${cur || shot.exSizes.includes(k) ? ' active' : ''}" data-k="${k}"${cur ? ' title="预览里排版用的就是这个尺寸,总会导出"' : ''}>${S.w}×${S.h}<small>${S.label.split('·')[0].replace(/iPhone |iPad /, '').replace('(必传)', ' 必传').trim()}</small></button>`;
   }).join('');
   gid('shotExAll').textContent = keys.every(k => k === shot.sizeKey || shot.exSizes.includes(k)) ? '只导出当前尺寸' : '全选';
   shotPagesBar();
+  shotExSummary();
 }
+
+/* 导出弹窗:尺寸、语言、格式都在这里选;语言的勾选只影响这一次导出,不改「多语言」里的设置 */
+let shotExLangs = [], shotExBusy = false;
+const shotExSel = () => shot.langs.filter(l => shotExLangs.includes(l));
+function shotExSummary() {
+  gid('shotExLangs').innerHTML = shot.langs.map(l => {
+    const on = shotExLangs.includes(l), n = l === shot.base ? 0 : shotMissing(l);
+    return `<button type="button" class="chip${on ? ' active' : ''}" data-lang="${l}" aria-pressed="${on}">${SHOT_LANGS[l][2]}${l === shot.base ? '<small>原文</small>' : n ? `<small>还差 ${n} 条</small>` : ''}</button>`;
+  }).join('');
+  const langs = shotExSel(), sizes = shotExKeys(), total = shot.n * langs.length * sizes.length;
+  gid('shotExSum').innerHTML = `${shot.n} 页 × ${langs.length} 种语言 × ${sizes.length} 个尺寸 = <b>${total} 张</b>${total > 1 ? ',打包成一个 ZIP 下载' : ''}`;
+  const warn = [], empty = shotEmptyDevs().length;
+  if (empty) warn.push(`还有 ${empty} 台手机没放截图,导出后是空白屏幕`);
+  for (const l of langs) { const k = shotMissing(l); if (k) warn.push(`${SHOT_LANGS[l][2]}还有 ${k} 条没翻译,会先用原文代替`); }
+  gid('shotExWarn').innerHTML = warn.map(w => `<li>${w}</li>`).join('');
+  const go = gid('shotExGo');
+  if (!shotExBusy && !go.dataset.done) { go.textContent = `开始导出 ${total} 张`; go.disabled = !total; }
+}
+function shotExProg(text, pct) {
+  const box = gid('shotExProg');
+  box.hidden = false;
+  box.querySelector('i').style.setProperty('--p', pct + '%');
+  box.querySelector('span').textContent = text;
+}
+function shotExOpen() {
+  shotExLangs = [...shot.langs];
+  delete gid('shotExGo').dataset.done;
+  gid('shotExProg').hidden = true;
+  gid('shotExCancel').textContent = '取消';
+  shotRefreshUI();
+  gid('shotDlg').showModal();
+}
+function shotExClose() { if (!shotExBusy) gid('shotDlg').close(); }
+gid('shotExLangs').addEventListener('click', e => {
+  const l = e.target.closest('.chip')?.dataset.lang;
+  if (!l || shotExBusy) return;
+  if (shotExLangs.includes(l)) {
+    if (shotExSel().length === 1) return;
+    shotExLangs = shotExLangs.filter(x => x !== l);
+  } else shotExLangs.push(l);
+  shotExSummary();
+});
+gid('shotExGo').addEventListener('click', () => gid('shotExGo').dataset.done ? shotExClose() : shotExport());
+gid('shotExCancel').addEventListener('click', shotExClose);
+gid('shotDlgX').addEventListener('click', shotExClose);
+gid('shotDlg').addEventListener('cancel', e => { if (shotExBusy) e.preventDefault(); });
+gid('shotDlg').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) shotExClose();
+});
 gid('shotExSizes').addEventListener('click', e => {
   const c = e.target.closest('.chip'), k = c?.dataset.k;
   if (!k || k === shot.sizeKey) return;
   shot.exSizes = shot.exSizes.includes(k) ? shot.exSizes.filter(x => x !== k) : [...shot.exSizes, k];
   shotExUI();
-  shotChanged();
+  shotSaveSoon();
 });
 gid('shotExAll').addEventListener('click', () => {
   const keys = shotSameKind().filter(k => k !== shot.sizeKey);
   shot.exSizes = keys.every(k => shot.exSizes.includes(k)) ? [] : keys;
   shotExUI();
-  shotChanged();
+  shotSaveSoon();
 });
 // 生成某语言、某尺寸的完整画布状态(不改动当前编辑中的 shot)
 function shotStateFor(lang, sizeKey, base) {
@@ -5493,6 +5906,12 @@ function shotEnsurePreview() {
     resetPreview('App 预览图');
     gid('previewBody').innerHTML = `<div class="shot-pv">
       <div class="shot-bar">
+        <div class="shot-group">
+          <button class="shot-btn" data-hist="-1" id="shotUndo" title="上一步(⌘Z / Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>上一步</button>
+          <button class="shot-btn" data-hist="1" id="shotRedo" title="下一步(⇧⌘Z / Ctrl+Y)" disabled><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>下一步</button>
+          <button class="shot-btn" data-fs="1" title="全屏看成品效果(Esc 退出)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>全屏预览</button>
+        </div>
+        <div class="shot-fsbar"><span id="shotFsInfo"></span><select id="shotFsLang" class="shot-fslang" title="切换语言"></select><span class="shot-fszoom"><button class="shot-btn" data-fz="out" id="shotFsOut" title="缩小(-)">−</button><button class="shot-btn" data-fz="fit" id="shotFsPct" title="显示全部(0)">显示全部</button><button class="shot-btn" data-fz="in" id="shotFsIn" title="放大(+)">+</button></span><button class="shot-btn" data-fs="0" title="退出全屏(Esc)"><svg viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>退出全屏</button></div>
         <div class="shot-group" id="shotTools">
           <button class="shot-btn" data-act="rotL" title="逆时针旋转 15°">↺ 15°</button>
           <button class="shot-btn" data-act="rotR" title="顺时针旋转 15°">↻ 15°</button>
@@ -5512,7 +5931,7 @@ function shotEnsurePreview() {
       </div>
       <div class="shot-scroll" id="shotScroll"><canvas id="shotCanvas"></canvas></div>
       <div class="shot-pages" id="shotPages"></div>
-      <div class="shot-tip">点击选中元素 · 拖动移动 · 拖四角缩放 · 拖顶部圆点旋转(靠近 15° 的倍数会吸附)· 方向键微调 · Delete 删除 · 双击文字直接编辑</div>
+      <div class="shot-tip">点击选中元素 · 拖动移动 · 拖四角缩放 · 拖顶部圆点旋转(靠近 15° 的倍数会吸附)· 方向键微调 · Delete 删除 · 双击文字直接编辑 · ⌘Z / Ctrl+Z 撤销</div>
     </div>`;
     const cv = gid('shotCanvas'), pv = cv.closest('.shot-pv');
     cv.addEventListener('pointerdown', shotDown);
@@ -5527,7 +5946,10 @@ function shotEnsurePreview() {
     pv.addEventListener('click', e => {
       const b = e.target.closest('.shot-btn');
       if (!b || b.disabled) return;
-      if (b.dataset.lang) { shotSelect(null); shotSwitchLang(b.dataset.lang); }
+      if (b.dataset.fs) shotFsToggle(b.dataset.fs === '1');
+      else if (b.dataset.fz) shotFsZoomTo({ in: shotFsZoom * 1.25, out: shotFsZoom / 1.25, fit: 1 }[b.dataset.fz]);
+      else if (b.dataset.hist) shotHistGo(Number(b.dataset.hist));
+      else if (b.dataset.lang) { shotSelect(null); shotSwitchLang(b.dataset.lang); }
       else if (b.dataset.act) shotAct(b.dataset.act);
       else if (b.dataset.add === 'image') gid('shotAddImgFile').click();
       else if (b.dataset.add) shotAdd(b.dataset.add);
@@ -5535,15 +5957,39 @@ function shotEnsurePreview() {
       else if (b.dataset.pg === 'add') { shotAddPage(); shotSelect(null); shotChanged(); }
       else if (b.dataset.pg === 'del') shotDelPage();
     });
+    gid('shotScroll').addEventListener('wheel', e => {
+      if (!shotFs) return;
+      const sc = e.currentTarget;
+      if (e.ctrlKey || e.metaKey) shotFsZoomTo(shotFsZoom * Math.exp(-clamp(e.deltaY, -50, 50) * .006), e.clientX, e.clientY);
+      else if (sc.scrollHeight <= sc.clientHeight && Math.abs(e.deltaY) > Math.abs(e.deltaX)) sc.scrollLeft += e.deltaY;
+      else return;
+      e.preventDefault();
+    }, { passive: false });
+    gid('shotFsLang').addEventListener('change', e => { shotSwitchLang(e.target.value); e.target.blur(); });
+    let pinch = null;
+    const span = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    gid('shotScroll').addEventListener('touchstart', e => {
+      if (shotFs && e.touches.length === 2) pinch = { d: span(e.touches), z: shotFsZoom };
+    }, { passive: true });
+    gid('shotScroll').addEventListener('touchmove', e => {
+      if (!pinch || e.touches.length !== 2) return;
+      const [a, b] = e.touches;
+      shotFsZoomTo(pinch.z * span(e.touches) / pinch.d, (a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2);
+      e.preventDefault();
+    }, { passive: false });
+    gid('shotScroll').addEventListener('touchend', () => { pinch = null; });
+    shotFs = false;
+    document.documentElement.classList.remove('shot-fs-on');
     pv.addEventListener('dragover', e => e.preventDefault());
     pv.addEventListener('drop', e => { e.preventDefault(); shotAddShots(e.dataTransfer.files); });
     const dl = gid('dlBtn');
     dl.classList.remove('hidden');
     gid('dlBtnText').textContent = '导出全部';
-    dl.onclick = shotExport;
+    dl.onclick = shotExOpen;
   }
   shotLangUI();
   shotToolsState();
+  shotHistUI();
   shotRender();
 }
 
@@ -5556,6 +6002,7 @@ function shotOpen() {
       shot.els = r.els;
     }
     shotBuildLeft();
+    shotHistReset();
   })();
   shotInit.then(() => { if (currentTab === 'appshot') shotEnsurePreview(); });
 }
@@ -5587,16 +6034,20 @@ async function shotPng(cv) {
   return new Blob([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', z), chunk('IEND', new Uint8Array(0))], { type: 'image/png' });
 }
 async function shotExport() {
-  const dl = gid('dlBtn');
-  if (dl.disabled) return;
-  dl.disabled = true;
+  if (shotExBusy) return;
+  const go = gid('shotExGo'), langs = shotExSel(), sizes = shotExKeys();
+  if (!langs.length) return;
+  shotExBusy = true;
+  go.disabled = true;
+  gid('shotExCancel').disabled = true;
   try {
-    const files = [], ext = shot.fmt === 'jpg' ? 'jpg' : 'png', langs = shot.langs, sizes = shotExKeys(), base = shotBaseMap();
+    const files = [], ext = shot.fmt === 'jpg' ? 'jpg' : 'png', base = shotBaseMap();
     const total = shot.n * langs.length * sizes.length;
     for (const lang of langs) for (const sk of sizes) {
       const st = shotStateFor(lang, sk, base), S = SHOT_SIZES[sk];
       for (let i = 0; i < shot.n; i++) {
-        setStatus('shotStatus', `正在导出第 ${files.length + 1} / ${total} 张…`, true);
+        go.textContent = '正在导出…';
+        shotExProg(`正在生成第 ${files.length + 1} / ${total} 张…`, files.length / total * 90);
         await new Promise(r => setTimeout(r));
         const cv = document.createElement('canvas');
         cv.width = S.w; cv.height = S.h;
@@ -5611,31 +6062,113 @@ async function shotExport() {
       }
     }
     const S = shotSize(), name = 'App预览图' + (langs.length === 1 ? '_' + langs[0] : '') + (sizes.length === 1 ? `_${S.w}x${S.h}` : '');
-    if (files.length === 1) download(files[0].blob, `${name}.${ext}`);
+    let file;
+    if (files.length === 1) download(files[0].blob, file = `${name}.${ext}`);
     else {
-      setStatus('shotStatus', '正在打包…', true);
+      shotExProg('正在打包成 ZIP…', 92);
       await need('jszip');
       const zip = new JSZip();
       for (const f of files) zip.file(f.name, f.blob);
-      download(await zip.generateAsync({ type: 'blob' }), name + '.zip');
+      download(await zip.generateAsync({ type: 'blob' }), file = name + '.zip');
     }
-    const warn = [], empty = shotEmptyDevs().length;
-    if (empty) warn.push(`还有 ${empty} 台设备没放截图`);
-    for (const l of langs) { const k = shotMissing(l); if (k) warn.push(`${shotLangName(l)}有 ${k} 条没翻译(已用原文代替)`); }
-    setStatus('shotStatus', `已导出 ${files.length} 张 ${ext.toUpperCase()}(${langs.length} 种语言 × ${sizes.length} 个尺寸)` + (warn.length ? `。注意:${warn.join(';')}` : ',可直接上传 App Store Connect'), !warn.length);
+    shotExProg(`已下载「${file}」,共 ${files.length} 张 ${ext.toUpperCase()},可直接上传 App Store Connect`, 100);
+    setStatus('shotStatus', `已导出 ${files.length} 张 ${ext.toUpperCase()}(${langs.length} 种语言 × ${sizes.length} 个尺寸)`, true);
+    go.dataset.done = '1';
+    go.textContent = '完成';
+    gid('shotExCancel').textContent = '关闭';
   } catch (e) {
-    setStatus('shotStatus', '导出失败:' + e.message, false);
+    shotExProg('导出失败:' + e.message + '。可以再点一次「开始导出」重试', 0);
+    go.textContent = '重新导出';
   } finally {
-    dl.disabled = false;
+    shotExBusy = false;
+    go.disabled = false;
+    gid('shotExCancel').disabled = false;
   }
 }
 
 /* 草稿:整份状态(含截图 Blob)存 IndexedDB */
 let shotSaveT = 0;
-function shotChanged() {
-  shotRender();
+// shotChanged:背景 / 位置 / 样式变了,换模板前要确认;shotKept:截图、译文、导出设置这类换模板也会保留的改动
+function shotSaveSoon() {
   clearTimeout(shotSaveT);
-  shotSaveT = setTimeout(shotSave, 600);
+  shotSaveT = setTimeout(() => { shotSave(); shotTrProgress(); }, 600);
+}
+function shotKept() {
+  shotRender();
+  shotSaveSoon();
+  shotHistMark();
+}
+
+/* 上一步 / 下一步:改动停下 0.4 秒(或拖动松手)记一份快照。截图只记编号,图片本身留在 shotImgs 里不进快照;
+   切换预览语言只是换个视角,不算一步(shotHistRebase 直接改写当前这一步) */
+const shotHist = { list: [], i: -1, t: 0, mute: false };
+const shotSnap = () => JSON.stringify({ sizeKey: shot.sizeKey, n: shot.n, tpl: shot.tpl, bg: shot.bg, els: shot.els, tr: shot.tr, langs: shot.langs, lang: shot.lang, edited: shot.edited });
+function shotHistUI() {
+  const u = gid('shotUndo'), r = gid('shotRedo');
+  if (!u) return;
+  u.disabled = shotHist.i <= 0 && !shotHist.t;
+  r.disabled = shotHist.i >= shotHist.list.length - 1 || !!shotHist.t;
+}
+function shotHistCommit() {
+  clearTimeout(shotHist.t);
+  shotHist.t = 0;
+  if (shotHist.i < 0) return;
+  const s = shotSnap();
+  if (s !== shotHist.list[shotHist.i]) {
+    shotHist.list.length = shotHist.i + 1;
+    shotHist.list.push(s);
+    if (shotHist.list.length > 80) shotHist.list.shift();
+    shotHist.i = shotHist.list.length - 1;
+  }
+  shotHistUI();
+}
+function shotHistMark() {
+  if (shotHist.mute || shotHist.i < 0) return;
+  clearTimeout(shotHist.t);
+  shotHist.t = setTimeout(shotHistCommit, 400);
+  shotHistUI();
+}
+function shotHistReset() {
+  clearTimeout(shotHist.t);
+  shotHist.t = 0;
+  shotHist.list = [shotSnap()];
+  shotHist.i = 0;
+  shotHistUI();
+}
+function shotHistRebase() {
+  clearTimeout(shotHist.t);
+  shotHist.t = 0;
+  if (shotHist.i >= 0) shotHist.list[shotHist.i] = shotSnap();
+  shotHistUI();
+}
+function shotHistGo(d) {
+  if (shotHist.t) shotHistCommit();
+  const j = shotHist.i + d;
+  if (j < 0 || j >= shotHist.list.length) return;
+  shotHist.i = j;
+  const selKey = shotSel && shotKey(shotSel);
+  Object.assign(shot, JSON.parse(shotHist.list[j]));
+  shot.page = clamp(shot.page, 0, shot.n - 1);
+  shotHist.mute = true;
+  shotRefreshUI();
+  shotLangUI();
+  shotSelect(selKey && shot.els.find(el => shotKey(el) === selKey) || null);
+  shotKept();
+  shotHist.mute = false;
+  shotHistUI();
+  setStatus('shotStatus', d < 0 ? '已撤销一步' : '已恢复一步', true);
+}
+document.addEventListener('keydown', e => {
+  if (currentTab !== 'appshot' || shotFs || !(e.metaKey || e.ctrlKey) || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || document.querySelector('dialog[open]')) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z') shotHistGo(e.shiftKey ? 1 : -1);
+  else if (k === 'y') shotHistGo(1);
+  else return;
+  e.preventDefault();
+});
+function shotChanged() {
+  shot.edited = true;
+  shotKept();
 }
 function shotIDB() {
   return new Promise((res, rej) => {
@@ -5650,7 +6183,7 @@ async function shotSave() {
     const db = await shotIDB();
     db.transaction('kv', 'readwrite').objectStore('kv').put({
       v: 1, sizeKey: shot.sizeKey, n: shot.n, tpl: shot.tpl, bg: shot.bg, els: shot.els, fmt: shot.fmt,
-      exSizes: shot.exSizes, base: shot.base, lang: shot.lang, langs: shot.langs, tr: shot.tr,
+      exSizes: shot.exSizes, base: shot.base, lang: shot.lang, langs: shot.langs, tr: shot.tr, edited: shot.edited,
       imgs: shotImgs.map(i => i.blob),
     }, 'appshot');
   } catch { /* 隐私模式等场景下无法保存草稿,忽略 */ }
@@ -5669,7 +6202,7 @@ async function shotRestore() {
       try { bmp = await createImageBitmap(blob); } catch { /* 损坏的图片当作空位 */ }
       shotImgs.push({ blob, bmp });
     }
-    Object.assign(shot, { sizeKey: d.sizeKey, n: d.n, tpl: d.tpl, bg: d.bg, els: d.els, fmt: d.fmt || 'png', page: 0 });
+    Object.assign(shot, { sizeKey: d.sizeKey, n: d.n, tpl: d.tpl, bg: d.bg, els: d.els, fmt: d.fmt || 'png', page: 0, edited: d.edited ?? true });
     if (d.langs?.length) Object.assign(shot, { exSizes: d.exSizes || [], base: d.base, lang: d.lang, langs: d.langs, tr: d.tr || {} });
     return true;
   } catch { return false; }
@@ -5916,7 +6449,12 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
   });
   el.addEventListener('dblclick', async e => {
     if (e.target.closest('.mascot-x')) return;
-    const q = prompt('你在哪个城市?我好给你报天气(留空 = 自动定位)', savedCity()?.name || '');
+    const q = await xbAsk({
+      title: '你在哪个城市?',
+      msg: '我好给你报天气。留空就让我自己定位。',
+      input: savedCity()?.name || '', placeholder: '比如:杭州',
+      ok: '好的',
+    });
     if (q === null) return;
     const name = q.trim();
     wx = null;
