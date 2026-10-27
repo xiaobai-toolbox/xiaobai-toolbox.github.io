@@ -651,7 +651,7 @@
     align-items: center; gap: 18px; padding-right: 8px;
   }
   .pv-item { width: 100%; display: flex; flex-direction: column; align-items: center; }
-  .pv-item canvas {
+  .pv-item canvas, .pv-item img {
     max-width: 100%; height: auto; border: 1px solid var(--border);
     border-radius: 8px; box-shadow: 0 6px 22px rgba(0,0,0,.4); background: #fff;
   }
@@ -1958,6 +1958,7 @@ function previewEmpty(msg) {
 }
 
 // 把一个 PDF 的所有页渲染成缩略图追加到预览区(seq 过期则中止)
+const livePreviewPdfs = [];
 async function appendPdfPages(bytes, seq, label) {
   const body = document.getElementById('previewBody');
   if (label) {
@@ -1969,8 +1970,19 @@ async function appendPdfPages(bytes, seq, label) {
   await need('pdfjs');
   // 传副本给 pdf.js,避免它转移/分离原 buffer
   const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
+  livePreviewPdfs.push(pdf);
+  while (livePreviewPdfs.length > 10) livePreviewPdfs.shift().destroy();
+  // 先按页面尺寸占位,滚到附近才渲染:几百页的文件也不会卡住、占满内存
+  let left = pdf.numPages;
+  const io = new IntersectionObserver(entries => entries.forEach(async en => {
+    if (!en.isIntersecting) return;
+    io.unobserve(en.target);
+    const { page, viewport, canvas } = en.target._pv;
+    try { await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise; } catch (e) { /* 文档已释放 */ }
+    if (--left === 0) { io.disconnect(); pdf.destroy(); }
+  }), { rootMargin: '800px 0px' });
   for (let i = 1; i <= pdf.numPages; i++) {
-    if (seq !== previewSeq) { await pdf.destroy(); return; }
+    if (seq !== previewSeq) { io.disconnect(); pdf.destroy(); return; }
     const page = await pdf.getPage(i);
     const viewport = page.getViewport({ scale: 0.7 });
     const canvas = document.createElement('canvas');
@@ -1983,10 +1995,10 @@ async function appendPdfPages(bytes, seq, label) {
     num.textContent = '第 ' + i + ' 页';
     item.appendChild(canvas);
     item.appendChild(num);
+    item._pv = { page, viewport, canvas };
     body.appendChild(item);
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    io.observe(item);
   }
-  await pdf.destroy();
 }
 
 // 预览单个 PDF 文件(输入预览,无下载按钮)
@@ -2323,6 +2335,67 @@ function pagesLabel(g) {
   return runs.map(([a, b]) => a === b ? `p${a + 1}` : `p${a + 1}-${b + 1}`).join('_');
 }
 
+// 不少 PDF 所有页共用一张资源表(整本的图片和字体),直接拷单页会把整本资源都带上,
+// 拆出来的每个文件都和原文件差不多大。拷贝前按每页内容实际用到的图片 / 字体,换成精简的资源表
+function slimPageResources(doc) {
+  const { PDFName, PDFDict, PDFArray, PDFRawStream, decodePDFRawStream } = PDFLib;
+  const ctx = doc.context, latin1 = new TextDecoder('latin1');
+  const N = s => PDFName.of(s);
+  const textOf = s => {
+    try {
+      if (s instanceof PDFRawStream) return latin1.decode(decodePDFRawStream(s).decode());
+      if (s.getUnencodedContents) return latin1.decode(s.getUnencodedContents());
+    } catch (e) { /* 解不开就不精简这一页 */ }
+    return null;
+  };
+  const NAME = '([^\\s/\\[\\]()<>{}%]+)';
+  const RE_DO = new RegExp('/' + NAME + '\\s+Do\\b', 'g'), RE_TF = new RegExp('/' + NAME + '\\s+[-+.\\d]+\\s+Tf\\b', 'g');
+  for (const page of doc.getPages()) {
+    const node = page.node, res = node.Resources();
+    if (!res) continue;
+    const xobjs = res.lookupMaybe(N('XObject'), PDFDict), fonts = res.lookupMaybe(N('Font'), PDFDict);
+    if (!xobjs && !fonts) continue;
+    let contents = node.Contents();
+    if (!contents) continue;
+    contents = contents instanceof PDFArray ? contents.asArray().map(r => ctx.lookup(r)) : [contents];
+    const used = { xo: new Set(), ft: new Set() };
+    const scan = text => {
+      for (const m of text.matchAll(RE_DO)) used.xo.add('/' + m[1]);
+      for (const m of text.matchAll(RE_TF)) used.ft.add('/' + m[1]);
+    };
+    let ok = true;
+    for (const s of contents) { const t = s && textOf(s); if (t == null) { ok = false; break; } scan(t); }
+    if (!ok) continue;
+    // 没自带资源表的表单 XObject 会借用页面的资源,要把它里面用到的也算上
+    const seen = new Set();
+    for (let again = true; again && xobjs;) {
+      again = false;
+      for (const [k, ref] of xobjs.entries()) {
+        const key = k.toString();
+        if (!used.xo.has(key) || seen.has(key)) continue;
+        seen.add(key);
+        const xo = ctx.lookup(ref);
+        if (!xo || !xo.dict || xo.dict.get(N('Subtype')) !== N('Form') || xo.dict.get(N('Resources'))) continue;
+        const t = textOf(xo);
+        if (t == null) { ok = false; break; }
+        const before = used.xo.size;
+        scan(t);
+        if (used.xo.size > before) again = true;
+      }
+    }
+    if (!ok) continue;
+    const pick = (dict, keep) => {
+      const out = ctx.obj({});
+      for (const [k, v] of dict.entries()) if (keep.has(k.toString())) out.set(k, v);
+      return out;
+    };
+    const slim = res.clone(ctx);
+    if (xobjs) slim.set(N('XObject'), pick(xobjs, used.xo));
+    if (fonts) slim.set(N('Font'), pick(fonts, used.ft));
+    node.set(N('Resources'), slim);
+  }
+}
+
 async function doSplit() {
   try {
     if (!split.bytes) return setStatus('splitStatus', '请先选择 PDF 文件。', false);
@@ -2332,6 +2405,7 @@ async function doSplit() {
     setStatus('splitStatus', '处理中…', true);
     await need('pdflib');
     const src = await PDFDocument.load(split.bytes);
+    slimPageResources(src);
     const files = [];
     for (const [k, g] of groups.entries()) {
       setStatus('splitStatus', `生成中 ${k + 1}/${groups.length}…`, true);
@@ -2361,6 +2435,7 @@ function canvasToBlob(canvas, mime, quality) {
   });
 }
 
+let toimgUrls = [];
 async function doToImages() {
   try {
     const file = document.getElementById('toimgFile').files[0];
@@ -2389,6 +2464,11 @@ async function doToImages() {
     const seq = resetPreview('转图片结果预览');
     const body = document.getElementById('previewBody');
     const items = [];
+    toimgUrls.forEach(u => URL.revokeObjectURL(u));
+    toimgUrls = [];
+    // 每页渲染完立刻编码成图片、复用同一块画布:高清大图几十上百页时不会把内存撑爆
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     for (let n = 0; n < pages.length; n++) {
       if (seq !== previewSeq) { await pdf.destroy(); return; }
@@ -2396,38 +2476,40 @@ async function doToImages() {
       const pageNum = pages[n] + 1;
       const page = await pdf.getPage(pageNum);
       const viewport = page.getViewport({ scale });
-      const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      page.cleanup();
+      const blob = await canvasToBlob(canvas, mime, quality);
+      const url = URL.createObjectURL(blob);
+      toimgUrls.push(url);
       const item = document.createElement('div');
       item.className = 'pv-item';
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.width = viewport.width / scale * 0.7;
+      img.height = viewport.height / scale * 0.7;
+      img.src = url;
       const num = document.createElement('div');
       num.className = 'pv-num';
       num.textContent = '第 ' + pageNum + ' 页';
-      item.appendChild(canvas);
-      item.appendChild(num);
+      item.append(img, num);
       body.appendChild(item);
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      items.push({ canvas, pageNum });
+      items.push({ blob, pageNum });
     }
+    canvas.width = canvas.height = 0;
     await pdf.destroy();
     if (seq !== previewSeq) return;
 
     if (items.length === 1) {
-      const blob = await canvasToBlob(items[0].canvas, mime, quality);
-      setDownload(blob, `${base}-p${items[0].pageNum}.${ext}`, '下载图片');
+      setDownload(items[0].blob, `${base}-p${items[0].pageNum}.${ext}`, '下载图片');
     } else {
       await need('jszip');
       const zip = new JSZip();
-      for (const it of items) {
-        zip.file(
-          `${base}-p${String(it.pageNum).padStart(3, '0')}.${ext}`,
-          await canvasToBlob(it.canvas, mime, quality)
-        );
-      }
+      for (const it of items) zip.file(`${base}-p${String(it.pageNum).padStart(3, '0')}.${ext}`, it.blob);
       setDownload(await zip.generateAsync({ type: 'blob' }), `${base}-images.zip`, '下载 ZIP');
     }
     setStatus('toimgStatus', `转换成功,共 ${items.length} 张图片,右侧可预览并下载。`, true);
