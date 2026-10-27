@@ -100,6 +100,15 @@
     position: sticky; top: 28px; max-height: calc(100vh - 56px); overflow-y: auto; scrollbar-width: none;
   }
   .nav::-webkit-scrollbar { display: none; }
+  .nav { transition: flex-basis .2s ease, width .2s ease; }
+  .nav-fold {
+    display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0; padding: 9px; border-radius: 12px;
+    border: 1px dashed var(--border-soft); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .nav-fold:hover { color: var(--text); border-color: var(--border); }
+  .nav-fold svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform .2s ease; }
+  .nav-mini .nav-fold svg { transform: rotate(180deg); }
   /* 每个功能一个主题色(RGB 三元组),卡片与对应面板共用 */
   [data-tab="merge"], #merge { --c: 79,140,255; }
   [data-tab="insert"], #insert { --c: 52,211,153; }
@@ -523,7 +532,14 @@
     .tab-desc { display: none; }
     .tab-title { font-size: 12px; white-space: normal; line-height: 1.3; }
   }
+  /* 收起侧边栏:只留图标,把空间让给操作区和预览 */
+  @media (min-width: 921px) {
+    .nav-mini .nav { flex-basis: 66px; width: 66px; }
+    .nav-mini .tab { flex-direction: row; justify-content: center; padding: 10px; }
+    .nav-mini .tab-txt, .nav-mini .nav-fold span { display: none; }
+  }
   @media (max-width: 920px) {
+    .nav-fold { display: none; }
     .shell { flex-direction: column; }
     .nav {
       position: static; width: 100%; flex-basis: auto; max-height: none;
@@ -761,6 +777,7 @@
       </span>
       <span class="tab-txt"><div class="tab-title">App 预览图</div><div class="tab-desc">App Store 市场截图设计</div></span>
     </button>
+    <button type="button" class="nav-fold" id="navFold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span>收起侧边栏</span></button>
   </nav>
 
   <div class="app">
@@ -1415,6 +1432,21 @@ function mHome(on) {
 if (history.state?.m) history.replaceState(null, '');
 document.getElementById('mBack').onclick = () => history.state?.m ? history.back() : mHome(true);
 addEventListener('popstate', () => mHome(!history.state?.m));
+
+// 网页 / 平板横屏:侧边栏可收起成只显示图标,记住选择
+const navFold = document.getElementById('navFold');
+function setNavMini(on) {
+  document.body.classList.toggle('nav-mini', on);
+  navFold.title = on ? '展开侧边栏' : '收起侧边栏';
+}
+setNavMini(localStorage.getItem('xiaobai-nav-mini') === '1');
+navFold.onclick = () => {
+  const on = !document.body.classList.contains('nav-mini');
+  setNavMini(on);
+  try { localStorage.setItem('xiaobai-nav-mini', on ? '1' : '0'); } catch {}
+  // 裁剪框、预览图画布都按 resize 重新排版,等宽度动画结束再通知
+  setTimeout(() => dispatchEvent(new Event('resize')), 230);
+};
 
 // Tab 切换
 document.querySelectorAll('.tab').forEach(t => {
