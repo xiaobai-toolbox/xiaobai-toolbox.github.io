@@ -566,6 +566,33 @@
     transition: background .15s ease;
   }
   input[type=file]::file-selector-button:hover { background: rgba(var(--btn-rgb),.24); }
+  .fz {
+    position: relative; display: flex; align-items: center; gap: 14px; margin: 0; padding: 16px 18px; min-height: 76px;
+    border: 1.5px dashed rgba(var(--c),.35); border-radius: 13px; background: rgba(var(--c),.04); cursor: pointer;
+    color: var(--muted); font-size: 13.5px; font-weight: 400; transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .fz input[type=file] { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; opacity: 0; pointer-events: none; }
+  .fz:hover { border-color: rgba(var(--c),.6); background: rgba(var(--c),.07); }
+  .fz:focus-within { border-color: rgb(var(--c)); box-shadow: 0 0 0 3px rgba(var(--c),.18); }
+  .fz.drop-ok { border-color: rgba(var(--c),.6); }
+  .fz.drop-hot { border-style: solid; border-color: rgb(var(--c)); background: rgba(var(--c),.13); box-shadow: 0 0 0 4px rgba(var(--c),.2); }
+  .fz-ic {
+    flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: rgb(var(--c));
+    background: rgba(var(--c),.14); box-shadow: inset 0 0 0 1.5px rgba(var(--c),.5); transition: transform .15s;
+  }
+  .fz-ic svg { width: 18px; height: 18px; }
+  .fz:hover .fz-ic, .fz.drop-hot .fz-ic { transform: scale(1.08); }
+  .fz-txt { min-width: 0; line-height: 1.5; }
+  .fz-main { color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fz-sub { font-size: 12px; color: var(--muted-2); }
+  @media (hover: none) { .fz .drag-only { display: none; } }
+  .drop-tip {
+    position: fixed; left: 50%; top: 18px; z-index: 9999; transform: translate(-50%, -8px); opacity: 0; pointer-events: none;
+    padding: 9px 16px; border-radius: 999px; background: rgba(15,22,40,.92); border: 1px solid rgba(255,255,255,.12);
+    color: var(--text); font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: opacity .15s, transform .15s;
+  }
+  .drop-tip.show { opacity: 1; transform: translate(-50%, 0); }
+  .drop-tip.bad { color: #fca5a5; }
   button.run {
     margin-top: 24px; padding: 14px 24px; border: none; border-radius: 12px;
     background: var(--btn-bg);
@@ -652,6 +679,13 @@
   .sp-cut.on::before { border-color: rgb(var(--c)); }
   .sp-cut.on svg { background: rgb(var(--c)); border-color: transparent; }
   .sp-grid.no-cut .sp-cut { width: 14px; visibility: hidden; }
+  .sp-grid.pick .sp-page { position: relative; cursor: pointer; }
+  .sp-grid.pick .sp-page:hover canvas { opacity: .75; }
+  .sp-grid.pick .sp-page.picked canvas { opacity: 1; box-shadow: 0 0 0 3px rgba(var(--c),.35), 0 4px 14px rgba(0,0,0,.35); }
+  .sp-grid.pick .sp-page.picked::after {
+    content: "✓"; position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%;
+    display: grid; place-items: center; background: var(--g); color: #0b1020; font: 800 12px/1 system-ui, sans-serif;
+  }
   .p2w-page {
     background: #fff; color: #111; box-sizing: border-box; overflow: hidden; border-radius: 4px;
     box-shadow: 0 6px 22px rgba(0,0,0,.4); font-family: "Times New Roman", "SimSun", "Songti SC", serif;
@@ -1042,11 +1076,12 @@
     <label>选择 PDF</label>
     <input type="file" id="splitFile" accept="application/pdf" />
     <label>拆分方式</label>
-    <div class="seg" id="splitSeg" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="seg" id="splitSeg" style="grid-template-columns: repeat(5, 1fr);">
       <button type="button" class="seg-btn active" data-mode="mark">剪刀标记</button>
       <button type="button" class="seg-btn" data-mode="every">每 N 页</button>
       <button type="button" class="seg-btn" data-mode="each">每页一份</button>
       <button type="button" class="seg-btn" data-mode="range">自定义</button>
+      <button type="button" class="seg-btn" data-mode="pick">提取合并</button>
     </div>
     <div id="splitOptEvery" hidden>
       <label>每几页拆成一个文件</label>
@@ -1056,7 +1091,11 @@
       <label>每段页码生成一个文件(逗号分隔,如 1-3, 4-8, 10)</label>
       <input type="text" id="splitRanges" placeholder="例如 1-3, 4-8, 10" />
     </div>
-    <div class="hint">小贴士:点右侧两页之间的小剪刀,可以标记 / 取消拆分位置;选「每 N 页」后再点剪刀,会在自动结果上继续微调。</div>
+    <div id="splitOptPick" hidden>
+      <label>要提取的页码(按填写顺序合并成一个 PDF)</label>
+      <input type="text" id="splitPick" placeholder="例如 1-3, 6, 9" />
+    </div>
+    <div class="hint" id="splitHint">小贴士:点右侧两页之间的小剪刀,可以标记 / 取消拆分位置;选「每 N 页」后再点剪刀,会在自动结果上继续微调。</div>
     <button class="run" onclick="doSplit()">拆分</button>
     <div class="status" id="splitStatus"></div>
   </div>
@@ -1572,7 +1611,7 @@
       <div class="preview-body" id="previewBody">
         <div class="pv-empty">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          <div>选择文件后,这里会显示页面预览。<br />操作完成后,结果会在此处渲染,可直接下载。</div>
+          <div>选好文件后,这里会显示页面预览。<br />操作完成后,结果会在此处渲染,可直接下载。</div>
         </div>
       </div>
     </div>
@@ -2123,7 +2162,11 @@ splitSeg.onclick = e => {
   const b = e.target.closest('.seg-btn');
   if (b) setSplitMode(b.dataset.mode);
 };
-['splitN', 'splitRanges'].forEach(id => document.getElementById(id).addEventListener('input', splitRefresh));
+['splitN', 'splitRanges', 'splitPick'].forEach(id => document.getElementById(id).addEventListener('input', splitRefresh));
+const SPLIT_HINTS = {
+  pick: '小贴士:点右侧缩略图可以选中 / 取消某一页,也可以直接填页码;填写顺序就是合并后的页序,比如「5, 1-3」会把第 5 页放到最前面。',
+};
+const SPLIT_HINT_DEFAULT = document.getElementById('splitHint').textContent;
 document.getElementById('splitFile').addEventListener('change', e => {
   if (e.target.files[0]) splitLoad(e.target.files[0]);
 });
@@ -2133,11 +2176,39 @@ function setSplitMode(m) {
   splitSeg.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
   document.getElementById('splitOptEvery').hidden = m !== 'every';
   document.getElementById('splitOptRange').hidden = m !== 'range';
+  document.getElementById('splitOptPick').hidden = m !== 'pick';
+  document.getElementById('splitHint').textContent = SPLIT_HINTS[m] || SPLIT_HINT_DEFAULT;
+  splitRefresh();
+}
+
+// 按填写顺序取页,重复的页只保留第一次
+function splitPickPages() {
+  const seen = new Set(), out = [];
+  document.getElementById('splitPick').value.split(/[,，;；]/).forEach(s => parseRange(s, split.n).forEach(i => {
+    if (!seen.has(i)) { seen.add(i); out.push(i); }
+  }));
+  return out;
+}
+
+// [0,1,2,5] -> "1-3, 6";保持原顺序
+function pagesText(pages) {
+  return pages.length ? pagesLabel(pages).replace(/p/g, '').replace(/_/g, ', ') : '';
+}
+
+function splitTogglePick(i) {
+  const pages = splitPickPages();
+  const k = pages.indexOf(i);
+  k < 0 ? pages.push(i) : pages.splice(k, 1);
+  document.getElementById('splitPick').value = pagesText(pages);
   splitRefresh();
 }
 
 function splitGroups() {
   const n = split.n;
+  if (split.mode === 'pick') {
+    const pages = splitPickPages();
+    return pages.length ? [pages] : [];
+  }
   if (split.mode === 'range') {
     return document.getElementById('splitRanges').value.split(/[,，;；]/).map(s => parseRange(s, n)).filter(g => g.length);
   }
@@ -2156,25 +2227,34 @@ function splitRefresh() {
   if (!split.grid) return;
   const groups = splitGroups(), owner = new Map();
   groups.forEach((g, k) => g.forEach(i => owner.has(i) || owner.set(i, k)));
-  split.grid.classList.toggle('no-cut', split.mode === 'range');
+  const pick = split.mode === 'pick';
+  if (currentTab === 'split') document.getElementById('previewTitle').textContent = pick ? '提取预览 · 点缩略图选择要提取的页'
+    : split.mode === 'range' ? '拆分预览 · 按填写的页码分段' : '拆分预览 · 点页间剪刀标记拆分位置';
+  split.grid.classList.toggle('no-cut', split.mode === 'range' || pick);
+  split.grid.classList.toggle('pick', pick);
+  const pos = pick && groups.length ? new Map(groups[0].map((p, k) => [p, k])) : new Map();
   split.grid.querySelectorAll('.sp-page').forEach((el, i) => {
     const k = owner.get(i);
     el.classList.toggle('off', k === undefined);
+    el.classList.toggle('picked', pick && k !== undefined);
     if (k === undefined) el.style.removeProperty('--g');
     else el.style.setProperty('--g', `hsl(${SPLIT_HUES[k % SPLIT_HUES.length]} 72% 60%)`);
-    el.querySelector('b').textContent = k === undefined ? '不导出' : `第 ${k + 1} 份`;
+    el.querySelector('b').textContent = k === undefined ? (pick ? '未选' : '不导出') : pick ? `新第 ${pos.get(i) + 1} 页` : `第 ${k + 1} 份`;
   });
   split.grid.querySelectorAll('.sp-cut').forEach(el => {
     const i = +el.dataset.i;
-    el.classList.toggle('on', owner.get(i) !== owner.get(i + 1));
+    el.classList.toggle('on', !pick && owner.get(i) !== owner.get(i + 1));
   });
-  if (split.mode === 'mark' && groups.length < 2) setStatus('splitStatus', `共 ${split.n} 页,点右侧两页之间的小剪刀标记拆分位置。`, true);
+  if (pick) {
+    if (!groups.length) setStatus('splitStatus', `共 ${split.n} 页,点右侧缩略图选择要提取的页,或在上面填页码。`, true);
+    else setStatus('splitStatus', `已选 ${groups[0].length} 页,将合并成 1 个 PDF。`, true);
+  } else if (split.mode === 'mark' && groups.length < 2) setStatus('splitStatus', `共 ${split.n} 页,点右侧两页之间的小剪刀标记拆分位置。`, true);
   else if (!groups.length) setStatus('splitStatus', '页码范围无效,请检查输入(如 1-3, 4-8)。', false);
   else setStatus('splitStatus', `共 ${split.n} 页,将拆成 ${groups.length} 个文件。`, true);
 }
 
 function splitToggleCut(i) {
-  if (split.mode === 'range') return;
+  if (split.mode === 'range' || split.mode === 'pick') return;
   if (split.mode !== 'mark') {
     split.cuts = new Set(splitGroups().map(g => g[g.length - 1]));
     split.cuts.delete(split.n - 1);
@@ -2220,6 +2300,7 @@ async function splitLoad(file) {
       tag.className = 'sp-tag';
       tag.innerHTML = `<span>第 ${i + 1} 页</span><b></b>`;
       item.append(canvas, tag);
+      item.onclick = () => { if (split.mode === 'pick') splitTogglePick(i); };
       grid.appendChild(item);
       splitRefresh();
       await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
@@ -2246,7 +2327,7 @@ async function doSplit() {
   try {
     if (!split.bytes) return setStatus('splitStatus', '请先选择 PDF 文件。', false);
     const groups = splitGroups();
-    if (!groups.length) return setStatus('splitStatus', '页码范围无效,请检查输入(如 1-3, 4-8)。', false);
+    if (!groups.length) return setStatus('splitStatus', split.mode === 'pick' ? '还没选要提取的页:点右侧缩略图,或填页码(如 1-3, 6)。' : '页码范围无效,请检查输入(如 1-3, 4-8)。', false);
     if (split.mode === 'mark' && groups.length < 2) return setStatus('splitStatus', '还没标记拆分位置:点右侧两页之间的小剪刀,或换一种拆分方式。', false);
     setStatus('splitStatus', '处理中…', true);
     await need('pdflib');
@@ -2256,7 +2337,9 @@ async function doSplit() {
       setStatus('splitStatus', `生成中 ${k + 1}/${groups.length}…`, true);
       const out = await PDFDocument.create();
       (await out.copyPages(src, g)).forEach(p => out.addPage(p));
-      files.push({ name: `${split.name}-${String(k + 1).padStart(2, '0')}-${pagesLabel(g)}.pdf`, bytes: await out.save() });
+      const label = pagesLabel(g).length > 40 ? `${g.length}页` : pagesLabel(g);
+      const name = split.mode === 'pick' ? `${split.name}-提取-${label}.pdf` : `${split.name}-${String(k + 1).padStart(2, '0')}-${label}.pdf`;
+      files.push({ name, bytes: await out.save() });
     }
     if (files.length === 1) {
       setDownload(files[0].bytes, files[0].name);
@@ -2266,7 +2349,7 @@ async function doSplit() {
       files.forEach(f => zip.file(f.name, f.bytes));
       setDownload(await zip.generateAsync({ type: 'blob' }), `${split.name}-拆分.zip`, `下载 ZIP(${files.length} 个)`);
     }
-    setStatus('splitStatus', `拆分成功,共 ${files.length} 个文件,点右上角下载。`, true);
+    setStatus('splitStatus', split.mode === 'pick' ? `提取成功,${groups[0].length} 页已合并成 1 个 PDF,点右上角下载。` : `拆分成功,共 ${files.length} 个文件,点右上角下载。`, true);
   } catch (e) {
     setStatus('splitStatus', '出错:' + e.message, false);
   }
@@ -3789,18 +3872,19 @@ gid('imgtool').addEventListener('input', e => {
 gid('imgContinue').addEventListener('click', () => {
   if (!imgResult) return;
   const ext = MIME_EXT[imgResult.blob.type] || 'png';
-  loadImageFile(new File([imgResult.blob], `${imgBase()}.${ext}`, { type: imgResult.blob.type }));
+  setImgInput(new File([imgResult.blob], `${imgBase()}.${ext}`, { type: imgResult.blob.type }));
 });
+function setImgInput(f) {
+  const dt = new DataTransfer();
+  dt.items.add(f);
+  gid('imgFile').files = dt.files;
+  gid('imgFile').dispatchEvent(new Event('change', { bubbles: true }));
+}
 
 document.addEventListener('paste', e => {
   if (!gid('imgtool').classList.contains('active')) return;
   const f = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith('image/'));
-  if (f) { e.preventDefault(); loadImageFile(f); }
-});
-gid('imgtool').addEventListener('dragover', e => e.preventDefault());
-gid('imgtool').addEventListener('drop', e => {
-  const f = [...e.dataTransfer.files].find(f => f.type.startsWith('image/'));
-  if (f) { e.preventDefault(); loadImageFile(f); }
+  if (f) { e.preventDefault(); setImgInput(f); }
 });
 
 /* ---------- APK 签名查看 ---------- */
@@ -4633,16 +4717,6 @@ gid('sigFile').addEventListener('change', e => {
 });
 gid('sigUnlock').addEventListener('click', () => { if (sigState.file) runSign(sigState.file); });
 gid('sigPwd').addEventListener('keydown', e => { if (e.key === 'Enter') gid('sigUnlock').click(); });
-gid('apksign').addEventListener('dragover', e => e.preventDefault());
-gid('apksign').addEventListener('drop', e => {
-  const f = e.dataTransfer.files[0];
-  if (!f) return;
-  e.preventDefault();
-  gid('sigPwdRow').hidden = true;
-  gid('sigPwd').value = '';
-  runSign(f);
-});
-
 /* ---------- App 预览图 ---------- */
 // 所有元素坐标都在「整条长画布」坐标系(宽 = 单页宽 × 页数),因此元素可以跨页;导出时按页切片
 const SHOT_SIZES = {
@@ -6449,6 +6523,120 @@ gid('appshot').addEventListener('drop', e => {
   const fs = [...e.dataTransfer.files], table = fs.find(f => /\.(md|markdown|xml|csv|tsv|txt|json)$/i.test(f.name));
   if (table) shotTrImport(table);
   else shotAddShots(fs);
+});
+
+/* ---------- 拖文件进来:自动放进当前工具的文件框 ---------- */
+const dropTip = document.createElement('div');
+dropTip.className = 'drop-tip';
+document.body.appendChild(dropTip);
+let dropTimer, dropTipTimer;
+const hasFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+const dropInputs = () => homeMode() && document.body.classList.contains('m-home') ? [] : [...document.querySelectorAll('.panel.active input[type=file]:not([hidden])')];
+function fileAccepts(input, f) {
+  const acc = (input.accept || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (!acc.length) return true;
+  const name = f.name.toLowerCase(), type = (f.type || '').toLowerCase();
+  return acc.some(a => a.startsWith('.') ? name.endsWith(a) : a.endsWith('/*') ? type.startsWith(a.slice(0, -1)) : type === a);
+}
+function dropLabel(input) {
+  const box = input.closest('.fz') || input;
+  const l = box.previousElementSibling?.tagName === 'LABEL' ? box.previousElementSibling : box.parentElement?.querySelector('label:not(.fz)');
+  return (l?.textContent || '文件框').split(/[(（]/)[0].trim();
+}
+// 把原生文件框换成虚线拖放区:点击选文件、拖进来放文件,选好后显示文件名
+const FMT_NAMES = { 'application/pdf': 'PDF', 'image/png': 'PNG', 'image/jpeg': 'JPG', 'image/*': 'JPG / PNG / WebP 等图片', 'text/*': '文本' };
+function acceptText(input) {
+  const names = [...new Set((input.accept || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+    .map(a => FMT_NAMES[a] || (a.startsWith('.') ? a.slice(1).toUpperCase() : '')).filter(Boolean))];
+  if (!names.length) return '';
+  return '支持 ' + (names.length > 4 ? names.slice(0, 4).join(' / ') + ' 等' : names.join(' / '));
+}
+function fzRender(input) {
+  const box = input.closest('.fz');
+  if (!box) return;
+  const fs = [...input.files];
+  box.classList.toggle('has', fs.length > 0);
+  box.querySelector('.fz-ic').innerHTML = fs.length
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  const main = box.querySelector('.fz-main'), sub = box.querySelector('.fz-sub');
+  if (!fs.length) {
+    main.innerHTML = '点击添加文件<span class="drag-only">,或拖到这里</span>';
+    sub.textContent = acceptText(input);
+  } else {
+    main.textContent = fs.length === 1 ? fs[0].name : '已选 ' + fs.length + ' 个文件';
+    sub.innerHTML = '点击重新选择' + (input.multiple ? '<span class="drag-only">,拖进来可继续添加</span>' : '<span class="drag-only">,或拖入新文件替换</span>');
+  }
+  main.title = fs.map(f => f.name).join('\n');
+}
+document.querySelectorAll('.panel input[type=file]:not([hidden])').forEach(input => {
+  const box = document.createElement('label');
+  box.className = 'fz';
+  input.before(box);
+  box.innerHTML = '<span class="fz-ic"></span><span class="fz-txt"><div class="fz-main"></div><div class="fz-sub"></div></span>';
+  box.prepend(input);
+  input.addEventListener('change', () => fzRender(input));
+  fzRender(input);
+});
+// 鼠标正对某个文件框就放进它;否则按顺序放进第一个还空着的框
+function dropTarget(e) {
+  const over = e.target.closest?.('.fz')?.querySelector('input[type=file]') || e.target.closest?.('input[type=file]');
+  const list = dropInputs();
+  if (over && list.includes(over)) return over;
+  return list.find(i => !i.files.length) || list[0];
+}
+function showDropTip(text, bad) {
+  dropTip.textContent = text;
+  dropTip.classList.toggle('bad', !!bad);
+  dropTip.classList.add('show');
+}
+function clearDropUI() {
+  document.querySelectorAll('.drop-ok, .drop-hot').forEach(x => x.classList.remove('drop-ok', 'drop-hot'));
+  dropTip.classList.remove('show');
+}
+document.addEventListener('dragover', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  clearTimeout(dropTimer);
+  dropTimer = setTimeout(clearDropUI, 150);
+  const t = dropTarget(e);
+  dropInputs().forEach(i => { const b = i.closest('.fz') || i; b.classList.toggle('drop-hot', i === t); b.classList.toggle('drop-ok', i !== t); });
+  if (t) { e.dataTransfer.dropEffect = 'copy'; showDropTip('松开鼠标,添加到「' + dropLabel(t) + '」'); }
+  else { e.dataTransfer.dropEffect = 'none'; showDropTip('先点开一个工具,再把文件拖进来', true); }
+});
+document.addEventListener('drop', e => {
+  if (!hasFiles(e)) return;
+  clearTimeout(dropTimer);
+  clearDropUI();
+  if (e.defaultPrevented) return;
+  e.preventDefault();
+  const files = [...e.dataTransfer.files], list = dropInputs();
+  const first = dropTarget(e);
+  if (!first || !files.length) return;
+  // 一次拖多个文件到 A / B 这种双框工具时,依次填进能接收它的框
+  const plan = new Map();
+  files.forEach(f => {
+    const cands = [first, ...list.filter(i => i !== first)].filter(i => fileAccepts(i, f));
+    const inp = cands.find(i => i.multiple || (!plan.has(i) && (i === first || !i.files.length))) || cands[0];
+    if (!inp) return;
+    if (!plan.has(inp)) plan.set(inp, []);
+    if (inp.multiple || !plan.get(inp).length) plan.get(inp).push(f);
+  });
+  const used = [...plan.values()].flat().length;
+  if (used < files.length) {
+    showDropTip(used ? '有 ' + (files.length - used) + ' 个文件这里用不了,已跳过' : '这里不支持「' + files[0].name + '」这种文件', true);
+    clearTimeout(dropTipTimer);
+    dropTipTimer = setTimeout(() => dropTip.classList.remove('show'), 2200);
+  }
+  if (!used) return;
+  plan.forEach((fs, inp) => {
+    const dt = new DataTransfer();
+    if (inp.multiple) [...inp.files].forEach(f => dt.items.add(f));
+    fs.forEach(f => dt.items.add(f));
+    inp.files = dt.files;
+    if (inp.id === 'txtFiles' && gid('txtSrcFile').hidden) document.querySelector('#txtSrcSeg [data-src="file"]').click();
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+  });
 });
 addEventListener('resize', () => { if (currentTab === 'appshot') shotRender(); });
 
