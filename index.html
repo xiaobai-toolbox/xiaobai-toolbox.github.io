@@ -434,9 +434,20 @@
   .shot-bgrow { margin-top: 12px; }
   .shot-bgrow select { flex: 1; min-width: 0; }
   .wm-logo .link-btn + .link-btn { margin-left: 6px; }
-  #appshot button.run.shot-mini { margin: 0; width: auto; padding: 9px 16px; font-size: 13px; }
-  #appshot textarea { min-height: 76px; white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.5; }
-  #appshot .chips .chip { font-family: inherit; }
+  .sync-btn {
+    width: 100%; margin-top: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(52,211,153,.6); border-radius: 10px; background: rgba(52,211,153,.1); color: var(--ok);
+    font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: background .15s, border-color .15s;
+  }
+  .sync-btn svg { width: 16px; height: 16px; flex: none; }
+  .sync-btn:hover { background: rgba(52,211,153,.18); border-color: rgba(52,211,153,.85); }
+  .sync-btn:active { transform: translateY(1px); }
+  .sync-btn .sync-sub { margin-left: auto; font-size: 11.5px; font-weight: 500; color: rgba(52,211,153,.75); }
+  .sync-btn.done { background: rgba(52,211,153,.2); border-color: var(--ok); }
+  .sync-btn.done .sync-sub { display: none; }
+  #appshot button.run.shot-mini, #shotPop button.run.shot-mini { margin: 0; width: auto; padding: 9px 16px; font-size: 13px; }
+  #appshot textarea, #shotPop textarea { min-height: 76px; white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.5; }
+  #appshot .chips .chip, #shotPop .chips .chip { font-family: inherit; }
   .shot-sliders { margin-top: 18px; }
   .shot-trfmt { width: auto; flex: 1 1 auto; min-width: 0; padding-top: 8px; padding-bottom: 8px; font-size: 13px; }
   .shot-step { display: flex; align-items: center; gap: 8px; margin: 22px 0 10px; font-size: 13.5px; font-weight: 650; color: var(--text); }
@@ -458,12 +469,56 @@
   .shot-sec > summary:focus:not(:focus-visible) { outline: none; }
   .shot-sec[open] > summary span { display: none; }
   .shot-sec[open] > summary::after { margin-left: auto; }
-  .shot-tip-box { margin-top: 12px; padding: 9px 12px; border-radius: 10px; background: var(--card-2); border: 1px dashed var(--border-soft); }
-  .shot-elhead {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; padding: 10px 12px;
-    border-radius: 10px; background: rgba(var(--c),.1); border: 1px solid rgba(var(--c),.28);
+  .shot-bgcard { margin-top: 18px; padding: 14px; border-radius: 14px; background: var(--card-2); border: 1px solid var(--border-soft); }
+  .shot-bgcard-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .shot-bgcard-head b { font-size: 14px; color: var(--text); }
+  .shot-bgcard-head span { margin-left: auto; font-size: 12px; color: var(--muted-2); }
+  .shot-bgcard .seg { margin-bottom: 14px; }
+  .shot-bgcard .seg-btn { padding: 8px 0; }
+  #appshot button.run.shot-bgbtn { margin-top: 12px; }
+  .shot-bgimg { display: flex; align-items: center; gap: 12px; }
+  .shot-bgimg-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .shot-bgimg-side .wm-row { gap: 8px; flex-wrap: wrap; }
+  .shot-bgimg-name { font-size: 12.5px; color: var(--muted); }
+  #appshot .shot-bgimg-side button.run.shot-mini { padding: 7px 12px; font-size: 12.5px; }
+  .shot-bgthumb {
+    width: 96px; height: 60px; flex: none; border-radius: 10px; background: center / cover no-repeat var(--card);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
   }
-  .shot-elhead b { font-size: 13px; color: var(--text); }
+  .wrap { transition: max-width .22s ease; }
+  .shot-pop {
+    --c: 251,113,133;
+    position: fixed; z-index: 60; top: 16px; right: 16px; bottom: 16px; width: 360px;
+    display: flex; flex-direction: column; border-radius: 16px; overflow: hidden;
+    background: var(--glass-bg); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
+    border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+    animation: shotDockIn .22s ease-out;
+  }
+  .shot-pop[hidden] { display: none; }
+  html.shot-dock-on .mascot-stage, html.shot-dock-on .mascot-peek { visibility: hidden; }
+  @keyframes shotDockIn { from { opacity: 0; transform: translateX(24px); } }
+  @keyframes shotSheetIn { from { transform: translateY(100%); } }
+  .shot-pop-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 12px 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .shot-pop-head b { font-size: 14px; color: var(--text); }
+  .shot-pop-x {
+    width: 28px; height: 28px; border: none; border-radius: 8px; background: rgba(255,255,255,.06);
+    color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  .shot-pop-x:hover { background: rgba(255,255,255,.14); color: var(--text); }
+  .shot-pop-body { overflow-y: auto; padding: 0 16px 18px; overscroll-behavior: contain; }
+  .shot-pop .shot-colors { gap: 6px; }
+  #shotPopStatus { flex: none; margin: auto 16px 14px; font-size: 13px; }
+  #shotPopStatus:empty { display: none; }
+  @media (max-width: 920px) {
+    .shot-pop {
+      left: 0; right: 0; top: auto; bottom: 0; width: auto; max-height: 62vh;
+      border-radius: 18px 18px 0 0; border-bottom: none; animation-name: shotSheetIn;
+    }
+    html.shot-dock-on body { padding-bottom: 62vh; }
+  }
   /* 弹窗:iOS 26 风格的液态玻璃。底色保留六成不透明度,背后再花哨文字也清楚;内部控件改成半透明白,和玻璃融在一起 */
   .xb-dlg {
     --card-2: rgba(255,255,255,.05); --border-soft: rgba(255,255,255,.09); --border: rgba(255,255,255,.18);
@@ -513,6 +568,42 @@
     @keyframes dlg-in { from { transform: translateY(40px); opacity: 0; } }
   }
   .shot-langs .chip.active::before { content: "✓"; margin-right: 4px; font-weight: 700; }
+  .shot-ldd { position: relative; }
+  .shot-ldd-btn {
+    width: 100%; display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--border-soft); background: var(--card-2); color: var(--text); font: inherit; font-size: 13.5px; text-align: left;
+  }
+  .shot-ldd-btn span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .shot-ldd-btn svg { width: 16px; height: 16px; flex: none; color: var(--muted); transition: transform .15s; }
+  .shot-ldd-btn[aria-expanded="true"] { border-color: rgba(var(--c),.6); }
+  .shot-ldd-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .shot-ldd-menu {
+    position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0; padding: 8px; border-radius: 14px;
+    background: var(--glass-bg); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
+    border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+  }
+  .shot-ldd-menu[hidden] { display: none; }
+  .shot-ldd-acts { display: flex; align-items: center; gap: 6px; padding: 2px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 6px; }
+  .shot-ldd-acts span { flex: 1; font-size: 12px; color: var(--muted); }
+  .shot-ldd-acts button {
+    padding: 5px 10px; border: 1px solid var(--border-soft); border-radius: 8px; background: rgba(255,255,255,.04);
+    color: var(--text); font: inherit; font-size: 12px; cursor: pointer;
+  }
+  .shot-ldd-acts button:hover { background: rgba(255,255,255,.1); }
+  .shot-ldd-list { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; max-height: 300px; overflow-y: auto; }
+  .shot-ldd-it {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border: none; border-radius: 8px; background: none;
+    color: var(--text); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+  }
+  .shot-ldd-it:hover { background: rgba(255,255,255,.07); }
+  .shot-ldd-it i {
+    width: 16px; height: 16px; flex: none; border-radius: 5px; border: 1.5px solid rgba(255,255,255,.3);
+    display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800; color: transparent;
+  }
+  .shot-ldd-it.on i { background: rgb(var(--c)); border-color: rgb(var(--c)); color: #fff; }
+  .shot-ldd-it small { margin-left: auto; font-size: 11px; color: var(--muted-2); }
+  .shot-ldd-it.lock { cursor: default; }
+  .shot-ldd-it.lock i { opacity: .6; }
   .shot-trstate { margin-top: 14px; padding: 10px 13px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--border-soft); font-size: 12.5px; line-height: 1.75; color: var(--muted); }
   .shot-trstate:empty { display: none; }
   .shot-trstate b { color: #fb923c; font-weight: 600; }
@@ -521,10 +612,50 @@
   .shot-trstate i { display: inline-block; width: 14px; height: 9px; margin: 0 3px; border: 1.5px dashed #fb923c; border-radius: 3px; vertical-align: 0; }
   #shotExRow label .link-btn, .shot-pane label .link-btn { margin-left: 8px; font-size: 12px; }
   #shotProps div:not(.slider-row) > label { margin-top: 16px; }
-  #shotProps > div:first-child > label:first-child { margin-top: 0; }
   .shot-pv { width: 100%; display: flex; flex-direction: column; gap: 12px; }
-  .shot-bar { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  /* 预览工具栏:第一行管整张图(撤销 / 添加 / 语言 / 全屏),第二行只放选中元素的操作 */
+  .shot-bar { display: flex; flex-direction: column; gap: 8px; }
+  .shot-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .shot-row > .shot-group:last-child { margin-left: auto; }
   .shot-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .shot-sep { width: 1px; height: 18px; margin: 0 4px; background: var(--border-soft); }
+  .shot-cap { font-size: 12px; color: var(--muted-2); margin-right: 2px; }
+  .shot-btn.icon { width: 32px; padding: 0; }
+  .shot-btn.icon svg { margin: 0; }
+  .shot-langseg {
+    display: flex; align-items: center; gap: 2px; height: 32px; padding: 3px; border-radius: 10px;
+    border: 1px solid var(--border-soft); background: var(--card-2);
+  }
+  .shot-langseg[hidden] { display: none; }
+  .shot-row > .shot-group:has(.shot-langseg) { min-width: 0; max-width: 100%; }
+  .shot-langseg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .shot-langseg::-webkit-scrollbar { display: none; }
+  .shot-langseg .shot-btn, .shot-langseg .shot-langic { flex: none; }
+  .shot-langseg .shot-langic { display: grid; place-items: center; width: 24px; color: var(--muted-2); }
+  .shot-langseg .shot-langic svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .shot-langseg .shot-btn { height: 24px; padding: 0 10px; border: none; border-radius: 7px; background: transparent; }
+  .shot-langseg .shot-btn.active { background: var(--btn-bg); color: var(--btn-text); }
+  .shot-ctx {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; min-height: 44px;
+    padding: 5px 6px 5px 12px; border-radius: 11px; border: 1px dashed var(--border-soft); transition: background .15s, border-color .15s;
+  }
+  .shot-ctx-name { font-size: 12.5px; color: var(--muted-2); }
+  .shot-ctx-acts { display: none; }
+  .shot-ctx.on { border-style: solid; border-color: rgba(var(--c),.35); background: rgba(var(--c),.07); }
+  .shot-ctx.on .shot-ctx-name { color: var(--text); font-weight: 600; }
+  .shot-ctx.on .shot-ctx-name::before {
+    content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%;
+    background: rgb(var(--c)); vertical-align: 1px;
+  }
+  .shot-ctx.on .shot-ctx-acts { display: flex; }
+  @media (max-width: 560px) {
+    .shot-cap, .shot-sep { display: none; }
+    .shot-adds { order: 3; flex-basis: 100%; }
+    .shot-bar .shot-btn:not(.icon) { padding: 0 8px; }
+    .shot-ctx { padding: 8px; }
+    .shot-ctx-name { flex-basis: 100%; padding-left: 4px; }
+    .shot-ctx.on .shot-ctx-acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex-basis: 100%; }
+  }
   .shot-btn {
     height: 32px; padding: 0 11px; border-radius: 9px; border: 1px solid var(--border-soft); background: var(--card-2);
     color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
@@ -666,6 +797,18 @@
   .dl-btn:hover { filter: brightness(1.08); }
   .dl-btn:active { transform: translateY(1px); }
   .dl-btn.hidden { display: none; }
+  .pv-fs-btn {
+    padding: 9px 14px; border: 1px solid var(--border-soft); border-radius: 10px; background: rgba(255,255,255,.04);
+    color: var(--text); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px; transition: background .15s, border-color .15s;
+  }
+  .pv-fs-btn svg { width: 15px; height: 15px; }
+  .pv-fs-btn:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22); }
+  .pv-fs-btn[hidden] { display: none; }
+  @media (max-width: 560px) {
+    .pv-fs-btn { padding: 9px 10px; }
+    .pv-fs-btn span { display: none; }
+  }
   .pv-acts { display: flex; align-items: center; gap: 8px; }
   .next-wrap { position: relative; }
   .next-wrap.hidden { display: none; }
@@ -1571,29 +1714,42 @@
     <label style="margin-top:0">上传 App 截图(可多选,按顺序放进各页手机,也可拖入 / 粘贴)</label>
     <input type="file" id="shotFiles" accept="image/*" multiple />
     <div class="shot-pane" data-pane="canvas">
-      <div class="hint shot-tip-box">想改某段文字、某台手机?直接在右侧预览里点它,这里会换成它的设置。</div>
-      <label>背景(所有页共用)</label>
-      <div class="shot-sws" id="shotBgs"></div>
-      <div class="wm-row shot-bgrow">
-        <input type="color" id="shotC1" title="颜色 1" />
-        <input type="color" id="shotC2" title="颜色 2" />
-        <select id="shotBgType"><option value="linear">线性渐变</option><option value="fluid">流体渐变</option></select>
+      <div class="shot-bgcard">
+        <div class="shot-bgcard-head"><b>背景编辑</b><span>所有页共用,左右滑动画面连贯</span></div>
+        <div class="seg" id="shotBgMode">
+          <button type="button" class="seg-btn" data-mode="color">渐变色</button>
+          <button type="button" class="seg-btn" data-mode="img">背景图片</button>
+        </div>
+        <div id="shotBgColorBox">
+          <div class="shot-sws" id="shotBgs"></div>
+          <div class="wm-row shot-bgrow">
+            <input type="color" id="shotC1" title="颜色 1" />
+            <input type="color" id="shotC2" title="颜色 2" />
+            <select id="shotBgType"><option value="linear">线性渐变</option><option value="fluid">流体渐变</option></select>
+          </div>
+          <div class="slider-row" id="shotAngleRow" style="margin-top:14px"><label>渐变角度 <span class="val"></span></label><input type="range" id="shotAngle" min="0" max="360" data-unit="°" /></div>
+          <button type="button" class="run ghost shot-mini shot-bgbtn" id="shotSeed">换一种流体形态</button>
+        </div>
+        <div id="shotBgImgRow" hidden>
+          <div class="shot-bgimg">
+            <div class="shot-bgthumb" id="shotBgThumb"></div>
+            <div class="shot-bgimg-side">
+              <span class="shot-bgimg-name" id="shotBgImgName">系统背景</span>
+              <div class="wm-row">
+                <button type="button" class="run ghost shot-mini" id="shotBgImgBtn">更换图片</button>
+                <button type="button" class="run ghost shot-mini" id="shotBgSys">恢复系统背景</button>
+              </div>
+            </div>
+          </div>
+          <div class="slider-row" style="margin-top:14px"><label>背景模糊 <span class="val"></span></label><input type="range" id="shotBlur" min="0" max="80" data-unit="" /></div>
+          <div class="slider-row"><label>背景压暗 <span class="val"></span></label><input type="range" id="shotDim" min="0" max="70" data-unit="%" /></div>
+          <div class="hint">适当模糊、压暗,上面的文字和手机会更清楚。</div>
+        </div>
       </div>
-      <div class="slider-row" id="shotAngleRow" style="margin-top:14px"><label>渐变角度 <span class="val"></span></label><input type="range" id="shotAngle" min="0" max="360" data-unit="°" /></div>
-      <div class="wm-logo">
-        <button type="button" class="link-btn" id="shotSeed">换一种流体形态</button>
-        <button type="button" class="link-btn" id="shotBgImgBtn">使用背景图片</button>
-        <button type="button" class="link-btn" id="shotBgImgDel" hidden>移除背景图片</button>
-      </div>
-      <div id="shotBgImgRow" hidden>
-        <div class="slider-row" style="margin-top:14px"><label>背景模糊 <span class="val"></span></label><input type="range" id="shotBlur" min="0" max="80" data-unit="" /></div>
-        <div class="slider-row"><label>背景压暗 <span class="val"></span></label><input type="range" id="shotDim" min="0" max="70" data-unit="%" /></div>
-      </div>
-      <div class="hint">背景横跨所有页连续绘制,用户在 App Store 左右滑动时画面是连贯的。</div>
     </div>
-    <div class="shot-pane" data-pane="el" hidden>
-      <div class="shot-elhead"><button type="button" class="link-btn" id="shotElBack">← 返回背景设置</button><b id="shotElName">文字</b></div>
-      <div id="shotProps" hidden>
+    <div class="shot-pop" id="shotPop" role="dialog" aria-labelledby="shotElName" hidden>
+      <div class="shot-pop-head" id="shotPopHead"><b id="shotElName">文字</b><button type="button" class="shot-pop-x" id="shotElBack" title="关闭(Esc)" aria-label="关闭">×</button></div>
+      <div class="shot-pop-body" id="shotProps" hidden>
         <div data-for="device image">
           <label>图片</label>
           <div class="wm-row">
@@ -1634,7 +1790,6 @@
             <button type="button" class="chip" data-v="center">中</button>
             <button type="button" class="chip" data-v="right">右</button>
           </div>
-          <div class="wm-logo" id="shotTextAllRow"><button type="button" class="link-btn" id="shotTextAll">把颜色、粗细、对齐同步到所有页的<span id="shotTextAllName">标题</span></button></div>
         </div>
         <div data-for="badge">
           <div class="row2">
@@ -1652,13 +1807,27 @@
           <div class="slider-row"><label>旋转 <span class="val"></span></label><input type="range" data-prop="rot" min="-180" max="180" data-unit="°" /></div>
           <div class="slider-row"><label>不透明度 <span class="val"></span></label><input type="range" data-prop="opacity" data-scale="100" min="10" max="100" data-unit="%" /></div>
         </div>
+        <div id="shotTextAllRow" data-for="text"><button type="button" class="sync-btn" id="shotTextAll" title="颜色、粗细、对齐、字号、文本框宽度、旋转、不透明度都会同步,文字内容和位置不变"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></svg><span class="sync-main">同步到所有页的<span id="shotTextAllName">标题</span></span><span class="sync-sub">以上全部样式</span></button></div>
         <div class="wm-logo" data-for="device"><button type="button" class="link-btn" id="shotApplyAll">把外框、灵动岛、阴影应用到所有设备</button></div>
       </div>
+      <div class="status" id="shotPopStatus" role="status"></div>
     </div>
     <details class="shot-sec" id="shotLangSec" open>
       <summary class="shot-step shot-step-lg"><i>3</i>多语言<span id="shotLangSum"></span></summary>
-      <div class="shot-sub">① 选要做的语言<span>点一下选中,再点取消</span></div>
-      <div class="chips shot-langs" id="shotLangs"></div>
+      <div class="shot-sub">① 选要做的语言</div>
+      <div class="shot-ldd" id="shotLangDD">
+        <button type="button" class="shot-ldd-btn" id="shotLangBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="shotLangTxt"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="shot-ldd-menu" id="shotLangMenu" hidden>
+          <div class="shot-ldd-acts">
+            <span id="shotLangCount"></span>
+            <button type="button" data-all="1">全部选中</button>
+            <button type="button" data-all="0">全部取消</button>
+          </div>
+          <div class="shot-ldd-list" id="shotLangs" role="listbox" aria-multiselectable="true"></div>
+        </div>
+      </div>
       <div class="shot-sub">② 下载翻译表</div>
       <div class="wm-row">
         <button type="button" class="run ghost shot-mini" id="shotTrOut">下载翻译表</button>
@@ -1723,6 +1892,7 @@
           <button type="button" class="next-btn" id="nextBtn" aria-haspopup="menu" title="把这个结果直接交给其他工具继续处理,不用下载再上传"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>接着处理</button>
           <div class="next-menu" id="nextMenu" role="menu"></div>
         </div>
+        <button type="button" class="pv-fs-btn" id="pvFsBtn" title="全屏看成品效果(Esc 退出)" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全屏预览</span></button>
         <button class="dl-btn hidden" id="dlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span id="dlBtnText">下载 PDF</span></button>
         </div>
       </div>
@@ -1861,6 +2031,7 @@ addEventListener('load', () => {
 const mobileQ = matchMedia('(max-width: 640px)');
 function mHome(on) {
   document.body.classList.toggle('m-home', on);
+  if (on && shotSel) shotSelect(null);
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 if (history.state?.m) history.replaceState(null, '');
@@ -2064,7 +2235,9 @@ function switchPreview(next) {
     txtConverted = false;
   }
   setNextResult(saved?.next || null);
+  document.getElementById('pvFsBtn').hidden = !(next === 'appshot' && saved);
   currentTab = next;
+  if (next !== 'appshot' && shotSel) shotSelect(null);
 }
 
 /* ---------- 结果接力:PDF 结果不用下载再上传,直接交给下一个工具 ---------- */
@@ -5352,7 +5525,7 @@ const SHOT_LANGS = {
 
 const shot = {
   sizeKey: 'iphone63', n: 5, tpl: 'simple', bg: null, els: [], fmt: 'png', page: 0,
-  exSizes: [], base: 'zh-Hans', lang: 'zh-Hans', langs: ['zh-Hans', 'en-US'], tr: {},
+  exSizes: [], base: 'zh-Hans', lang: 'zh-Hans', langs: ['zh-Hans'], tr: {},
 };
 const shotImgs = []; // { blob, bmp },设备截图 / 贴图 / 背景图共用,元素里只存下标
 let shotSel = null;
@@ -5813,6 +5986,9 @@ function shotPaint() {
   } else {
     const pageMax = (sc?.clientWidth || 700) * .85;
     dh = Math.min(clamp(Math.round(innerHeight * .56), 340, 600), Math.round(pageMax * S.h / S.w));
+    // 预览区有最大高度时,给工具栏、页码和提示留够位置,别让它们被挤到滚动区外
+    const body = gid('previewBody'), pv = cv.closest('.shot-pv'), maxH = parseFloat(getComputedStyle(body).maxHeight);
+    if (maxH && pv) dh = Math.max(220, Math.min(dh, Math.floor(maxH - (pv.offsetHeight - cv.offsetHeight) - 4)));
   }
   const k = dh / S.h;
   const dpr = devicePixelRatio || 1, pk = k * dpr, sceneW = Math.round(S.w * shot.n * k), cw = sceneW + gap * (shot.n - 1);
@@ -5991,7 +6167,7 @@ function shotEmbed(img, dev) {
   dev.src = img.src;
   shot.els.splice(shot.els.indexOf(img), 1);
   shotSelect(dev);
-  setStatus('shotStatus', '已嵌入手机屏幕', true);
+  shotMsg('已嵌入手机屏幕', true);
 }
 function shotUp() {
   const d = shotDrag;
@@ -6006,14 +6182,66 @@ function shotUp() {
 function shotSelect(el) {
   shotSel = el;
   if (el) shot.page = clamp(Math.floor(shotCenter(el).cx / shotSize().w), 0, shot.n - 1);
-  shotPane(el ? 'el' : 'canvas');
   shotSyncProps();
   shotToolsState();
   shotPagesBar();
   shotRender();
+  shotPopPlace();
 }
+// 宽屏时设置面板停靠在窗口右侧:右边空白够就直接放;收窄后预览还够宽就让页面左边不动、从右边让位
+// (画布高度不受影响);再不够就盖在预览右侧,把选中的元素滚到面板左边
+let shotPopFor = null;
+// 在编辑面板里操作产生的提示就显示在面板底部,几秒后自动消失;面板没开时退回左侧状态栏
+function shotMsg(msg, ok) {
+  const box = gid('shotPopStatus');
+  if (gid('shotPop').hidden) return setStatus('shotStatus', msg, ok);
+  setStatus('shotPopStatus', msg, ok);
+  clearTimeout(box._t);
+  box._t = setTimeout(() => { box.textContent = ''; }, 4000);
+}
+function shotPopPlace() {
+  const pop = gid('shotPop'), el = shotSel, show = !!el && currentTab === 'appshot';
+  const fresh = show && shotPopFor !== el;
+  if (fresh) { gid('shotProps').scrollTop = 0; gid('shotPopStatus').textContent = ''; }
+  shotPopFor = show ? el : null;
+  if (pop.hidden !== !show) {
+    pop.hidden = !show;
+    document.documentElement.classList.toggle('shot-dock-on', show);
+    shotDock(show);
+  }
+  if (fresh) setTimeout(shotReveal, 240);
+}
+function shotDock(on) {
+  const wrap = document.querySelector('.wrap');
+  wrap.style.marginLeft = wrap.style.maxWidth = '';
+  if (!on || matchMedia('(max-width: 920px)').matches) return;
+  const r = wrap.getBoundingClientRect(), room = document.documentElement.clientWidth - gid('shotPop').offsetWidth - 32;
+  if (r.right <= room || room - document.querySelector('.right').getBoundingClientRect().left < 640) return;
+  wrap.style.marginLeft = r.left - parseFloat(getComputedStyle(document.body).paddingLeft) + 'px';
+  wrap.style.maxWidth = room - r.left + 'px';
+}
+function shotReveal() {
+  const el = shotSel, pop = gid('shotPop'), sc = gid('shotScroll');
+  if (!el || pop.hidden || !sc) return;
+  const r = gid('shotCanvas').getBoundingClientRect(), k = r.width / (shotSize().w * shot.n);
+  const b = shotBox(el), c = shotCenter(el, b), p = pop.getBoundingClientRect();
+  if (matchMedia('(max-width: 920px)').matches) {
+    const bottom = r.top + (c.cy + b.h / 2) * k;
+    if (bottom > p.top - 16) scrollBy({ top: bottom - p.top + 16, behavior: 'smooth' });
+    return;
+  }
+  const right = r.left + (c.cx + b.w / 2) * k, limit = Math.min(sc.getBoundingClientRect().right, p.left) - 24;
+  if (right > limit) sc.scrollBy({ left: right - limit, behavior: 'smooth' });
+}
+addEventListener('resize', () => { if (!gid('shotPop')?.hidden) shotDock(true); });
 function shotToolsState() {
+  const box = gid('shotTools');
+  if (!box) return;
   document.querySelectorAll('#shotTools .shot-btn').forEach(b => { b.disabled = !shotSel; });
+  box.classList.toggle('on', !!shotSel);
+  gid('shotCtxName').textContent = shotSel
+    ? '已选中 · ' + ({ text: '文字', device: '手机', image: '图片', badge: '徽章' }[shotSel.type] || '元素')
+    : '点选画布上的元素,可以在这里旋转、调整层级或删除';
 }
 function shotAct(act) {
   const el = shotSel;
@@ -6049,7 +6277,7 @@ function shotAdd(kind, src) {
   shot.els.push(el);
   shotSelect(el);
   shotChanged();
-  if (kind === 'text') { const ta = document.querySelector('#shotProps [data-prop=text]'); ta.focus(); ta.select(); }
+  if (kind === 'text') { const ta = document.querySelector('#shotProps [data-prop=text]'); ta.focus({ preventScroll: true }); ta.select(); }
 }
 
 /* 页面 */
@@ -6175,9 +6403,6 @@ async function shotAddShots(files) {
 
 /* 左侧控件 */
 // 第 2 步:没选中元素时显示背景设置,选中后换成该元素的设置
-function shotPane(name) {
-  document.querySelectorAll('#appshot .shot-pane').forEach(p => { p.hidden = p.dataset.pane !== name; });
-}
 function shotVal(input) {
   const v = input.closest('.slider-row')?.querySelector('.val');
   if (v) v.textContent = Math.round(input.value) + (input.dataset.unit || '');
@@ -6186,7 +6411,7 @@ function shotSyncProps() {
   const el = shotSel, box = gid('shotProps');
   box.hidden = !el;
   if (!el) return;
-  gid('shotElName').textContent = '正在编辑:' + ({ text: '文字', device: '手机', image: '图片', badge: '徽章' }[el.type] || '元素')
+  gid('shotElName').textContent = '编辑' + ({ text: '文字', device: '手机', image: '图片', badge: '徽章' }[el.type] || '元素')
     + (shot.lang !== shot.base && shotTextParts(el).length ? ` · ${SHOT_LANGS[shot.lang][2]}译文` : '');
   box.querySelectorAll('[data-for]').forEach(n => { n.hidden = !n.dataset.for.split(' ').includes(el.type); });
   box.querySelector('[data-prop=w]').max = Math.round(shotSize().w * 1.2);
@@ -6201,7 +6426,8 @@ function shotSyncProps() {
   box.querySelectorAll('.shot-color').forEach(c => c.classList.toggle('active', c.dataset.c === String(el.color).toLowerCase()));
   const group = /^[ts]\d+$/.test(el.slot || '') && el.slot[0];
   gid('shotTextAllRow').hidden = !group;
-  if (group) gid('shotTextAllName').textContent = group === 't' ? '标题' : '副标题';
+  const groupName = gid('shotTextAllName');
+  if (group && groupName) groupName.textContent = group === 't' ? '标题' : '副标题';
 }
 function shotSwatchCss(b) {
   const c = b.colors;
@@ -6226,8 +6452,17 @@ function shotRefreshUI() {
   shotVal(gid('shotAngle'));
   gid('shotAngleRow').hidden = b.type !== 'linear' || hasImg;
   gid('shotSeed').hidden = b.type !== 'fluid' || hasImg;
-  gid('shotBgImgDel').hidden = !hasImg;
+  gid('shotBgColorBox').hidden = hasImg;
   gid('shotBgImgRow').hidden = !hasImg;
+  gid('shotBgMode').querySelectorAll('.seg-btn').forEach(s => s.classList.toggle('active', s.dataset.mode === (hasImg ? 'img' : 'color')));
+  if (hasImg) {
+    const im = shotImgs[b.img];
+    im.url ??= URL.createObjectURL(im.blob);
+    gid('shotBgThumb').style.backgroundImage = `url("${im.url}")`;
+    const sys = b.img === b.sysImg;
+    gid('shotBgImgName').textContent = sys ? '系统背景' : '你的图片';
+    gid('shotBgSys').hidden = sys;
+  }
   gid('shotBlur').value = b.blur || 0;
   gid('shotDim').value = Math.round((b.dim || 0) * 100);
   shotVal(gid('shotBlur'));
@@ -6281,6 +6516,13 @@ gid('shotTpls').addEventListener('click', async e => {
 });
 gid('shotFiles').addEventListener('change', e => { shotAddShots(e.target.files); e.target.value = ''; });
 gid('shotElBack').addEventListener('click', () => shotSelect(null));
+// 挂到 body 上:面板的毛玻璃会让 fixed 定位相对面板计算
+document.body.appendChild(gid('shotPop'));
+gid('shotPop').addEventListener('keydown', e => { if (e.key === 'Escape') { e.target.blur?.(); shotSelect(null); } });
+document.addEventListener('pointerdown', e => {
+  if (!shotSel || gid('shotPop').hidden || e.target.closest('#shotPop, .shot-pv, dialog')) return;
+  shotSelect(null);
+}, true);
 gid('shotLangSec').addEventListener('toggle', e => { if (e.target.open) shotTrProgress(); });
 gid('shotScreen').addEventListener('click', async e => {
   const b = e.target.closest('.chip');
@@ -6302,9 +6544,14 @@ gid('shotTextColors').addEventListener('click', e => {
 gid('shotTextAll').addEventListener('click', () => {
   const s = shotSel, g = s?.slot?.[0];
   if (!g) return;
-  for (const el of shot.els) if (el.type === 'text' && new RegExp(`^${g}\\d+$`).test(el.slot || '')) Object.assign(el, { color: s.color, weight: s.weight, align: s.align });
-  setStatus('shotStatus', `已同步到所有页的${g === 't' ? '标题' : '副标题'}`, true);
+  for (const el of shot.els) if (el.type === 'text' && new RegExp(`^${g}\\d+$`).test(el.slot || '')) Object.assign(el, { color: s.color, weight: s.weight, align: s.align, size: s.size, w: s.w, rot: s.rot, opacity: s.opacity });
   shotChanged();
+  const btn = gid('shotTextAll'), main = btn.querySelector('.sync-main');
+  if (!btn._label) btn._label = main.innerHTML;
+  main.textContent = '✓ 已同步到所有页';
+  btn.classList.add('done');
+  clearTimeout(btn._t);
+  btn._t = setTimeout(() => { main.innerHTML = btn._label; btn._label = null; btn.classList.remove('done'); shotSyncProps(); }, 1500);
 });
 gid('shotFmt').addEventListener('click', e => {
   const b = e.target.closest('.seg-btn');
@@ -6316,7 +6563,7 @@ gid('shotFmt').addEventListener('click', e => {
 gid('shotBgs').addEventListener('click', e => {
   const s = e.target.closest('.shot-sw');
   if (!s) return;
-  shot.bg = { ...structuredClone(SHOT_BGS[s.dataset.i]), img: null, blur: shot.bg.blur, dim: shot.bg.dim };
+  shot.bg = { ...structuredClone(SHOT_BGS[s.dataset.i]), img: null, lastImg: shot.bg.lastImg, sysImg: shot.bg.sysImg, blur: shot.bg.blur, dim: shot.bg.dim };
   shotBgChanged();
 });
 gid('shotC1').addEventListener('input', e => { shot.bg.colors[0] = e.target.value; shotBgChanged(); });
@@ -6343,7 +6590,45 @@ gid('shotBgFile').addEventListener('change', async e => {
     shotBgChanged();
   } catch { setStatus('shotStatus', '这张图片无法读取', false); }
 });
-gid('shotBgImgDel').addEventListener('click', () => { shot.bg.img = null; shotBgChanged(); });
+// 系统自带的背景图:柔和的极光色块。第一次切到「背景图片」先用它,让用户看到效果再决定换不换
+async function shotSysBg() {
+  const b = shot.bg;
+  if (b.sysImg != null && shotImgs[b.sysImg]?.bmp) return b.sysImg;
+  const W = 1600, H = 1000, c = document.createElement('canvas'), x = c.getContext('2d');
+  c.width = W; c.height = H;
+  const g = x.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#1e1b4b'); g.addColorStop(.55, '#4c1d95'); g.addColorStop(1, '#0f172a');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  for (const [cx, cy, r, col] of [[300, 250, 560, '#f472b6'], [1250, 280, 520, '#38bdf8'], [820, 860, 600, '#a78bfa'], [1480, 920, 400, '#fbbf24']]) {
+    const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+    rg.addColorStop(0, col + 'b3'); rg.addColorStop(1, col + '00');
+    x.fillStyle = rg; x.fillRect(0, 0, W, H);
+  }
+  let s = 7;
+  const rnd = () => (s = s * 16807 % 2147483647) / 2147483647;
+  for (let i = 0; i < 22; i++) {
+    x.fillStyle = `rgba(255,255,255,${.05 + rnd() * .1})`;
+    x.beginPath(); x.arc(rnd() * W, rnd() * H, 20 + rnd() * 90, 0, Math.PI * 2); x.fill();
+  }
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .9));
+  b.sysImg = await shotLoadImg(blob);
+  return b.sysImg;
+}
+async function shotUseSysBg() {
+  const b = shot.bg;
+  b.img = await shotSysBg();
+  b.blur ??= 24;
+  if (b.dim == null) b.dim = .15;
+  shotBgChanged();
+}
+gid('shotBgMode').addEventListener('click', e => {
+  const m = e.target.closest('.seg-btn')?.dataset.mode, b = shot.bg, hasImg = b.img != null && !!shotImgs[b.img]?.bmp;
+  if (!m || (m === 'img') === hasImg) return;
+  if (m === 'color') { b.lastImg = b.img; b.img = null; shotBgChanged(); }
+  else if (b.lastImg != null && shotImgs[b.lastImg]?.bmp) { b.img = b.lastImg; shotBgChanged(); }
+  else shotUseSysBg();
+});
+gid('shotBgSys').addEventListener('click', shotUseSysBg);
 gid('shotBlur').addEventListener('input', e => { shot.bg.blur = Number(e.target.value); shotBgChanged(); });
 gid('shotDim').addEventListener('input', e => { shot.bg.dim = Number(e.target.value) / 100; shotBgChanged(); });
 
@@ -6375,12 +6660,12 @@ gid('shotReplaceFile').addEventListener('change', async e => {
   const f = e.target.files[0], el = shotSel;
   e.target.value = '';
   if (!f || !el) return;
-  try { el.src = await shotLoadImg(f); shotKept(); } catch { setStatus('shotStatus', '这张图片无法读取', false); }
+  try { el.src = await shotLoadImg(f); shotKept(); } catch { shotMsg('这张图片无法读取', false); }
 });
 gid('shotClearImg').addEventListener('click', () => { if (shotSel) { shotSel.src = -1; shotKept(); } });
 gid('shotEmbedBtn').addEventListener('click', () => {
   const img = shotSel, dev = img?.type === 'image' && shotDevAt(img.x, img.y);
-  if (!dev) { setStatus('shotStatus', '先把图片拖到某台手机的屏幕上方', false); return; }
+  if (!dev) { shotMsg('先把图片拖到某台手机的屏幕上方', false); return; }
   shotEmbed(img, dev);
   shotChanged();
 });
@@ -6396,10 +6681,10 @@ gid('shotAddImgFile').addEventListener('change', async e => {
   if (!f) return;
   try {
     const src = await shotLoadImg(f);
-    if (shotSel?.type === 'device') { shotSel.src = src; shotKept(); setStatus('shotStatus', '已放进选中的手机', true); return; }
+    if (shotSel?.type === 'device') { shotSel.src = src; shotKept(); shotMsg('已放进选中的手机', true); return; }
     shotAdd('image', src);
-    setStatus('shotStatus', '已添加为贴图;要放进手机的话,把它拖到手机屏幕上松手即可', true);
-  } catch { setStatus('shotStatus', '这张图片无法读取', false); }
+    shotMsg('已添加为贴图;要放进手机的话,把它拖到手机屏幕上松手即可', true);
+  } catch { shotMsg('这张图片无法读取', false); }
 });
 gid('shotReset').addEventListener('click', async () => {
   if (!await xbAsk({
@@ -6413,7 +6698,7 @@ gid('shotReset').addEventListener('click', async () => {
   shot.els = [];
   shot.tr = {};
   shot.lang = shot.base;
-  shot.langs = [...new Set([shot.base, 'en-US'])];
+  shot.langs = [shot.base];
   shotApplyTpl(shot.tpl);
   shotLangUI();
   shotHistReset();
@@ -6512,17 +6797,22 @@ function shotMissing(lang) {
 }
 function shotLangUI() {
   if (!SHOT_LANGS[shot.lang]) shot.lang = shot.base;
+  if (!shot.langs.includes(shot.base)) shot.langs.unshift(shot.base);
   gid('shotLangs').innerHTML = Object.keys(SHOT_LANGS).map(l => {
-    const on = shot.langs.includes(l);
-    return `<button type="button" class="chip${on ? ' active' : ''}" data-lang="${l}" aria-pressed="${on}" title="${SHOT_LANGS[l][0]}">${SHOT_LANGS[l][2]}${l === shot.base ? '<small>原文</small>' : ''}</button>`;
+    const on = shot.langs.includes(l), base = l === shot.base;
+    return `<button type="button" class="shot-ldd-it${on ? ' on' : ''}${base ? ' lock' : ''}" data-lang="${l}" role="option" aria-selected="${on}" title="${base ? '原文语言,始终保留' : SHOT_LANGS[l][0]}"><i>✓</i>${SHOT_LANGS[l][2]}${base ? '<small>原文</small>' : ''}</button>`;
   }).join('');
-  gid('shotLangSum').textContent = `已选 ${shot.langs.length} 种`;
+  const names = shot.langs.map(l => SHOT_LANGS[l][2]), n = names.length;
+  gid('shotLangTxt').textContent = n === 1 ? `${names[0]}(只做原文)` : names.slice(0, 3).join('、') + (n > 3 ? ` 等 ${n} 种` : '');
+  gid('shotLangCount').textContent = `已选 ${n} / ${Object.keys(SHOT_LANGS).length}`;
+  gid('shotLangSum').textContent = `已选 ${n} 种`;
   shotTrProgress();
   const bar = gid('shotLangBar');
   if (bar) {
     const all = shotAllLangs();
     bar.hidden = all.length < 2;
-    bar.innerHTML = all.map(l => `<button class="shot-btn${l === shot.lang ? ' active' : ''}" data-lang="${l}" title="${SHOT_LANGS[l][0]}">${SHOT_LANGS[l][2]}</button>`).join('');
+    bar.innerHTML = '<span class="shot-langic" title="预览和编辑的语言"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>'
+      + all.map(l => `<button class="shot-btn${l === shot.lang ? ' active' : ''}" data-lang="${l}" title="${SHOT_LANGS[l][0]}">${SHOT_LANGS[l][2]}</button>`).join('');
   }
   shotPagesBar();
 }
@@ -6664,20 +6954,27 @@ async function shotTrImport(file) {
   setStatus('shotStatus', (done ? `已导入:${done}` : '没有导入任何译文') + (missed.length ? `;有 ${missed.length} 行没对上(编号被改了,或画布上已删掉这段文字)` : ''), !!done && !missed.length);
 }
 
-gid('shotLangs').addEventListener('click', e => {
-  const l = e.target.closest('.chip')?.dataset.lang;
-  if (!l) return;
-  if (shot.langs.includes(l)) {
-    if (shot.langs.length === 1) { setStatus('shotStatus', '至少要导出一种语言', false); return; }
-    shot.langs = shot.langs.filter(x => x !== l);
-    if (l === shot.lang && l !== shot.base) shotSwitchLang(shot.base);
-    shotLangUI();
-  } else {
-    shot.langs = Object.keys(SHOT_LANGS).filter(x => x === l || shot.langs.includes(x));
-    shotLangUI();
-  }
+// 原文语言始终保留,全部取消后只剩原文
+function shotSetLangs(list) {
+  shot.langs = Object.keys(SHOT_LANGS).filter(x => x === shot.base || list.includes(x));
+  if (!shot.langs.includes(shot.lang)) shotSwitchLang(shot.base);
+  shotLangUI();
   shotKept();
+}
+function shotLangOpen(on) {
+  gid('shotLangMenu').hidden = !on;
+  gid('shotLangBtn').setAttribute('aria-expanded', on);
+}
+gid('shotLangBtn').addEventListener('click', () => shotLangOpen(gid('shotLangMenu').hidden));
+gid('shotLangMenu').addEventListener('click', e => {
+  const all = e.target.closest('[data-all]');
+  if (all) return shotSetLangs(all.dataset.all === '1' ? Object.keys(SHOT_LANGS) : []);
+  const l = e.target.closest('.shot-ldd-it')?.dataset.lang;
+  if (!l || l === shot.base) return;
+  shotSetLangs(shot.langs.includes(l) ? shot.langs.filter(x => x !== l) : [...shot.langs, l]);
 });
+document.addEventListener('pointerdown', e => { if (!gid('shotLangMenu').hidden && !e.target.closest('#shotLangDD')) shotLangOpen(false); });
+gid('shotLangDD').addEventListener('keydown', e => { if (e.key === 'Escape') { shotLangOpen(false); gid('shotLangBtn').focus(); } });
 gid('shotTrOut').addEventListener('click', shotTrExport);
 gid('shotTrIn').addEventListener('click', () => gid('shotTrFile').click());
 gid('shotTrFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) shotTrImport(f); });
@@ -6776,28 +7073,38 @@ function shotEnsurePreview() {
     resetPreview('App 预览图');
     gid('previewBody').innerHTML = `<div class="shot-pv">
       <div class="shot-bar">
-        <div class="shot-group">
-          <button class="shot-btn" data-hist="-1" id="shotUndo" title="上一步(⌘Z / Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>上一步</button>
-          <button class="shot-btn" data-hist="1" id="shotRedo" title="下一步(⇧⌘Z / Ctrl+Y)" disabled><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>下一步</button>
-          <button class="shot-btn" data-fs="1" title="全屏看成品效果(Esc 退出)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>全屏预览</button>
+        <div class="shot-row">
+          <div class="shot-group">
+            <button class="shot-btn icon" data-hist="-1" id="shotUndo" title="上一步(⌘Z / Ctrl+Z)" aria-label="上一步" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+            <button class="shot-btn icon" data-hist="1" id="shotRedo" title="下一步(⇧⌘Z / Ctrl+Y)" aria-label="下一步" disabled><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+            <span class="shot-sep"></span>
+          </div>
+          <div class="shot-group shot-adds">
+            <span class="shot-cap">添加</span>
+            <button class="shot-btn" data-add="text"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>文字</button>
+            <button class="shot-btn" data-add="device"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>设备</button>
+            <button class="shot-btn" data-add="image"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>图片</button>
+            <button class="shot-btn" data-add="badge"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>徽章</button>
+          </div>
+          <div class="shot-group">
+            <div class="shot-langseg" id="shotLangBar" hidden></div>
+          </div>
         </div>
         <div class="shot-fsbar"><span id="shotFsInfo"></span><select id="shotFsLang" class="shot-fslang" title="切换语言"></select><span class="shot-fszoom"><button class="shot-btn" data-fz="out" id="shotFsOut" title="缩小(-)">−</button><button class="shot-btn" data-fz="fit" id="shotFsPct" title="显示全部(0)">显示全部</button><button class="shot-btn" data-fz="in" id="shotFsIn" title="放大(+)">+</button></span><button class="shot-btn" data-fs="0" title="退出全屏(Esc)"><svg viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>退出全屏</button></div>
-        <div class="shot-group" id="shotTools">
-          <button class="shot-btn" data-act="rotL" title="逆时针旋转 15°">↺ 15°</button>
-          <button class="shot-btn" data-act="rotR" title="顺时针旋转 15°">↻ 15°</button>
-          <button class="shot-btn" data-act="rot0">摆正</button>
-          <button class="shot-btn" data-act="up">上移一层</button>
-          <button class="shot-btn" data-act="down">下移一层</button>
-          <button class="shot-btn" data-act="dup">复制</button>
-          <button class="shot-btn danger" data-act="del">删除</button>
+        <div class="shot-ctx" id="shotTools">
+          <span class="shot-ctx-name" id="shotCtxName"></span>
+          <div class="shot-group shot-ctx-acts">
+            <button class="shot-btn" data-act="rotL" title="逆时针旋转 15°">↺ 15°</button>
+            <button class="shot-btn" data-act="rotR" title="顺时针旋转 15°">↻ 15°</button>
+            <button class="shot-btn" data-act="rot0" title="角度归零">摆正</button>
+            <span class="shot-sep"></span>
+            <button class="shot-btn" data-act="up" title="移到上一层">上移</button>
+            <button class="shot-btn" data-act="down" title="移到下一层">下移</button>
+            <span class="shot-sep"></span>
+            <button class="shot-btn" data-act="dup">复制</button>
+            <button class="shot-btn danger" data-act="del" title="删除(Delete)">删除</button>
+          </div>
         </div>
-        <div class="shot-group">
-          <button class="shot-btn" data-add="text">+ 文字</button>
-          <button class="shot-btn" data-add="device">+ 设备</button>
-          <button class="shot-btn" data-add="image">+ 图片</button>
-          <button class="shot-btn" data-add="badge">+ 徽章</button>
-        </div>
-        <div class="shot-group" id="shotLangBar" hidden></div>
       </div>
       <div class="shot-scroll" id="shotScroll"><canvas id="shotCanvas"></canvas></div>
       <div class="shot-pages" id="shotPages"></div>
@@ -6811,7 +7118,7 @@ function shotEnsurePreview() {
     cv.addEventListener('dblclick', () => {
       if (shotSel?.type !== 'text') return;
       const ta = document.querySelector('#shotProps [data-prop=text]');
-      ta.focus(); ta.select();
+      ta.focus({ preventScroll: true }); ta.select();
     });
     pv.addEventListener('click', e => {
       const b = e.target.closest('.shot-btn');
@@ -6856,6 +7163,9 @@ function shotEnsurePreview() {
     dl.classList.remove('hidden');
     gid('dlBtnText').textContent = '导出全部';
     dl.onclick = shotExOpen;
+    const fsBtn = gid('pvFsBtn');
+    fsBtn.hidden = false;
+    fsBtn.onclick = () => shotFsToggle(true);
   }
   shotLangUI();
   shotToolsState();
@@ -7563,8 +7873,9 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
   };
   gid('mascotX').addEventListener('click', () => show(false));
   peek.addEventListener('click', () => { show(true); wake(); say('我回来啦!'); });
-  let off = false;
-  try { off = localStorage.getItem(KEY) === '1'; } catch { /* 隐私模式 */ }
+  // 手机屏幕小,没表过态时默认收起成右下角的小头像
+  let off = mobileQ.matches;
+  try { const v = localStorage.getItem(KEY); if (v !== null) off = v === '1'; } catch { /* 隐私模式 */ }
   stage.hidden = off;
   peek.hidden = !off;
   m.x = maxX();
