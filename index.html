@@ -134,6 +134,7 @@
   /* 每个功能一个主题色(RGB 三元组),卡片与对应面板共用 */
   [data-tab="merge"], #merge { --c: 79,140,255; }
   [data-tab="split"], #split, .sp-grid { --c: 45,212,191; }
+  [data-tab="compress"], #compress { --c: 250,204,21; }
   [data-tab="insert"], #insert { --c: 52,211,153; }
   [data-tab="replace"], #replace { --c: 251,146,60; }
   [data-tab="toimg"], #toimg { --c: 236,72,153; }
@@ -610,17 +611,31 @@
   .status.ok { color: var(--ok); background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.22); }
   .status.err { color: var(--err); background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.22); }
   .file-list {
-    margin-top: 12px; font-size: 13px; color: var(--muted);
+    font-size: 13px; color: var(--muted);
     display: flex; flex-direction: column; gap: 6px;
   }
-  .file-list span {
-    display: flex; align-items: center; gap: 8px; padding: 8px 11px;
+  .file-list:not(:empty) { margin-bottom: 8px; }
+  .fl-row {
+    display: flex; align-items: center; gap: 9px; padding: 6px 6px 6px 8px;
     background: var(--card-2); border: 1px solid var(--border-soft); border-radius: 9px;
   }
-  .file-list span::before {
-    content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  .fl-idx {
+    flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; color: rgb(var(--c)); background: rgba(var(--c),.14);
   }
+  .fl-name { flex: 1; min-width: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-size { flex: none; font-size: 12px; color: var(--muted-2); }
+  .fl-btn {
+    flex: none; width: 26px; height: 26px; padding: 0; border: none; border-radius: 7px; background: transparent;
+    color: var(--muted-2); cursor: pointer; display: grid; place-items: center; transition: background .15s, color .15s;
+  }
+  .fl-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .fl-btn:hover:not(:disabled) { background: rgba(var(--c),.14); color: rgb(var(--c)); }
+  .fl-btn.del:hover { background: rgba(248,113,113,.14); color: var(--err); }
+  .fl-btn:disabled { opacity: .25; cursor: default; }
+  .fz.fz-more { min-height: 0; padding: 11px 16px; gap: 12px; }
+  .fz.fz-more .fz-ic { width: 30px; height: 30px; }
+  .fz.fz-more .fz-ic svg { width: 15px; height: 15px; }
   footer { margin-top: auto; padding-top: 30px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--muted-2); text-align: center; }
 
   /* 右侧可视化预览面板 */
@@ -988,6 +1003,13 @@
       </span>
       <span class="tab-txt"><div class="tab-title">拆分 PDF</div><div class="tab-desc">一个 PDF 拆成多个文件</div></span>
     </button>
+    <button class="tab" data-tab="compress">
+      <span class="tab-top">
+        <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M18 14.3v2.4M16.8 15.6l1.2 1.2 1.2-1.2M18 21.7v-2.4M16.8 20.4l1.2-1.2 1.2 1.2M15.4 18h5.2"/></svg></span>
+        <span class="tab-tag">变小</span>
+      </span>
+      <span class="tab-txt"><div class="tab-title">压缩 PDF</div><div class="tab-desc">减小体积,方便发送上传</div></span>
+    </button>
     <button class="tab" data-tab="insert">
       <span class="tab-top">
         <span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M19 16.4v-.5a1 1 0 0 0-1-1h-1.6a1 1 0 0 0-1 1v4.2a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-.5M20.6 18h-3.4M18.2 17 17.2 18l1 1"/></svg></span>
@@ -1060,7 +1082,7 @@
       <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-back" d="M8.5 0.8h8L22 6.3V16a2 2 0 0 1-2 2H8.5a2 2 0 0 1-2-2V2.8a2 2 0 0 1 2-2z"/><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" d="M18 15.3v5.4M15.3 18h5.4"/></svg></span>
       <div><h2>合并 PDF</h2><p>按选择顺序把多个 PDF 拼接为一个文件</p></div>
     </div>
-    <label>选择多个 PDF(按选择顺序合并)</label>
+    <label>要合并的 PDF(按列表顺序合并,可调整)</label>
     <input type="file" id="mergeFiles" accept="application/pdf" multiple />
     <div class="file-list" id="mergeList"></div>
     <button class="run" onclick="doMerge()">合并并预览</button>
@@ -1098,6 +1120,26 @@
     <div class="hint" id="splitHint">小贴士:点右侧两页之间的小剪刀,可以标记 / 取消拆分位置;选「每 N 页」后再点剪刀,会在自动结果上继续微调。</div>
     <button class="run" onclick="doSplit()">拆分</button>
     <div class="status" id="splitStatus"></div>
+  </div>
+
+  <!-- 压缩 -->
+  <div class="panel" id="compress">
+    <div class="panel-head">
+      <span class="ph-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-main" d="M5 2h8.5L19 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path class="i-soft" d="M13.5 2l5.5 5.5H15A1.5 1.5 0 0 1 13.5 6z"/><text class="i-txt" x="10.2" y="13.4">PDF</text><circle class="i-badge" cx="18" cy="18" r="5.8"/><path class="i-b" style="stroke-width:1.1" d="M18 14.3v2.4M16.8 15.6l1.2 1.2 1.2-1.2M18 21.7v-2.4M16.8 20.4l1.2-1.2 1.2 1.2M15.4 18h5.2"/></svg></span>
+      <div><h2>压缩 PDF</h2><p>重新压缩文件里的图片,文字保持清晰可选</p></div>
+    </div>
+    <label>选择 PDF</label>
+    <input type="file" id="cmpFile" accept="application/pdf" />
+    <label>压缩程度</label>
+    <div class="seg" id="cmpSeg" style="grid-template-columns: repeat(4, 1fr);">
+      <button type="button" class="seg-btn" data-level="light">轻度</button>
+      <button type="button" class="seg-btn active" data-level="medium">推荐</button>
+      <button type="button" class="seg-btn" data-level="strong">强力</button>
+      <button type="button" class="seg-btn" data-level="raster">扫描件</button>
+    </div>
+    <div class="hint" id="cmpHint"></div>
+    <button class="run" onclick="doCompress()">压缩并预览</button>
+    <div class="status" id="cmpStatus"></div>
   </div>
 
   <!-- 插入 -->
@@ -1802,16 +1844,10 @@ document.querySelectorAll('.tab').forEach(t => {
   };
 });
 
-// 显示合并文件列表 + 预览
+// 待合并文件预览(文件列表由拖放区统一渲染)
 document.getElementById('mergeFiles').addEventListener('change', e => {
-  const list = document.getElementById('mergeList');
-  list.innerHTML = '';
-  [...e.target.files].forEach(f => {
-    const s = document.createElement('span');
-    s.textContent = f.name;
-    list.appendChild(s);
-  });
   if (e.target.files.length) previewMergeInputs(e.target.files);
+  else { resetPreview(); document.getElementById('previewBody').innerHTML = EMPTY_PREVIEW; }
 });
 
 // 主文件 A 选择后预览(插入 / 替换)
@@ -1826,6 +1862,19 @@ document.getElementById('toimgFile').addEventListener('change', e => {
 });
 document.getElementById('p2wFile').addEventListener('change', e => {
   if (e.target.files[0]) previewInputFile(e.target.files[0], '待转换 PDF 预览');
+});
+document.getElementById('cmpFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  setStatus('cmpStatus', `原文件 ${fmtBytes(f.size)},选好压缩程度后点「压缩并预览」。`, true);
+  previewInputFile(f, '待压缩 PDF 预览');
+});
+document.querySelectorAll('#cmpSeg .seg-btn').forEach(b => {
+  b.onclick = () => {
+    cmpLevel = b.dataset.level;
+    document.querySelectorAll('#cmpSeg .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+    document.getElementById('cmpHint').textContent = CMP_LEVELS[cmpLevel].hint;
+  };
 });
 document.getElementById('p2wMode').addEventListener('change', e => {
   const img = e.target.value === 'image';
@@ -1863,16 +1912,7 @@ txtInput.addEventListener('keydown', e => {
   txtInput.setRangeText('\t', txtInput.selectionStart, txtInput.selectionEnd, 'end');
   txtInput.dispatchEvent(new Event('input'));
 });
-document.getElementById('txtFiles').addEventListener('change', e => {
-  txtConverted = false;
-  const list = document.getElementById('txtList');
-  list.innerHTML = '';
-  [...e.target.files].forEach(f => {
-    const s = document.createElement('span');
-    s.textContent = f.name;
-    list.appendChild(s);
-  });
-});
+document.getElementById('txtFiles').addEventListener('change', () => { txtConverted = false; });
 
 function setStatus(id, msg, ok) {
   const el = document.getElementById(id);
@@ -1961,15 +2001,16 @@ function previewEmpty(msg) {
 const livePreviewPdfs = [];
 async function appendPdfPages(bytes, seq, label) {
   const body = document.getElementById('previewBody');
+  await need('pdfjs');
+  // 传副本给 pdf.js,避免它转移/分离原 buffer
+  const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
+  if (seq !== previewSeq) { pdf.destroy(); return; }
   if (label) {
     const l = document.createElement('div');
     l.className = 'pv-label';
     l.textContent = label;
     body.appendChild(l);
   }
-  await need('pdfjs');
-  // 传副本给 pdf.js,避免它转移/分离原 buffer
-  const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
   livePreviewPdfs.push(pdf);
   while (livePreviewPdfs.length > 10) livePreviewPdfs.shift().destroy();
   // 先按页面尺寸占位,滚到附近才渲染:几百页的文件也不会卡住、占满内存
@@ -2426,6 +2467,190 @@ async function doSplit() {
     setStatus('splitStatus', split.mode === 'pick' ? `提取成功,${groups[0].length} 页已合并成 1 个 PDF,点右上角下载。` : `拆分成功,共 ${files.length} 个文件,点右上角下载。`, true);
   } catch (e) {
     setStatus('splitStatus', '出错:' + e.message, false);
+  }
+}
+
+/* ---------- 压缩 PDF ----------
+ * 保留文字的档位:把文件里的大图缩小、重新编码成 JPG,变小了才替换,文字和矢量图形原样不动。
+ * 扫描件档:每页渲染成 JPG 重新拼成 PDF。 */
+const CMP_LEVELS = {
+  light: { maxPx: 2400, q: 0.82, hint: '图片几乎看不出变化,体积适度减小。' },
+  medium: { maxPx: 1600, q: 0.7, hint: '清晰度和体积兼顾,适合发邮件、传微信、上传系统。文字不受影响,依然可以选中复制。' },
+  strong: { maxPx: 1100, q: 0.5, hint: '图片会糊一些,文字依然清晰,体积尽量小。' },
+  raster: { scale: 1.5, q: 0.6, hint: '专给扫描件、拍照转的 PDF 用:每页重新转成一张图片再拼回去,通常能压掉一大半。普通文档用了文字会不能选中复制,书签和链接也会丢失,建议用前三档。' },
+};
+let cmpLevel = 'medium';
+document.getElementById('cmpHint').textContent = CMP_LEVELS[cmpLevel].hint;
+
+// 还原 PNG 预测器(Predictor 10~15)处理过的像素行
+function cmpUnpredict(data, rowLen, bpp) {
+  const rows = Math.floor(data.length / (rowLen + 1));
+  const out = new Uint8Array(rows * rowLen);
+  for (let y = 0; y < rows; y++) {
+    const type = data[y * (rowLen + 1)], src = y * (rowLen + 1) + 1, dst = y * rowLen, up = dst - rowLen;
+    for (let x = 0; x < rowLen; x++) {
+      const a = x >= bpp ? out[dst + x - bpp] : 0, b = y ? out[up + x] : 0, c = y && x >= bpp ? out[up + x - bpp] : 0;
+      let v = data[src + x];
+      if (type === 1) v += a;
+      else if (type === 2) v += b;
+      else if (type === 3) v += (a + b) >> 1;
+      else if (type === 4) { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c; }
+      out[dst + x] = v;
+    }
+  }
+  return out;
+}
+
+// 有些 PDF 的页面内容没压缩过,无损打包一下就能小一截
+function cmpStreams(doc) {
+  const { PDFName, PDFRawStream } = PDFLib;
+  const ctx = doc.context, N = s => PDFName.of(s);
+  for (const [ref, o] of ctx.enumerateIndirectObjects()) {
+    if (!(o instanceof PDFRawStream) || o.contents.length < 256 || o.dict.get(N('Filter'))) continue;
+    if ([N('XML'), N('XRef'), N('ObjStm')].includes(o.dict.get(N('Subtype')) || o.dict.get(N('Type')))) continue;
+    const z = ctx.flateStream(o.contents);
+    if (z.contents.length >= o.contents.length) continue;
+    for (const [k, v] of o.dict.entries()) if (k !== N('Length') && k !== N('Filter')) z.dict.set(k, v);
+    ctx.assign(ref, z);
+  }
+}
+
+async function cmpImages(doc, { maxPx, q }, onProgress) {
+  const { PDFName, PDFArray, PDFRef, PDFRawStream, PDFNumber, PDFBool, decodePDFRawStream } = PDFLib;
+  const ctx = doc.context, N = s => PDFName.of(s);
+  const all = ctx.enumerateIndirectObjects();
+  // 当透明蒙版用的图片不动,改了会出黑边
+  const masks = new Set();
+  for (const [, o] of all) {
+    if (!(o instanceof PDFRawStream)) continue;
+    for (const k of ['SMask', 'Mask']) { const r = o.dict.get(N(k)); if (r instanceof PDFRef) masks.add(r); }
+  }
+  const comps = cs => {
+    if (cs === N('DeviceGray')) return 1;
+    if (cs === N('DeviceRGB')) return 3;
+    if (cs instanceof PDFArray && cs.get(0) === N('ICCBased')) {
+      const s = ctx.lookup(cs.get(1)), n = s && s.dict && s.dict.lookup(N('N'));
+      return n instanceof PDFNumber ? n.asNumber() : 0;
+    }
+    return 0;
+  };
+  const one = v => v instanceof PDFArray ? (v.size() === 1 ? ctx.lookup(v.get(0)) : null) : v;
+  const jobs = [];
+  for (const [ref, o] of all) {
+    if (!(o instanceof PDFRawStream) || masks.has(ref)) continue;
+    const d = o.dict;
+    if (d.get(N('Subtype')) !== N('Image')) continue;
+    const w = d.lookup(N('Width')), h = d.lookup(N('Height')), bpc = d.lookup(N('BitsPerComponent'));
+    if (!(w instanceof PDFNumber) || !(h instanceof PDFNumber) || !(bpc instanceof PDFNumber) || bpc.asNumber() !== 8) continue;
+    if (d.lookup(N('ImageMask')) === PDFBool.True || d.get(N('Decode')) || d.lookup(N('Mask')) instanceof PDFArray) continue;
+    const filter = one(d.lookup(N('Filter'))), n = comps(d.lookup(N('ColorSpace')));
+    if (n !== 1 && n !== 3) continue;
+    if (filter !== N('DCTDecode') && filter !== N('FlateDecode')) continue;
+    if (w.asNumber() * h.asNumber() < 40000 || o.contents.length < 20000) continue;
+    jobs.push({ ref, o, w: w.asNumber(), h: h.asNumber(), n, dct: filter === N('DCTDecode') });
+  }
+  const canvas = document.createElement('canvas'), c2 = canvas.getContext('2d');
+  let done = 0;
+  for (const [k, { ref, o, w, h, n, dct }] of jobs.entries()) {
+    onProgress(k + 1, jobs.length);
+    let src;
+    try {
+      if (dct) {
+        src = await createImageBitmap(new Blob([o.contents], { type: 'image/jpeg' }));
+      } else {
+        let raw = decodePDFRawStream(o).decode();
+        const dp = one(o.dict.lookup(N('DecodeParms')));
+        const pred = dp && dp.lookup ? dp.lookup(N('Predictor')) : null;
+        if (pred instanceof PDFNumber && pred.asNumber() >= 10) raw = cmpUnpredict(raw, w * n, n);
+        else if (pred instanceof PDFNumber && pred.asNumber() > 1) continue;
+        if (raw.length < w * h * n) continue;
+        const px = new ImageData(w, h);
+        for (let i = 0, j = 0; i < w * h; i++, j += n) {
+          const p = i * 4;
+          px.data[p] = raw[j]; px.data[p + 1] = raw[n === 3 ? j + 1 : j]; px.data[p + 2] = raw[n === 3 ? j + 2 : j]; px.data[p + 3] = 255;
+        }
+        src = document.createElement('canvas');
+        src.width = w;
+        src.height = h;
+        src.getContext('2d').putImageData(px, 0, 0);
+      }
+    } catch (e) { continue; /* 解不开的图片保持原样 */ }
+    const s = Math.min(1, maxPx / Math.max(src.width, src.height));
+    canvas.width = Math.max(1, Math.round(src.width * s));
+    canvas.height = Math.max(1, Math.round(src.height * s));
+    c2.imageSmoothingQuality = 'high';
+    c2.drawImage(src, 0, 0, canvas.width, canvas.height);
+    if (src.close) src.close(); else src.width = 0;
+    const jpg = new Uint8Array(await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+    if (jpg.length > o.contents.length * 0.9) continue;
+    const d = o.dict;
+    d.set(N('Filter'), N('DCTDecode'));
+    d.delete(N('DecodeParms'));
+    d.set(N('Width'), PDFNumber.of(canvas.width));
+    d.set(N('Height'), PDFNumber.of(canvas.height));
+    d.set(N('ColorSpace'), N('DeviceRGB'));
+    d.set(N('Length'), PDFNumber.of(jpg.length));
+    ctx.assign(ref, PDFRawStream.of(d, jpg));
+    done++;
+  }
+  canvas.width = canvas.height = 0;
+  return done;
+}
+
+async function cmpRaster(bytes, { scale, q }, onProgress) {
+  await need('pdfjs', 'pdflib');
+  const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
+  const out = await PDFDocument.create();
+  const canvas = document.createElement('canvas'), c2 = canvas.getContext('2d');
+  try {
+    for (let i = 1; i <= pdf.numPages; i++) {
+      onProgress(i, pdf.numPages);
+      const page = await pdf.getPage(i);
+      const size = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale });
+      canvas.width = Math.ceil(vp.width);
+      canvas.height = Math.ceil(vp.height);
+      c2.fillStyle = '#fff';
+      c2.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: c2, viewport: vp }).promise;
+      page.cleanup();
+      const img = await out.embedJpg(await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+      out.addPage([size.width, size.height]).drawImage(img, { x: 0, y: 0, width: size.width, height: size.height });
+    }
+  } finally {
+    canvas.width = canvas.height = 0;
+    await pdf.destroy();
+  }
+  return out.save();
+}
+
+async function doCompress() {
+  const file = document.getElementById('cmpFile').files[0];
+  if (!file) return setStatus('cmpStatus', '请选择 PDF 文件。', false);
+  const level = cmpLevel, lv = CMP_LEVELS[level];
+  try {
+    setStatus('cmpStatus', '处理中…', true);
+    const bytes = await readBytes(file);
+    let out;
+    if (level === 'raster') {
+      out = await cmpRaster(bytes, lv, (i, n) => setStatus('cmpStatus', `转换页面 ${i}/${n}…`, true));
+    } else {
+      await need('pdflib');
+      const doc = await PDFDocument.load(bytes, { updateMetadata: false });
+      cmpStreams(doc);
+      await cmpImages(doc, lv, (i, n) => setStatus('cmpStatus', `压缩图片 ${i}/${n}…`, true));
+      setStatus('cmpStatus', '生成文件中…', true);
+      out = await doc.save();
+    }
+    const saved = 1 - out.length / bytes.length;
+    if (saved < 0.01) {
+      return setStatus('cmpStatus', `这个文件已经很精简了(${fmtBytes(bytes.length)}),这一档压不下去` +
+        (level === 'strong' || level === 'raster' ? '。' : ',可以试试更高的档位。'), false);
+    }
+    const base = file.name.replace(/\.pdf$/i, '') || 'document';
+    await previewResult(out, '压缩结果预览', `${base}-压缩.pdf`);
+    setStatus('cmpStatus', `压缩完成:${fmtBytes(bytes.length)} → ${fmtBytes(out.length)},减小 ${Math.round(saved * 100)}%。右侧可预览并下载。`, true);
+  } catch (e) {
+    setStatus('cmpStatus', /encrypt/i.test(e.message) ? '这个 PDF 有密码保护,暂时没法压缩。' : '出错:' + e.message, false);
   }
 }
 
@@ -6642,6 +6867,17 @@ function fzRender(input) {
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
   const main = box.querySelector('.fz-main'), sub = box.querySelector('.fz-sub');
+  if (input._list) {
+    fileListRender(input);
+    box.classList.toggle('fz-more', fs.length > 0);
+    if (fs.length) {
+      box.querySelector('.fz-ic').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+      main.innerHTML = '继续添加文件';
+      sub.innerHTML = '点击选择,可一次多选<span class="drag-only">;也可以直接拖进来</span>';
+      main.title = '';
+      return;
+    }
+  }
   if (!fs.length) {
     main.innerHTML = '点击添加文件<span class="drag-only">,或拖到这里</span>';
     sub.textContent = acceptText(input);
@@ -6657,9 +6893,58 @@ document.querySelectorAll('.panel input[type=file]:not([hidden])').forEach(input
   input.before(box);
   box.innerHTML = '<span class="fz-ic"></span><span class="fz-txt"><div class="fz-main"></div><div class="fz-sub"></div></span>';
   box.prepend(input);
+  // 带文件列表的多选框:列表放在上面,下面的框专门用来继续添加
+  const list = box.nextElementSibling;
+  if (input.multiple && list?.classList.contains('file-list')) {
+    input._list = list;
+    box.before(list);
+    input.addEventListener('click', () => { input._kept = [...input.files]; });
+    input.addEventListener('cancel', () => { input._kept = null; });
+  }
   input.addEventListener('change', () => fzRender(input));
   fzRender(input);
 });
+// 系统选择框会替换掉已选文件,这里把之前的拼回去(捕获阶段,先于各功能自己的处理)
+document.addEventListener('change', e => {
+  const input = e.target;
+  if (!input._kept) return;
+  const kept = input._kept;
+  input._kept = null;
+  if (!kept.length) return;
+  const dt = new DataTransfer();
+  [...kept, ...input.files].forEach(f => dt.items.add(f));
+  input.files = dt.files;
+}, true);
+function setInputFiles(input, files) {
+  const dt = new DataTransfer();
+  files.forEach(f => dt.items.add(f));
+  input.files = dt.files;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function fileListRender(input) {
+  const list = input._list, fs = [...input.files];
+  list.innerHTML = '';
+  fs.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'fl-row';
+    row.innerHTML = '<span class="fl-idx"></span><span class="fl-name"></span><span class="fl-size"></span>' +
+      '<button type="button" class="fl-btn" data-act="up" title="往前挪"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>' +
+      '<button type="button" class="fl-btn del" data-act="del" title="移除"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';
+    row.querySelector('.fl-idx').textContent = i + 1;
+    row.querySelector('.fl-name').textContent = row.querySelector('.fl-name').title = f.name;
+    row.querySelector('.fl-size').textContent = fmtBytes(f.size);
+    row.querySelector('[data-act=up]').disabled = i === 0;
+    row.onclick = e => {
+      const act = e.target.closest('.fl-btn')?.dataset.act;
+      if (!act) return;
+      const next = [...input.files];
+      if (act === 'del') next.splice(i, 1);
+      else [next[i - 1], next[i]] = [next[i], next[i - 1]];
+      setInputFiles(input, next);
+    };
+    list.appendChild(row);
+  });
+}
 // 鼠标正对某个文件框就放进它;否则按顺序放进第一个还空着的框
 function dropTarget(e) {
   const over = e.target.closest?.('.fz')?.querySelector('input[type=file]') || e.target.closest?.('input[type=file]');
@@ -6716,6 +7001,7 @@ document.addEventListener('drop', e => {
     if (inp.multiple) [...inp.files].forEach(f => dt.items.add(f));
     fs.forEach(f => dt.items.add(f));
     inp.files = dt.files;
+    inp._kept = null;
     if (inp.id === 'txtFiles' && gid('txtSrcFile').hidden) document.querySelector('#txtSrcSeg [data-src="file"]').click();
     inp.dispatchEvent(new Event('change', { bubbles: true }));
   });
