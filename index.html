@@ -8,6 +8,16 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <style>
   :root {
+    /* 弹窗 / 下拉菜单共用的玻璃:底色够深,背后是白色页面也不发白;brightness 把透上来的亮色压暗 */
+    --glass-bg:
+      linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015) 40%, rgba(255,255,255,0) 65%),
+      rgba(13,19,34,.8);
+    --glass-filter: blur(32px) saturate(135%) brightness(.72);
+    --glass-border: rgba(255,255,255,.1);
+    --glass-shadow:
+      inset 0 1px 0 rgba(255,255,255,.14),
+      inset 0 -1px 0 rgba(255,255,255,.03),
+      0 24px 70px rgba(0,0,0,.5);
     --bg: #070b16;
     --bg-2: #0d1424;
     --card: #131c30;
@@ -262,6 +272,7 @@
     font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .15s ease;
   }
   .seg-btn:hover { color: var(--text); }
+  .seg-btn small { display: block; margin-top: 1px; font-size: 11px; font-weight: 500; opacity: .75; }
   .seg-btn.active { background: var(--btn-bg); color: var(--btn-text); box-shadow: 0 4px 12px rgba(var(--btn-rgb),.25); }
   .seg ~ label { margin-top: 18px; }
   .seg.seg-4 { grid-template-columns: repeat(5, 1fr); margin-top: 16px; }
@@ -455,27 +466,21 @@
   .shot-elhead b { font-size: 13px; color: var(--text); }
   /* 弹窗:iOS 26 风格的液态玻璃。底色保留六成不透明度,背后再花哨文字也清楚;内部控件改成半透明白,和玻璃融在一起 */
   .xb-dlg {
-    --card-2: rgba(255,255,255,.07); --border-soft: rgba(255,255,255,.11); --border: rgba(255,255,255,.2);
+    --card-2: rgba(255,255,255,.05); --border-soft: rgba(255,255,255,.09); --border: rgba(255,255,255,.18);
     width: min(480px, calc(100vw - 32px)); max-width: 100%; max-height: calc(100vh - 48px); overflow: auto; padding: 24px;
-    border-radius: 30px; border: 1px solid rgba(255,255,255,.16); color: var(--text);
-    background:
-      linear-gradient(160deg, rgba(255,255,255,.13), rgba(255,255,255,.04) 38%, rgba(255,255,255,0) 60%),
-      rgba(18,25,42,.62);
-    -webkit-backdrop-filter: blur(36px) saturate(170%);
-    backdrop-filter: blur(36px) saturate(170%);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.28),
-      inset 0 -1px 0 rgba(255,255,255,.06),
-      inset 0 0 24px rgba(255,255,255,.03),
-      0 24px 70px rgba(0,0,0,.45);
+    border-radius: 30px; border: 1px solid var(--glass-border); color: var(--text);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+    box-shadow: var(--glass-shadow);
   }
   .xb-dlg[open] { animation: dlg-in .32s cubic-bezier(.2,.9,.3,1.15); }
   .xb-dlg[open]::backdrop { animation: dlg-fade .25s ease; }
   @keyframes dlg-in { from { opacity: 0; transform: scale(.94); } }
   @keyframes dlg-fade { from { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .xb-dlg[open], .xb-dlg[open]::backdrop { animation: none; } }
-  .xb-dlg::backdrop { background: rgba(4,8,18,.32); }
-  .xb-dlg .dlg-x { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.14); }
+  .xb-dlg::backdrop { background: rgba(4,8,18,.5); }
+  .xb-dlg .dlg-x { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.11); }
   .xb-dlg .dlg-foot button.run { border-radius: 999px; }
   .xb-dlg .dlg-foot button.run.ghost { background: rgba(255,255,255,.06); }
   .xb-dlg .seg { border-radius: 999px; }
@@ -661,6 +666,66 @@
   .dl-btn:hover { filter: brightness(1.08); }
   .dl-btn:active { transform: translateY(1px); }
   .dl-btn.hidden { display: none; }
+  .pv-acts { display: flex; align-items: center; gap: 8px; }
+  .next-wrap { position: relative; }
+  .next-wrap.hidden { display: none; }
+  .next-btn {
+    padding: 9px 14px; border-radius: 10px; border: 1px solid rgba(var(--btn-rgb),.35); background: rgba(var(--btn-rgb),.1);
+    color: rgb(var(--btn-rgb)); font-size: 13.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px; transition: background .15s;
+  }
+  .next-btn svg { width: 15px; height: 15px; }
+  .next-btn:hover, .next-wrap.open .next-btn { background: rgba(var(--btn-rgb),.2); }
+  /* 下拉菜单与弹窗同一套液态玻璃 */
+  .next-menu {
+    position: absolute; right: 0; top: calc(100% + 10px); z-index: 50; min-width: 232px; padding: 8px;
+    border-radius: 22px; border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+    box-shadow: var(--glass-shadow);
+    display: none; transform-origin: top right;
+  }
+  .next-wrap.open .next-menu { display: block; animation: dlg-in .28s cubic-bezier(.2,.9,.3,1.15); }
+  @media (prefers-reduced-motion: reduce) { .next-wrap.open .next-menu { animation: none; } }
+  .next-btn.hint { animation: next-pulse 1.4s ease-out 2; }
+  @keyframes next-pulse { from { box-shadow: 0 0 0 0 rgba(var(--btn-rgb),.5); } to { box-shadow: 0 0 0 12px rgba(var(--btn-rgb),0); } }
+  .next-pop {
+    position: absolute; right: 0; top: calc(100% + 12px); z-index: 49; width: 248px; padding: 13px 14px 12px;
+    border-radius: 16px; border: 1px solid var(--glass-border); background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow);
+    font-size: 12.5px; line-height: 1.6; color: var(--muted); animation: dlg-in .3s cubic-bezier(.2,.9,.3,1.15); transform-origin: top right;
+  }
+  .next-pop[hidden] { display: none; }
+  .next-pop::before {
+    content: ""; position: absolute; top: -6px; right: 40px; width: 10px; height: 10px; transform: rotate(45deg);
+    background: rgb(28,35,50); border-left: 1px solid var(--glass-border); border-top: 1px solid var(--glass-border);
+  }
+  .next-pop b { display: block; margin-bottom: 3px; font-size: 13px; color: var(--text); }
+  .next-pop p { margin: 0; }
+  .next-pop button {
+    margin-top: 8px; padding: 0; border: none; background: none; color: rgb(var(--btn-rgb));
+    font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) { .next-btn.hint, .next-pop { animation: none; } }
+  .next-tip { padding: 6px 10px 8px; font-size: 12px; color: var(--muted); }
+  .next-item {
+    width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: none; border-radius: 14px;
+    background: transparent; color: var(--text); font-size: 13.5px; text-align: left; cursor: pointer; transition: background .15s;
+  }
+  .next-item:hover { background: rgba(255,255,255,.06); }
+  .next-item .tab-icon { width: 26px; height: 26px; flex: none; }
+  .next-item .tab-icon svg { width: 100%; height: 100%; }
+  .next-item small { display: block; font-size: 11.5px; color: var(--muted); }
+  .fz-recent { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted-2); }
+  .fz-recent[hidden] { display: none; }
+  .fz-chip {
+    max-width: 100%; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--border-soft); background: var(--card-2); color: var(--muted); font-size: 12px; cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: border-color .15s, color .15s;
+  }
+  .fz-chip:hover { border-color: rgba(var(--c),.6); color: var(--text); }
+  .fz-chip b { font-weight: 600; color: rgb(var(--c)); }
   .preview-body {
     max-height: 74vh; overflow-y: auto; display: flex; flex-direction: column;
     align-items: center; gap: 18px; padding-right: 8px;
@@ -1648,7 +1713,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
           <span id="previewTitle">预览</span>
         </div>
+        <div class="pv-acts">
+        <div class="next-wrap hidden" id="nextWrap">
+          <div class="next-pop" id="nextPop" role="status" hidden>
+            <b>结果可以直接接着用</b>
+            <p>不用下载再上传,点这里就能把它交给压缩、拆分、转 Word 等工具。</p>
+            <button type="button" id="nextPopOk">知道了</button>
+          </div>
+          <button type="button" class="next-btn" id="nextBtn" aria-haspopup="menu" title="把这个结果直接交给其他工具继续处理,不用下载再上传"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>接着处理</button>
+          <div class="next-menu" id="nextMenu" role="menu"></div>
+        </div>
         <button class="dl-btn hidden" id="dlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span id="dlBtnText">下载 PDF</span></button>
+        </div>
       </div>
       <div class="preview-body" id="previewBody">
         <div class="pv-empty">
@@ -1830,8 +1906,10 @@ document.querySelectorAll('.tab').forEach(t => {
     // 先显示二级页面再切面板,图片处理 / 预览图要按可见尺寸排版
     if (homeMode()) {
       document.getElementById('mTitle').textContent = t.querySelector('.tab-title').textContent;
-      mHome(false);
-      history.pushState({ m: 1 }, '');
+      if (document.body.classList.contains('m-home')) {
+        mHome(false);
+        history.pushState({ m: 1 }, '');
+      }
     }
     if (t.dataset.tab === currentTab) return;
     switchPreview(t.dataset.tab);
@@ -1863,11 +1941,27 @@ document.getElementById('toimgFile').addEventListener('change', e => {
 document.getElementById('p2wFile').addEventListener('change', e => {
   if (e.target.files[0]) previewInputFile(e.target.files[0], '待转换 PDF 预览');
 });
-document.getElementById('cmpFile').addEventListener('change', e => {
-  const f = e.target.files[0];
+document.getElementById('cmpFile').addEventListener('change', async e => {
+  const f = e.target.files[0], seq = ++cmpEstSeq;
+  cmpShowEstimate(f ? f.size : 0, null);
   if (!f) return;
-  setStatus('cmpStatus', `原文件 ${fmtBytes(f.size)},选好压缩程度后点「压缩并预览」。`, true);
+  const ESTIMATING = `原文件 ${fmtBytes(f.size)},正在估算各档能压到多大…`;
+  setStatus('cmpStatus', ESTIMATING, true);
   previewInputFile(f, '待压缩 PDF 预览');
+  const bytes = await readBytes(f);
+  let est = null, err = null;
+  try { est = await cmpEstimate(bytes); } catch (x) { err = x; }
+  if (seq !== cmpEstSeq) return;
+  cmpShowEstimate(est ? f.size : 0, est);
+  // 估算期间用户已经点了压缩,就别覆盖进度
+  if (document.getElementById('cmpStatus').textContent === ESTIMATING) {
+    if (err && /encrypt/i.test(err.message)) return setStatus('cmpStatus', '这个 PDF 有密码保护,暂时没法压缩。', false);
+    setStatus('cmpStatus', est ? `原文件 ${fmtBytes(f.size)},档位下方是预计压缩后的大小,选好后点「压缩并预览」。`
+      : `原文件 ${fmtBytes(f.size)},选好压缩程度后点「压缩并预览」。`, true);
+  }
+  if (!est) return;
+  try { est.raster = await cmpEstimateRaster(bytes); } catch (x) { est.raster = false; }
+  if (seq === cmpEstSeq) cmpShowEstimate(f.size, est);
 });
 document.querySelectorAll('#cmpSeg .seg-btn').forEach(b => {
   b.onclick = () => {
@@ -1950,7 +2044,7 @@ function switchPreview(next) {
   const frag = document.createDocumentFragment();
   while (body.firstChild) frag.appendChild(body.firstChild);
   previewCache[currentTab] = {
-    frag, title: title.textContent, txtConverted,
+    frag, title: title.textContent, txtConverted, next: pvResult,
     dlHidden: dl.classList.contains('hidden'), dlLabel: dlText.textContent, dlClick: dl.onclick,
   };
   previewSeq++;
@@ -1969,12 +2063,89 @@ function switchPreview(next) {
     dl.onclick = null;
     txtConverted = false;
   }
+  setNextResult(saved?.next || null);
   currentTab = next;
 }
+
+/* ---------- 结果接力:PDF 结果不用下载再上传,直接交给下一个工具 ---------- */
+let pvResult = null;
+const NEXT_TARGETS = {
+  compress: ['cmpFile', '减小体积,方便发送'],
+  merge: ['mergeFiles', '和其他 PDF 拼在一起'],
+  split: ['splitFile', '拆开,或只提取几页'],
+  insert: ['insertMain', '往里插入页面或图片'],
+  replace: ['replaceMain', '替换其中几页'],
+  toimg: ['toimgFile', '每页导出为图片'],
+  pdf2word: ['p2wFile', '转成可编辑的 Word'],
+};
+const tabTitle = tab => document.querySelector(`.tab[data-tab="${tab}"] .tab-title`).textContent;
+function setNextResult(r) {
+  pvResult = r;
+  const w = document.getElementById('nextWrap');
+  w.classList.toggle('hidden', !r);
+  w.classList.remove('open');
+  hideNextPop();
+}
+// 新功能弱提醒:新结果出来时轻轻提示一下;用过或点「知道了」就不再出现,没理会最多提醒 3 次
+const NEXT_TIP = 'xiaobai-next-tip';
+let nextPopTimer;
+function hideNextPop() {
+  clearTimeout(nextPopTimer);
+  document.getElementById('nextPop').hidden = true;
+  document.getElementById('nextBtn').classList.remove('hint');
+}
+function nextTipDone() {
+  hideNextPop();
+  try { localStorage.setItem(NEXT_TIP, 'done'); } catch {}
+}
+function maybeShowNextPop() {
+  let n;
+  try { n = localStorage.getItem(NEXT_TIP); } catch { return; }
+  if (n === 'done' || +n >= 3) return;
+  try { localStorage.setItem(NEXT_TIP, String((+n || 0) + 1)); } catch {}
+  const btn = document.getElementById('nextBtn'), pop = document.getElementById('nextPop');
+  btn.classList.remove('hint');
+  void btn.offsetWidth;
+  btn.classList.add('hint');
+  pop.hidden = false;
+  clearTimeout(nextPopTimer);
+  nextPopTimer = setTimeout(hideNextPop, 8000);
+}
+document.getElementById('nextPopOk').onclick = e => { e.stopPropagation(); nextTipDone(); };
+function handoff(tab, inputId) {
+  const { file, from } = pvResult;
+  document.querySelector(`.tab[data-tab="${tab}"]`).click();
+  const input = document.getElementById(inputId);
+  input._from = tabTitle(from);
+  setInputFiles(input, input.multiple ? [...input.files, file] : [file]);
+}
+document.getElementById('nextBtn').onclick = () => {
+  const w = document.getElementById('nextWrap'), menu = document.getElementById('nextMenu');
+  nextTipDone();
+  if (!w.classList.toggle('open')) return;
+  menu.innerHTML = '<div class="next-tip">把这个结果直接交给:</div>';
+  Object.entries(NEXT_TARGETS).forEach(([tab, [inputId, desc]]) => {
+    if (tab === pvResult.from) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'next-item';
+    b.dataset.tab = tab;
+    b.setAttribute('role', 'menuitem');
+    b.innerHTML = `<span class="tab-icon">${document.querySelector(`.tab[data-tab="${tab}"] .tab-icon`).innerHTML}</span><span><span class="ni-t"></span><small></small></span>`;
+    b.querySelector('.ni-t').textContent = tabTitle(tab);
+    b.querySelector('small').textContent = desc;
+    b.onclick = () => handoff(tab, inputId);
+    menu.appendChild(b);
+  });
+};
+document.addEventListener('click', e => {
+  if (!e.target.closest('#nextWrap')) document.getElementById('nextWrap').classList.remove('open');
+});
 
 function resetPreview(title) {
   previewSeq++;
   txtConverted = false;
+  setNextResult(null);
   document.getElementById('previewTitle').textContent = title || '预览';
   const dl = document.getElementById('dlBtn');
   dl.classList.add('hidden');
@@ -1990,6 +2161,12 @@ function setDownload(data, name, label) {
   dl.classList.remove('hidden');
   document.getElementById('dlBtnText').textContent = label || '下载 PDF';
   dl.onclick = () => download(data, name);
+  if (/\.pdf$/i.test(name)) {
+    const file = new File([data], name, { type: 'application/pdf' });
+    setNextResult({ file, from: currentTab });
+    maybeShowNextPop();
+    rememberFile(file, tabTitle(currentTab).replace(/\s*PDF\s*/i, ''));
+  }
 }
 
 function previewEmpty(msg) {
@@ -2098,6 +2275,8 @@ function parseRange(str, max) {
   return [...set].filter(i => i >= 0 && i < max).sort((a, b) => a - b);
 }
 
+const pdfBase = file => file.name.replace(/\.pdf$/i, '') || 'document';
+
 function isImageFile(file) {
   return file.type.startsWith('image/') || /\.(png|jpe?g)$/i.test(file.name);
 }
@@ -2135,7 +2314,7 @@ async function doMerge() {
       const pages = await out.copyPages(doc, doc.getPageIndices());
       pages.forEach(p => out.addPage(p));
     }
-    await previewResult(await out.save(), '合并结果预览', 'merged.pdf');
+    await previewResult(await out.save(), '合并结果预览', `${pdfBase(files[0])}-合并.pdf`);
     setStatus('mergeStatus', `合并成功,共 ${out.getPageCount()} 页,右侧可预览并下载。`, true);
   } catch (e) {
     setStatus('mergeStatus', '出错:' + e.message, false);
@@ -2165,7 +2344,7 @@ async function doInsert() {
       copied.reverse().forEach(p => main.insertPage(pos, p));
     }
 
-    await previewResult(await main.save(), '插入结果预览', 'inserted.pdf');
+    await previewResult(await main.save(), '插入结果预览', `${pdfBase(mainF)}-插入.pdf`);
     setStatus('insertStatus', `插入成功,现共 ${main.getPageCount()} 页,右侧可预览并下载。`, true);
   } catch (e) {
     setStatus('insertStatus', '出错:' + e.message, false);
@@ -2198,7 +2377,7 @@ async function doReplace() {
       copied.reverse().forEach(p => main.insertPage(insertAt, p));
     }
 
-    await previewResult(await main.save(), '替换结果预览', 'replaced.pdf');
+    await previewResult(await main.save(), '替换结果预览', `${pdfBase(mainF)}-替换.pdf`);
     setStatus('replaceStatus', `替换成功,现共 ${main.getPageCount()} 页,右侧可预览并下载。`, true);
   } catch (e) {
     setStatus('replaceStatus', '出错:' + e.message, false);
@@ -2505,6 +2684,7 @@ function cmpUnpredict(data, rowLen, bpp) {
 function cmpStreams(doc) {
   const { PDFName, PDFRawStream } = PDFLib;
   const ctx = doc.context, N = s => PDFName.of(s);
+  let saved = 0;
   for (const [ref, o] of ctx.enumerateIndirectObjects()) {
     if (!(o instanceof PDFRawStream) || o.contents.length < 256 || o.dict.get(N('Filter'))) continue;
     if ([N('XML'), N('XRef'), N('ObjStm')].includes(o.dict.get(N('Subtype')) || o.dict.get(N('Type')))) continue;
@@ -2512,11 +2692,14 @@ function cmpStreams(doc) {
     if (z.contents.length >= o.contents.length) continue;
     for (const [k, v] of o.dict.entries()) if (k !== N('Length') && k !== N('Filter')) z.dict.set(k, v);
     ctx.assign(ref, z);
+    saved += o.contents.length - z.contents.length;
   }
+  return saved;
 }
 
-async function cmpImages(doc, { maxPx, q }, onProgress) {
-  const { PDFName, PDFArray, PDFRef, PDFRawStream, PDFNumber, PDFBool, decodePDFRawStream } = PDFLib;
+// 找出能重新压缩的图片
+function cmpImageJobs(doc) {
+  const { PDFName, PDFArray, PDFRef, PDFRawStream, PDFNumber, PDFBool } = PDFLib;
   const ctx = doc.context, N = s => PDFName.of(s);
   const all = ctx.enumerateIndirectObjects();
   // 当透明蒙版用的图片不动,改了会出黑边
@@ -2547,41 +2730,60 @@ async function cmpImages(doc, { maxPx, q }, onProgress) {
     if (n !== 1 && n !== 3) continue;
     if (filter !== N('DCTDecode') && filter !== N('FlateDecode')) continue;
     if (w.asNumber() * h.asNumber() < 40000 || o.contents.length < 20000) continue;
-    jobs.push({ ref, o, w: w.asNumber(), h: h.asNumber(), n, dct: filter === N('DCTDecode') });
+    const dp = filter === N('FlateDecode') ? one(d.lookup(N('DecodeParms'))) : null;
+    const pred = dp && dp.lookup ? dp.lookup(N('Predictor')) : null;
+    const p = pred instanceof PDFNumber ? pred.asNumber() : 1;
+    if (p > 1 && p < 10) continue;
+    jobs.push({ ref, o, w: w.asNumber(), h: h.asNumber(), n, dct: filter === N('DCTDecode'), png: p >= 10 });
   }
-  const canvas = document.createElement('canvas'), c2 = canvas.getContext('2d');
+  return jobs;
+}
+
+// 把图片解成可绘制的位图;解不开返回 null
+async function cmpDecode({ o, w, h, n, dct, png }) {
+  try {
+    if (dct) return await createImageBitmap(new Blob([o.contents], { type: 'image/jpeg' }));
+    let raw = PDFLib.decodePDFRawStream(o).decode();
+    if (png) raw = cmpUnpredict(raw, w * n, n);
+    if (raw.length < w * h * n) return null;
+    const px = new ImageData(w, h);
+    for (let i = 0, j = 0; i < w * h; i++, j += n) {
+      const p = i * 4;
+      px.data[p] = raw[j]; px.data[p + 1] = raw[n === 3 ? j + 1 : j]; px.data[p + 2] = raw[n === 3 ? j + 2 : j]; px.data[p + 3] = 255;
+    }
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    c.getContext('2d').putImageData(px, 0, 0);
+    return c;
+  } catch (e) { return null; }
+}
+
+// 按档位缩小并编码成 JPG,画到传入的 canvas 上
+async function cmpEncode(src, canvas, { maxPx, q }) {
+  const s = Math.min(1, maxPx / Math.max(src.width, src.height));
+  canvas.width = Math.max(1, Math.round(src.width * s));
+  canvas.height = Math.max(1, Math.round(src.height * s));
+  const c2 = canvas.getContext('2d');
+  c2.imageSmoothingQuality = 'high';
+  c2.drawImage(src, 0, 0, canvas.width, canvas.height);
+  return new Uint8Array(await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+}
+const freeSrc = src => { if (src.close) src.close(); else src.width = 0; };
+
+async function cmpImages(doc, lv, onProgress) {
+  const { PDFName, PDFRawStream, PDFNumber } = PDFLib;
+  const ctx = doc.context, N = s => PDFName.of(s);
+  const jobs = cmpImageJobs(doc);
+  const canvas = document.createElement('canvas');
   let done = 0;
-  for (const [k, { ref, o, w, h, n, dct }] of jobs.entries()) {
+  for (const [k, job] of jobs.entries()) {
     onProgress(k + 1, jobs.length);
-    let src;
-    try {
-      if (dct) {
-        src = await createImageBitmap(new Blob([o.contents], { type: 'image/jpeg' }));
-      } else {
-        let raw = decodePDFRawStream(o).decode();
-        const dp = one(o.dict.lookup(N('DecodeParms')));
-        const pred = dp && dp.lookup ? dp.lookup(N('Predictor')) : null;
-        if (pred instanceof PDFNumber && pred.asNumber() >= 10) raw = cmpUnpredict(raw, w * n, n);
-        else if (pred instanceof PDFNumber && pred.asNumber() > 1) continue;
-        if (raw.length < w * h * n) continue;
-        const px = new ImageData(w, h);
-        for (let i = 0, j = 0; i < w * h; i++, j += n) {
-          const p = i * 4;
-          px.data[p] = raw[j]; px.data[p + 1] = raw[n === 3 ? j + 1 : j]; px.data[p + 2] = raw[n === 3 ? j + 2 : j]; px.data[p + 3] = 255;
-        }
-        src = document.createElement('canvas');
-        src.width = w;
-        src.height = h;
-        src.getContext('2d').putImageData(px, 0, 0);
-      }
-    } catch (e) { continue; /* 解不开的图片保持原样 */ }
-    const s = Math.min(1, maxPx / Math.max(src.width, src.height));
-    canvas.width = Math.max(1, Math.round(src.width * s));
-    canvas.height = Math.max(1, Math.round(src.height * s));
-    c2.imageSmoothingQuality = 'high';
-    c2.drawImage(src, 0, 0, canvas.width, canvas.height);
-    if (src.close) src.close(); else src.width = 0;
-    const jpg = new Uint8Array(await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+    const src = await cmpDecode(job);
+    if (!src) continue;
+    const jpg = await cmpEncode(src, canvas, lv);
+    freeSrc(src);
+    const { ref, o } = job;
     if (jpg.length > o.contents.length * 0.9) continue;
     const d = o.dict;
     d.set(N('Filter'), N('DCTDecode'));
@@ -2597,23 +2799,29 @@ async function cmpImages(doc, { maxPx, q }, onProgress) {
   return done;
 }
 
-async function cmpRaster(bytes, { scale, q }, onProgress) {
+async function cmpRasterPage(pdf, i, canvas, { scale, q }) {
+  const page = await pdf.getPage(i);
+  const size = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale });
+  canvas.width = Math.ceil(vp.width);
+  canvas.height = Math.ceil(vp.height);
+  const c2 = canvas.getContext('2d');
+  c2.fillStyle = '#fff';
+  c2.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: c2, viewport: vp }).promise;
+  page.cleanup();
+  return { jpg: await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer(), size };
+}
+
+async function cmpRaster(bytes, lv, onProgress) {
   await need('pdfjs', 'pdflib');
   const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
   const out = await PDFDocument.create();
-  const canvas = document.createElement('canvas'), c2 = canvas.getContext('2d');
+  const canvas = document.createElement('canvas');
   try {
     for (let i = 1; i <= pdf.numPages; i++) {
       onProgress(i, pdf.numPages);
-      const page = await pdf.getPage(i);
-      const size = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale });
-      canvas.width = Math.ceil(vp.width);
-      canvas.height = Math.ceil(vp.height);
-      c2.fillStyle = '#fff';
-      c2.fillRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvasContext: c2, viewport: vp }).promise;
-      page.cleanup();
-      const img = await out.embedJpg(await (await canvasToBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+      const { jpg, size } = await cmpRasterPage(pdf, i, canvas, lv);
+      const img = await out.embedJpg(jpg);
       out.addPage([size.width, size.height]).drawImage(img, { x: 0, y: 0, width: size.width, height: size.height });
     }
   } finally {
@@ -2621,6 +2829,65 @@ async function cmpRaster(bytes, { scale, q }, onProgress) {
     await pdf.destroy();
   }
   return out.save();
+}
+
+/* 选好文件后先估算各档大概能压到多大:图片挑最大的几张真实压一遍再按比例推算,
+ * 没压缩的页面内容直接算出来,扫描件档抽几页渲染后按页数推算 */
+const CMP_SAMPLES = 8;
+let cmpEstSeq = 0;
+async function cmpEstimate(bytes) {
+  await need('pdflib', 'pdfjs');
+  const doc = await PDFDocument.load(bytes, { updateMetadata: false });
+  cmpStreams(doc);
+  // 重新保存时文件结构本身也会变小,真存一次拿到准确的基数
+  const base = (await doc.save()).length;
+  const jobs = cmpImageJobs(doc).sort((a, b) => b.o.contents.length - a.o.contents.length);
+  const total = jobs.reduce((s, j) => s + j.o.contents.length, 0);
+  const levels = ['light', 'medium', 'strong'];
+  const sampleOld = { light: 0, medium: 0, strong: 0 }, sampleNew = { light: 0, medium: 0, strong: 0 };
+  const canvas = document.createElement('canvas');
+  for (const job of jobs.slice(0, CMP_SAMPLES)) {
+    const src = await cmpDecode(job);
+    if (!src) continue;
+    const len = job.o.contents.length;
+    for (const l of levels) {
+      const jpg = await cmpEncode(src, canvas, CMP_LEVELS[l]);
+      sampleOld[l] += len;
+      sampleNew[l] += jpg.length > len * 0.9 ? len : jpg.length;
+    }
+    freeSrc(src);
+  }
+  canvas.width = canvas.height = 0;
+  const est = {};
+  for (const l of levels) est[l] = base - (sampleOld[l] ? total * (1 - sampleNew[l] / sampleOld[l]) : 0);
+  return est;
+}
+// 扫描件档:每页大小差别很大(纯文字页和满图页能差 10 倍),均匀抽最多 30 页
+async function cmpEstimateRaster(bytes) {
+  await need('pdfjs');
+  const pdf = await pdfjsLib.getDocument({ ...PDFJS_OPTS, data: bytes.slice(0) }).promise;
+  const canvas = document.createElement('canvas');
+  try {
+    const n = pdf.numPages, k = Math.min(n, 30);
+    const picks = [...new Set(Array.from({ length: k }, (_, i) => 1 + Math.round(i * (n - 1) / Math.max(1, k - 1))))];
+    let sum = 0;
+    for (const i of picks) sum += (await cmpRasterPage(pdf, i, canvas, CMP_LEVELS.raster)).jpg.byteLength;
+    return sum / picks.length * n + n * 200 + 1000;
+  } finally {
+    canvas.width = canvas.height = 0;
+    await pdf.destroy();
+  }
+}
+function cmpShowEstimate(orig, est) {
+  document.querySelectorAll('#cmpSeg .seg-btn').forEach(b => {
+    let s = b.querySelector('small');
+    if (!s) { s = document.createElement('small'); b.appendChild(s); }
+    const v = est?.[b.dataset.level];
+    if (v == null || v === false) { s.textContent = orig && v == null ? '估算中…' : ''; b.title = ''; return; }
+    const cut = 1 - v / orig;
+    s.textContent = cut < -0.03 ? '会变大' : cut < 0.03 ? '几乎不变' : '约 ' + fmtBytes(v);
+    b.title = cut < -0.03 ? `预计约 ${fmtBytes(v)},比原文件还大,不建议用这一档` : cut < 0.03 ? '这一档基本压不下去' : `预计减小约 ${Math.round(cut * 100)}%`;
+  });
 }
 
 async function doCompress() {
@@ -6883,7 +7150,7 @@ function fzRender(input) {
     sub.textContent = acceptText(input);
   } else {
     main.textContent = fs.length === 1 ? fs[0].name : '已选 ' + fs.length + ' 个文件';
-    sub.innerHTML = '点击重新选择' + (input.multiple ? '<span class="drag-only">,拖进来可继续添加</span>' : '<span class="drag-only">,或拖入新文件替换</span>');
+    sub.innerHTML = input._from ? `来自上一步「${input._from}」的结果<span class="drag-only">,点击可换别的文件</span>` : '点击重新选择' + (input.multiple ? '<span class="drag-only">,拖进来可继续添加</span>' : '<span class="drag-only">,或拖入新文件替换</span>');
   }
   main.title = fs.map(f => f.name).join('\n');
 }
@@ -6901,8 +7168,49 @@ document.querySelectorAll('.panel input[type=file]:not([hidden])').forEach(input
     input.addEventListener('click', () => { input._kept = [...input.files]; });
     input.addEventListener('cancel', () => { input._kept = null; });
   }
-  input.addEventListener('change', () => fzRender(input));
+  input.addEventListener('click', () => { input._from = null; });
+  input._recent = document.createElement('div');
+  input._recent.className = 'fz-recent';
+  input._recent.hidden = true;
+  box.after(input._recent);
+  input.addEventListener('change', () => { fzRender(input); recentRender(input); });
   fzRender(input);
+});
+/* 最近文件:本次打开页面后选过的文件和生成的 PDF 结果,换个工具点一下就能再用(只在内存里,刷新即清空) */
+const recentFiles = [];
+const sameFile = (a, b) => a.name === b.name && a.size === b.size;
+function rememberFile(file, from) {
+  const i = recentFiles.findIndex(r => sameFile(r.file, file));
+  if (i >= 0) recentFiles.splice(i, 1);
+  recentFiles.unshift({ file, from });
+  if (recentFiles.length > 8) recentFiles.length = 8;
+  document.querySelectorAll('.panel input[type=file]').forEach(i => i._recent && recentRender(i));
+}
+function recentRender(input) {
+  const box = input._recent, fs = [...input.files];
+  const cands = input.multiple || !fs.length
+    ? recentFiles.filter(r => fileAccepts(input, r.file) && !fs.some(f => sameFile(f, r.file))).slice(0, 4) : [];
+  box.hidden = !cands.length;
+  box.innerHTML = cands.length ? '<span>最近用过:</span>' : '';
+  cands.forEach(r => {
+    const c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'fz-chip';
+    c.title = r.file.name;
+    c.innerHTML = r.from ? `<b>${r.from}结果</b>` : '';
+    c.append(r.file.name);
+    c.onclick = () => {
+      input._from = r.from || null;
+      if (input.id === 'txtFiles' && gid('txtSrcFile').hidden) document.querySelector('#txtSrcSeg [data-src="file"]').click();
+      setInputFiles(input, input.multiple ? [...input.files, r.file] : [r.file]);
+    };
+    box.appendChild(c);
+  });
+}
+// 用户自己选 / 拖进来的文件记进最近文件(程序内部换文件不算)
+document.addEventListener('change', e => {
+  const input = e.target;
+  if (input.type === 'file' && !input._internal) [...input.files].forEach(f => rememberFile(f, null));
 });
 // 系统选择框会替换掉已选文件,这里把之前的拼回去(捕获阶段,先于各功能自己的处理)
 document.addEventListener('change', e => {
@@ -6919,7 +7227,8 @@ function setInputFiles(input, files) {
   const dt = new DataTransfer();
   files.forEach(f => dt.items.add(f));
   input.files = dt.files;
-  input.dispatchEvent(new Event('change', { bubbles: true }));
+  input._internal = true;
+  try { input.dispatchEvent(new Event('change', { bubbles: true })); } finally { input._internal = false; }
 }
 function fileListRender(input) {
   const list = input._list, fs = [...input.files];
@@ -7002,6 +7311,7 @@ document.addEventListener('drop', e => {
     fs.forEach(f => dt.items.add(f));
     inp.files = dt.files;
     inp._kept = null;
+    inp._from = null;
     if (inp.id === 'txtFiles' && gid('txtSrcFile').hidden) document.querySelector('#txtSrcSeg [data-src="file"]').click();
     inp.dispatchEvent(new Event('change', { bubbles: true }));
   });
