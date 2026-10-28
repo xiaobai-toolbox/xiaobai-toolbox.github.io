@@ -2020,24 +2020,48 @@
 const LIBS = {
   pdflib: { name: 'PDF 编辑库', get: () => window.PDFLib, urls: [
     'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+    'https://registry.npmmirror.com/pdf-lib/1.17.1/files/dist/pdf-lib.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js',
     'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js'] },
   pdfjs: { name: 'PDF 渲染库', get: () => window.pdfjsLib, urls: [
     'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+    'https://registry.npmmirror.com/pdfjs-dist/3.11.174/files/build/pdf.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
     'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js'] },
   jszip: { name: '打包库', get: () => window.JSZip, urls: [
     'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+    'https://registry.npmmirror.com/jszip/3.10.1/files/dist/jszip.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
     'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'] },
   marked: { name: 'Markdown 解析库', get: () => window.marked, urls: [
     'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js',
+    'https://registry.npmmirror.com/marked/12.0.2/files/marked.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js',
     'https://unpkg.com/marked@12.0.2/marked.min.js'] },
 };
 let PDFDocument, PageSizes;
-// 没嵌入字体的中日韩 PDF 要靠 CMap 才能解出文字,否则渲染空白、提取不到字(cdnjs 上的 cmaps 会 403)
-const PDFJS_OPTS = { cMapPacked: true };
+// 没嵌入字体的中日韩 PDF(如电子发票)要靠 CMap 才能解出文字,取不到就整页空白、提取不到字。
+// 单个 CDN 在国内常连不上,所以逐个镜像试,记住第一个通的(cdnjs 上的 cmaps 会 403,不在列表里)
+const PDFJS_ASSETS = ['https://registry.npmmirror.com/pdfjs-dist/3.11.174/files/', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/',
+  'https://unpkg.zhimg.com/pdfjs-dist@3.11.174/', 'https://unpkg.com/pdfjs-dist@3.11.174/'];
+let pdfjsAssetAt = 0;
+async function pdfjsAsset(path) {
+  for (let k = 0; k < PDFJS_ASSETS.length; k++) {
+    const i = (pdfjsAssetAt + k) % PDFJS_ASSETS.length, ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const r = await fetch(PDFJS_ASSETS[i] + path, { signal: ctl.signal });
+      if (!r.ok) continue;
+      const data = new Uint8Array(await r.arrayBuffer());
+      pdfjsAssetAt = i;
+      return data;
+    } catch { /* 换下一个镜像 */ } finally { clearTimeout(t); }
+  }
+  throw new Error(`字体数据加载失败(${path}),请检查网络后重试`);
+}
+const PDFJS_OPTS = {
+  CMapReaderFactory: class { fetch({ name }) { return pdfjsAsset(`cmaps/${name}.bcmap`).then(cMapData => ({ cMapData, compressionType: 1 })); } },
+  StandardFontDataFactory: class { fetch({ filename }) { return pdfjsAsset(`standard_fonts/${filename}`); } },
+};
 const libJobs = {};
 function loadScript(L, src) {
   return new Promise((ok, fail) => {
@@ -2060,10 +2084,9 @@ function initLib(n) {
   if (n === 'pdflib') ({ PDFDocument, PageSizes } = PDFLib);
   if (n === 'pdfjs') {
     const src = LIBS.pdfjs.src || LIBS.pdfjs.urls[0];
-    const base = src.includes('unpkg.com') ? 'https://unpkg.com/pdfjs-dist@3.11.174/' : 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/';
     pdfjsLib.GlobalWorkerOptions.workerSrc = src.replace(/pdf\.min\.js$/, 'pdf.worker.min.js');
-    PDFJS_OPTS.cMapUrl = base + 'cmaps/';
-    PDFJS_OPTS.standardFontDataUrl = base + 'standard_fonts/';
+    const same = PDFJS_ASSETS.findIndex(b => src.startsWith(b.split('/').slice(0, 3).join('/')));
+    if (same >= 0) pdfjsAssetAt = same;
   }
 }
 async function need(...names) {
