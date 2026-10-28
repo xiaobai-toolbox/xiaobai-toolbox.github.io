@@ -5676,7 +5676,7 @@ const MASCOT_HEAD = 'data:image/webp;base64,UklGRiAbAABXRUJQVlA4WAoAAAAQAAAAdwAA
   const stage = gid('mascotStage'), el = gid('mascot'), fig = gid('mascotFig'), bubble = gid('mascotBubble'), peek = gid('mascotPeek');
   const KEY = 'xiaobai-mascot-off', CITY = 'xiaobai-mascot-city', still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // 点小家伙弹出的两个气泡要跳转的地址;留空时点了只会提示「马上开放」
-  const MASCOT_LINKS = { aso: 'https://xiaobai-toolbox.github.io/', game: 'https://xiaobai-kart.github.io/', money: 'https://xiaobai-shouxi.github.io/' };
+  const MASCOT_LINKS = { aso: 'https://xiaobai-aso.github.io/', game: 'https://xiaobai-kart.github.io/', money: 'https://xiaobai-shouxi.github.io/' };
   const pick = a => a[Math.floor(Math.random() * a.length)];
   gid('mascotHead').src = MASCOT_HEAD;
   peek.style.backgroundImage = `url(${MASCOT_HEAD})`;
