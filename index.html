@@ -40,7 +40,7 @@
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; color-scheme: dark; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
     font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", sans-serif;
@@ -330,7 +330,24 @@
   .slider-row label { display: flex; justify-content: space-between; margin: 0 0 4px; }
   .slider-row + .slider-row { margin-top: 12px; }
   .slider-row .val { color: var(--text); font-variant-numeric: tabular-nums; }
-  input[type=range] { width: 100%; margin: 4px 0 0; accent-color: rgb(var(--c)); cursor: pointer; }
+  input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  /* 滑块:各平台原生样式差异大,统一画轨道和圆钮;--p 是已拖过的比例,由脚本同步 */
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 4px 0 0; background: none; cursor: pointer; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]:disabled { opacity: .5; cursor: default; }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px; background: linear-gradient(rgb(var(--c)), rgb(var(--c))) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.12);
+  }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); }
+  input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: rgb(var(--c)); }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border: 0; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 4px rgba(var(--c),.28), 0 2px 6px rgba(0,0,0,.4); transition: box-shadow .15s;
+  }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(var(--c),.28), 0 2px 6px rgba(0,0,0,.4); }
+  input[type=range]:active::-webkit-slider-thumb, input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 7px rgba(var(--c),.32), 0 2px 6px rgba(0,0,0,.4); }
+  input[type=range]:active::-moz-range-thumb, input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 7px rgba(var(--c),.32), 0 2px 6px rgba(0,0,0,.4); }
   button.run.ghost {
     background: transparent; color: rgb(var(--btn-rgb)); border: 1px solid rgba(var(--btn-rgb),.45); box-shadow: none;
   }
@@ -606,6 +623,67 @@
   .shot-ldd-it small { margin-left: auto; font-size: 11px; color: var(--muted-2); }
   .shot-ldd-it.lock { cursor: default; }
   .shot-ldd-it.lock i { opacity: .6; }
+  .xb-sel-mask { position: fixed; inset: 0; z-index: 9998; }
+  .xb-sel {
+    position: fixed; z-index: 9999; max-width: calc(100vw - 20px); padding: 6px; border-radius: 18px; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--glass-bg); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
+    border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); animation: xbSelIn .14s ease-out;
+  }
+  .xb-sel-head { display: none; }
+  .xb-sel-grp { padding: 8px 12px 4px; font-size: 12px; color: var(--muted-2); }
+  .xb-sel-it {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 12px; background: none;
+    color: var(--text); font: inherit; font-size: 14px; text-align: left; white-space: nowrap; cursor: pointer;
+  }
+  .xb-sel-it:hover, .xb-sel-it:focus-visible { background: rgba(255,255,255,.07); outline: none; }
+  .xb-sel-it:disabled { opacity: .4; cursor: default; background: none; }
+  .xb-sel-it span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .xb-sel-it i { width: 18px; height: 18px; flex: none; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.25); display: grid; place-items: center; }
+  .xb-sel-it.on { font-weight: 600; }
+  .xb-sel-it.on i { border-color: rgb(var(--c, 79,140,255)); background: rgb(var(--c, 79,140,255)); }
+  .xb-sel-it.on i::after { content: ""; width: 4px; height: 8px; margin-top: -2px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  @keyframes xbSelIn { from { opacity: 0; transform: translateY(-4px); } }
+  @keyframes xbSelUp { from { transform: translateY(100%); } }
+  @media (max-width: 640px) {
+    .xb-sel-mask { background: rgba(3,7,18,.5); animation: xbFade .2s ease-out; }
+    .xb-sel {
+      left: 0 !important; right: 0; top: auto !important; bottom: 0; max-width: none; min-width: 0 !important; max-height: 72vh !important;
+      border-radius: 30px 30px 0 0; border-bottom: 0; padding: 6px 12px calc(14px + env(safe-area-inset-bottom));
+      animation: xbSelUp .24s cubic-bezier(.2,.8,.2,1);
+    }
+    .xb-sel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 6px 10px 12px; }
+    .xb-sel-head b { font-size: 17px; color: var(--text); }
+    .xb-sel-it { padding: 14px 12px; font-size: 15px; white-space: normal; }
+  }
+  @keyframes xbFade { from { opacity: 0; } }
+  .xb-cp { width: 264px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .xb-cp-sv {
+    position: relative; flex: none; height: 150px; border-radius: 12px; cursor: crosshair; touch-action: none;
+    background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(calc(var(--h, 0) * 1deg) 100% 50%));
+  }
+  .xb-cp-sv i {
+    position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid #fff; pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.45);
+  }
+  input.xb-cp-hue { height: 18px; margin: 0; flex: none; }
+  input.xb-cp-hue::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+  input.xb-cp-hue::-moz-range-track { height: 10px; border-radius: 5px; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+  input.xb-cp-hue::-moz-range-progress { background: transparent; }
+  input.xb-cp-hue::-webkit-slider-thumb { margin-top: -4px; box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.45); }
+  input.xb-cp-hue::-moz-range-thumb { box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.45); }
+  .xb-cp-row { display: flex; align-items: center; gap: 10px; }
+  .xb-cp-now { width: 38px; height: 38px; flex: none; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); }
+  input[type=text].xb-cp-hex { flex: 1; width: auto; min-width: 0; padding: 9px 12px; font-family: ui-monospace, Menlo, Consolas, monospace; text-transform: uppercase; }
+  .xb-cp-sw { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .xb-cp-sw small { grid-column: 1 / -1; margin-top: 2px; font-size: 12px; color: var(--muted-2); }
+  .xb-cp-sw button { aspect-ratio: 1; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); cursor: pointer; transition: transform .12s; }
+  .xb-cp-sw button:hover { transform: scale(1.12); }
+  .xb-cp-sw button.on { box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px rgb(var(--c, 79,140,255)); }
+  @media (max-width: 640px) {
+    .xb-cp { width: auto; padding: 6px 18px calc(18px + env(safe-area-inset-bottom)); gap: 14px; }
+    .xb-cp-sv { height: 180px; }
+    .xb-cp-sw { gap: 10px; }
+  }
   .shot-trstate { margin-top: 14px; padding: 10px 13px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--border-soft); font-size: 12.5px; line-height: 1.75; color: var(--muted); }
   .shot-trstate:empty { display: none; }
   .shot-trstate b { color: #fb923c; font-weight: 600; }
@@ -2102,6 +2180,254 @@ function mHome(on) {
 if (history.state?.m) history.replaceState(null, '');
 document.getElementById('mBack').onclick = () => history.state?.m ? history.back() : mHome(true);
 addEventListener('popstate', () => mHome(!history.state?.m));
+
+/* 原生下拉框在手机上弹的是系统白框,和站内弹窗不统一:点下拉框时改弹玻璃菜单(手机为底部抽屉)。
+   select 本身留在页面上,取值、change 事件和原有逻辑都不变 */
+(() => {
+  let open = null, touch = null, touchAt = 0;
+  function close(refocus = true) {
+    if (!open) return;
+    const { sel, menu, mask } = open;
+    open = null;
+    menu.remove();
+    mask.remove();
+    if (refocus) sel.focus({ preventScroll: true });
+  }
+  function place(sel, menu) {
+    if (mobileQ.matches) return;
+    const r = sel.getBoundingClientRect(), gap = 6, below = innerHeight - r.bottom - gap - 10, above = r.top - gap - 10;
+    menu.style.minWidth = `${r.width}px`;
+    const h = menu.scrollHeight;
+    if (h <= below || below >= above) {
+      menu.style.top = `${r.bottom + gap}px`;
+      menu.style.maxHeight = `${Math.max(below, 120)}px`;
+    } else {
+      menu.style.maxHeight = `${above}px`;
+      menu.style.top = `${r.top - gap - Math.min(h, above)}px`;
+    }
+    menu.style.left = `${clamp(r.left, 10, Math.max(10, innerWidth - 10 - menu.offsetWidth))}px`;
+  }
+  function show(sel) {
+    if (sel.disabled || sel.multiple) return;
+    close(false);
+    const fs = document.fullscreenElement, host = (fs?.contains(sel) && fs) || sel.closest('dialog') || document.body;
+    const mask = document.createElement('div'), menu = document.createElement('div');
+    mask.className = 'xb-sel-mask';
+    menu.className = 'xb-sel';
+    menu.setAttribute('role', 'listbox');
+    const c = getComputedStyle(sel).getPropertyValue('--c').trim();
+    if (c) menu.style.setProperty('--c', c);
+    const lab = sel.previousElementSibling?.tagName === 'LABEL' ? sel.previousElementSibling.textContent : sel.title;
+    menu.innerHTML = '<div class="xb-sel-head"><b></b><button type="button" class="shot-pop-x" aria-label="关闭">×</button></div>';
+    menu.querySelector('b').textContent = lab || '请选择';
+    const add = o => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `xb-sel-it${o.selected ? ' on' : ''}`;
+      b.disabled = o.disabled;
+      b.dataset.i = o.index;
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', o.selected);
+      b.innerHTML = '<span></span><i></i>';
+      b.firstChild.textContent = o.textContent;
+      menu.appendChild(b);
+    };
+    for (const n of sel.children) {
+      if (n.tagName === 'OPTGROUP') {
+        const g = document.createElement('div');
+        g.className = 'xb-sel-grp';
+        g.textContent = n.label;
+        menu.appendChild(g);
+        [...n.children].forEach(add);
+      } else if (!n.hidden) add(n);
+    }
+    host.append(mask, menu);
+    place(sel, menu);
+    open = { sel, menu, mask };
+    const on = menu.querySelector('.on') || menu.querySelector('.xb-sel-it:not(:disabled)');
+    on?.focus({ preventScroll: true });
+    on?.scrollIntoView({ block: 'nearest' });
+  }
+  function pick(i) {
+    const sel = open.sel;
+    close();
+    if (sel.selectedIndex === i) return;
+    sel.selectedIndex = i;
+    sel.dispatchEvent(new Event('input', { bubbles: true }));
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  // 触屏在 touchend 拦截(拦 touchstart 会让从下拉框上起手的页面滚动失效),滑动过就不算点击
+  document.addEventListener('touchstart', e => {
+    const s = e.target.closest?.('select'), p = e.touches[0];
+    touch = s ? { s, x: p.clientX, y: p.clientY } : null;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const t = touch, p = e.changedTouches[0];
+    touch = null;
+    if (!t || Math.hypot(p.clientX - t.x, p.clientY - t.y) > 10) return;
+    e.preventDefault();
+    touchAt = Date.now();
+    show(t.s);
+  }, { passive: false });
+  document.addEventListener('mousedown', e => {
+    const s = e.target.closest?.('select');
+    if (!s || e.button !== 0) return;
+    e.preventDefault();
+    if (Date.now() - touchAt < 800) return;
+    s.focus({ preventScroll: true });
+    open?.sel === s ? close() : show(s);
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest?.('select')) return e.preventDefault();
+    if (!open) return;
+    const it = e.target.closest('.xb-sel-it');
+    if (it && open.menu.contains(it)) pick(+it.dataset.i);
+    else if (e.target.closest('.xb-sel-mask, .xb-sel-head .shot-pop-x')) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (open) {
+      if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); close(); return; }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const its = [...open.menu.querySelectorAll('.xb-sel-it:not(:disabled)')], k = its.indexOf(document.activeElement);
+        its[clamp(k + (e.key === 'ArrowDown' ? 1 : -1), 0, its.length - 1)]?.focus();
+      }
+      return;
+    }
+    const s = e.target.closest?.('select');
+    if (s && (e.key === 'Enter' || e.key === ' ' || e.key === 'F4' || (e.altKey && /^Arrow(Up|Down)$/.test(e.key)))) { e.preventDefault(); show(s); }
+  }, true);
+  addEventListener('scroll', e => { if (open && !mobileQ.matches && !open.menu.contains(e.target)) close(false); }, true);
+  addEventListener('resize', () => { if (open && !mobileQ.matches) close(false); });
+  addEventListener('popstate', () => close(false));
+})();
+
+/* 滑块已拖过的部分着色:用户拖动走 input 事件,代码里改 value 走 setter */
+function rangeFill(el) {
+  const min = el.min === '' ? 0 : +el.min, max = el.max === '' ? 100 : +el.max;
+  el.style.setProperty('--p', `${max > min ? Math.min(Math.max((el.value - min) / (max - min), 0), 1) * 100 : 0}%`);
+}
+{
+  const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+  Object.defineProperty(HTMLInputElement.prototype, 'value', { ...d, set(v) { d.set.call(this, v); if (this.type === 'range') rangeFill(this); } });
+  document.addEventListener('input', e => { if (e.target.type === 'range') rangeFill(e.target); }, true);
+  document.querySelectorAll('input[type=range]').forEach(rangeFill);
+}
+
+/* 原生取色器在手机上也是系统白框:点色块改弹站内取色面板,拖动时实时写回 input 并触发 input 事件,关闭时补发 change */
+(() => {
+  const PRESET = ['#ffffff', '#000000', '#94a3b8', '#475569', '#ef4444', '#f97316', '#f59e0b', '#facc15',
+    '#22c55e', '#10b981', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'];
+  const RKEY = 'xiaobai-recent-colors';
+  let cur = null;
+  const recent = () => { try { return JSON.parse(localStorage.getItem(RKEY) || '[]'); } catch { return []; } };
+  const norm = t => {
+    t = String(t).trim().toLowerCase().replace(/^#?/, '#');
+    if (/^#[0-9a-f]{3}$/.test(t)) t = '#' + [...t.slice(1)].map(c => c + c).join('');
+    return /^#[0-9a-f]{6}$/.test(t) ? t : null;
+  };
+  const hex2hsv = hex => {
+    const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+    let h = 0;
+    if (d) h = (mx === r ? (g - b) / d + 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4) % 6 * 60;
+    return { h, s: mx ? d / mx : 0, v: mx };
+  };
+  const hsv2hex = ({ h, s, v }) => '#' + [5, 3, 1].map(k => {
+    const x = (k + h / 60) % 6;
+    return Math.round((v - v * s * Math.max(0, Math.min(x, 4 - x, 1))) * 255).toString(16).padStart(2, '0');
+  }).join('');
+
+  function close() {
+    if (!cur) return;
+    const { inp, box, mask, start } = cur;
+    cur = null;
+    box.remove();
+    mask.remove();
+    if (inp.value !== start) {
+      inp.dispatchEvent(new Event('change', { bubbles: true }));
+      try { localStorage.setItem(RKEY, JSON.stringify([inp.value, ...recent().filter(c => c !== inp.value)].slice(0, 8))); } catch { /* 隐私模式 */ }
+    }
+  }
+  function apply(hex, from) {
+    const { inp, sv, dot, hue, hexIn, now, box } = cur;
+    if (from !== 'sv' && from !== 'hue') cur.hsv = hex2hsv(hex);
+    sv.style.setProperty('--h', cur.hsv.h);
+    dot.style.left = `${cur.hsv.s * 100}%`;
+    dot.style.top = `${(1 - cur.hsv.v) * 100}%`;
+    dot.style.background = now.style.background = hex;
+    if (from !== 'hue') hue.value = cur.hsv.h;
+    if (from !== 'hex') hexIn.value = hex;
+    box.querySelectorAll('.xb-cp-sw button').forEach(b => b.classList.toggle('on', b.dataset.c === hex));
+    if (inp.value !== hex) {
+      inp.value = hex;
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+  function show(inp) {
+    close();
+    const fs = document.fullscreenElement, host = (fs?.contains(inp) && fs) || inp.closest('dialog') || document.body;
+    const mask = document.createElement('div'), box = document.createElement('div');
+    mask.className = 'xb-sel-mask xb-cp-mask';
+    box.className = 'xb-sel xb-cp';
+    box.setAttribute('role', 'dialog');
+    const c = getComputedStyle(inp).getPropertyValue('--c').trim();
+    if (c) box.style.setProperty('--c', c);
+    const sw = list => list.map(h => `<button type="button" data-c="${h}" style="background:${h}" title="${h.toUpperCase()}"></button>`).join('');
+    const rec = recent();
+    box.innerHTML = `<div class="xb-sel-head"><b></b><button type="button" class="shot-pop-x" aria-label="关闭">×</button></div>
+      <div class="xb-cp-sv"><i></i></div><input type="range" class="xb-cp-hue" min="0" max="360" step="1" aria-label="色相">
+      <div class="xb-cp-row"><span class="xb-cp-now"></span><input type="text" class="xb-cp-hex" maxlength="7" spellcheck="false" autocomplete="off" aria-label="色值"></div>
+      <div class="xb-cp-sw">${sw(PRESET)}${rec.length ? `<small>最近使用</small>${sw(rec)}` : ''}</div>`;
+    const lab = inp.previousElementSibling?.tagName === 'LABEL' ? inp.previousElementSibling.textContent : '';
+    box.querySelector('b').textContent = inp.title || lab || '选择颜色';
+    host.append(mask, box);
+    const sv = box.querySelector('.xb-cp-sv');
+    cur = { inp, box, mask, start: inp.value, sv, dot: sv.firstChild, hue: box.querySelector('.xb-cp-hue'),
+      hexIn: box.querySelector('.xb-cp-hex'), now: box.querySelector('.xb-cp-now'), hsv: null };
+    apply(norm(inp.value) || '#000000');
+    const move = e => {
+      const r = sv.getBoundingClientRect();
+      cur.hsv.s = clamp((e.clientX - r.left) / r.width, 0, 1);
+      cur.hsv.v = clamp(1 - (e.clientY - r.top) / r.height, 0, 1);
+      apply(hsv2hex(cur.hsv), 'sv');
+    };
+    sv.addEventListener('pointerdown', e => { sv.setPointerCapture(e.pointerId); move(e); });
+    sv.addEventListener('pointermove', e => { if (sv.hasPointerCapture(e.pointerId)) move(e); });
+    // 面板内部的 input 事件不往外冒,免得被页面上委托监听 input 的逻辑误当成编辑操作
+    box.addEventListener('input', e => {
+      e.stopPropagation();
+      if (e.target === cur.hue) { cur.hsv.h = +cur.hue.value; apply(hsv2hex(cur.hsv), 'hue'); }
+      else if (e.target === cur.hexIn) { const h = norm(cur.hexIn.value); if (h) apply(h, 'hex'); }
+    });
+    cur.hexIn.addEventListener('blur', () => { if (cur) cur.hexIn.value = inp.value; });
+    if (!mobileQ.matches) {
+      const r = inp.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
+      box.style.left = `${clamp(r.left, 10, innerWidth - 10 - w)}px`;
+      box.style.top = `${r.bottom + 6 + h <= innerHeight - 10 ? r.bottom + 6 : Math.max(10, r.top - 6 - h)}px`;
+    }
+  }
+  document.addEventListener('click', e => {
+    const inp = e.target.closest?.('input[type=color]');
+    if (inp) {
+      e.preventDefault();
+      if (!inp.disabled) cur?.inp === inp ? close() : show(inp);
+      return;
+    }
+    if (!cur) return;
+    const b = e.target.closest('.xb-cp-sw button');
+    if (b && cur.box.contains(b)) apply(b.dataset.c);
+    else if (e.target.closest('.xb-cp-mask, .xb-cp .shot-pop-x')) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (!cur) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+    else if (e.key === 'Enter' && e.target === cur.hexIn) close();
+  }, true);
+  addEventListener('scroll', e => { if (cur && !mobileQ.matches && !cur.box.contains(e.target)) close(); }, true);
+  addEventListener('resize', () => { if (cur && !mobileQ.matches) close(); });
+  addEventListener('popstate', close);
+})();
 
 // 网页:列表(侧边栏)/ 宫格(首页 + 二级页面)两种视图,记住选择
 const homeMode = () => mobileQ.matches || document.body.classList.contains('g-mode');
